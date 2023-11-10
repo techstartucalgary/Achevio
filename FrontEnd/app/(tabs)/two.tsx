@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { Link } from "expo-router";
 
 type RootStackParamList = {
   Signup: undefined;
@@ -62,9 +63,9 @@ export default function SignupScreen({ navigation }: Props) {
         <Text style={styles.signupText}>Signup</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+      <Link href="/" style={styles.linkStyle}>
         <Text style={styles.loginText}>Go to Login</Text>
-      </TouchableOpacity>
+      </Link>
 
       <StatusBar backgroundColor="#000000" barStyle="light-content" />
     </View>

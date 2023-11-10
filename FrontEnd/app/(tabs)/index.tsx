@@ -6,8 +6,10 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
+  Pressable, // Add Pressable
 } from "react-native";
 import { Text, View } from "../../components/Themed";
+import { Link } from "expo-router"; // Import Link from expo-router
 
 import { StackNavigationProp } from "@react-navigation/stack";
 
@@ -61,9 +63,12 @@ export default function LoginScreen({ navigation }: Props) {
         >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
-          <Text style={styles.navText}>Go to Signup</Text>
-        </TouchableOpacity>
+        <Link href="/two" asChild>
+          <Pressable>
+            <Text style={styles.navText}>Go to Signup</Text>
+          </Pressable>
+        </Link>
+
         <StatusBar backgroundColor="#000000" barStyle="light-content" />
       </View>
     </TouchableWithoutFeedback>

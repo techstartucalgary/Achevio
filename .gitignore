@@ -1,3 +1,5 @@
+.DS_Store
+*.pyc
 git rm node_modules -r --cached
 ./Backend/.env
 venv

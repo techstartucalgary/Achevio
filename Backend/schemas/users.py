@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional
 from collections.abc import AsyncGenerator
 from dotenv import load_dotenv
@@ -22,6 +24,7 @@ from uuid_extensions import uuid7, uuid7str
 
 from litestar.dto import DataclassDTO, DTOConfig
 
+from litestar.contrib.pydantic import PydanticDTO
 from pydantic import BaseModel as _BaseModel
 
 
@@ -32,25 +35,56 @@ class Schema(_BaseModel):
 
 
 
-class UserBase(Schema):
+class UserSchema(Schema):
     id: UUID
-    
     first_name: str
     last_name: str
     email: str
     password: str
-    
 
-class CommunityBase(Schema):
+    communities: list[CommunitySchema] = []
+
+    
+class CommunitySchema(Schema):
     id: UUID
 
     name: str
     description: str
-    
 
-class UserSchema(UserBase):
-    users: list[UserBase]
+    users: list[UserSchema] = []
 
 
-class CommunitySchema(CommunityBase):
-    communities: list[CommunityBase]
+
+
+
+class UserDTO(PydanticDTO[UserSchema]):
+    pass
+
+
+class CreateUserDTO(PydanticDTO[UserSchema]):
+    config = DTOConfig(exclude={'id', 'communities'})
+
+
+class UserOutDTO(PydanticDTO[UserSchema]):
+    pass
+
+
+
+
+
+
+
+
+class CommunityDTO(PydanticDTO[CommunitySchema]):
+    pass
+
+
+class CreateCommunityDTO(PydanticDTO[CommunitySchema]):
+    config = DTOConfig(exclude={'id', 'users'})
+
+
+
+class CommunityOutDTO(PydanticDTO[CommunitySchema]):
+    pass
+
+

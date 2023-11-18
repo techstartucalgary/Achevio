@@ -18,7 +18,7 @@ from litestar.status_codes import HTTP_409_CONFLICT
 from uuid import UUID
 from uuid_extensions import uuid7, uuid7str
 
-from models.users import Base, User
+from models.users import Base
 
 
 from controllers.users import UserController
@@ -50,10 +50,11 @@ async def on_startup() -> None:
     """Initializes the database."""
     async with db_config.get_engine().begin() as conn:
         # Drop and recreate tables (remove this line if persistence is needed)
-        await conn.run_sync(UUIDAuditBase.metadata.drop_all)
-        await conn.run_sync(UUIDAuditBase.metadata.create_all)
-        await conn.run_sync(Base.metadata.drop_all)
+
+        # await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
+        # await conn.run_sync(UUIDBase.metadata.drop_all)
+        await conn.run_sync(UUIDBase.metadata.create_all)
 
 # Database configuration using environment variables
 db_config = SQLAlchemyAsyncConfig(

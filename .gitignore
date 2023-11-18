@@ -3,4 +3,4 @@
 git rm node_modules -r --cached
 ./Backend/.env
 venv
-FrontEnd
+FrontEnd/

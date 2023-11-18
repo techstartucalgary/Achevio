@@ -2,6 +2,7 @@ from typing import Optional
 from collections.abc import AsyncGenerator
 from dotenv import load_dotenv
 import os
+from pydantic_core import CoreConfig
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
@@ -60,10 +61,13 @@ async def on_startup() -> None:
 db_config = SQLAlchemyAsyncConfig(
     connection_string=f"postgresql+psycopg://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@localhost:5432/{os.getenv('POSTGRES_DB')}")
 
+cors_config = CoreConfig(allow_origins=["*"]) # NOTE: Change it for production
+
 # Create the Litestar application instance
 app = Litestar(
     [UserController],  # List of endpoint functions
     dependencies={"session": provide_transaction},  # Dependency to inject session into endpoints
     plugins=[SQLAlchemyPlugin(db_config)],  # Plugin for SQLAlchemy support
     on_startup=[on_startup],  # Startup event handler
+    cors_config=cors_config,
 )

@@ -21,7 +21,8 @@ from uuid_extensions import uuid7, uuid7str
 from models.users import Base
 
 
-from controllers.users import UserController
+from controllers.users import UserController, oauth2_auth
+
 
 
 
@@ -51,9 +52,9 @@ async def on_startup() -> None:
     async with db_config.get_engine().begin() as conn:
         # Drop and recreate tables (remove this line if persistence is needed)
 
-        # await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
-        # await conn.run_sync(UUIDBase.metadata.drop_all)
+        await conn.run_sync(UUIDBase.metadata.drop_all)
         await conn.run_sync(UUIDBase.metadata.create_all)
 
 # Database configuration using environment variables
@@ -66,4 +67,5 @@ app = Litestar(
     dependencies={"session": provide_transaction},  # Dependency to inject session into endpoints
     plugins=[SQLAlchemyPlugin(db_config)],  # Plugin for SQLAlchemy support
     on_startup=[on_startup],  # Startup event handler
+    on_app_init=[oauth2_auth.on_app_init]
 )

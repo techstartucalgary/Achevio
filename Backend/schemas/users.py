@@ -66,8 +66,9 @@ class CreateUserDTO(PydanticDTO[UserSchema]):
 
 
 class UserOutDTO(PydanticDTO[UserSchema]):
-    pass
-
+    config = DTOConfig(
+        max_nested_depth=2,
+    )
 
 
 

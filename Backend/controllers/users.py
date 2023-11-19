@@ -1,10 +1,10 @@
 from os import environ
-from typing import Optional
+from typing import Optional, Any
 
 from sqlalchemy import select, orm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from litestar import Response, get, post, put
+from litestar import Response, Request, get, post, put
 from litestar import Controller
 
 from uuid_extensions import uuid7, uuid7str
@@ -13,26 +13,46 @@ from uuid_extensions import uuid7, uuid7str
 from models.users import User
 from litestar.dto import DTOData
 
-from schemas.users import UserSchema, CreateUserDTO, UserOutDTO
+from litestar.exceptions import HTTPException
+
+# from schemas.users import UserSchema, CreateUserDTO, UserOutDTO, UserLoginDTO
+from schemas.users import *
 
 
 from litestar.connection import ASGIConnection
 from litestar.contrib.jwt import OAuth2Login, OAuth2PasswordBearerAuth, Token
 from litestar.openapi.config import OpenAPIConfig
 
-MOCK_DB: dict[str, User] = {}
+
+# Test data (replace with Redis)
+MOCK_DB: dict[str, User] = {
+    "string": User(
+        id=uuid7(),
+        username="string",
+        first_name="string",
+        last_name="string",
+        email="string",
+        password="string",
+        communities=[],
+    ),
+    "Wilbur": User(
+        id=uuid7(),
+        username="string",
+        first_name="Wilbur",
+        last_name="string",
+        email="string",
+        password="string",
+        communities=[],
+    )}
 
 async def retrieve_user_handler(token: "Token", connection: "ASGIConnection[Any, Any, Any, Any]") -> Optional[User]:
-    # logic here to retrieve the user instance
     return MOCK_DB.get(token.sub)
 
 oauth2_auth = OAuth2PasswordBearerAuth[User](
     retrieve_user_handler=retrieve_user_handler,
     token_secret=environ.get("JWT_SECRET", "abcd123"),
-    # we are specifying the URL for retrieving a JWT access token
     token_url="/login",
-    # we are specifying which endpoints should be excluded from authentication. In this case the login endpoint
-    # and our openAPI docs.
+
     exclude=["/login", "/schema"],
 )
 
@@ -47,35 +67,34 @@ async def get_user_list(session: AsyncSession, limit: int = 100, offset: int = 0
 
 
 class UserController(Controller):
-    path = '/users'
+    path = '/user'
+    return_dto=UserOutDTO
 
-    @get('/', return_dto=UserOutDTO)
-    async def get_users(self, session: AsyncSession, limit: int = 100, offset: int = 0) -> list[UserSchema]:
+    @get('/')
+    async def get_users(self, request: "Request[User, Token, Any]", session: AsyncSession, limit: int = 100, offset: int = 0) -> list[UserSchema]:
         return await get_user_list(session, limit, offset)
 
-    @post('/', dto=CreateUserDTO, return_dto=UserOutDTO)
+    @post('/', dto=CreateUserDTO, exclude_from_auth=True)
     async def create_user(self, session: AsyncSession, data: DTOData[UserSchema]) -> UserSchema:
         user_data = data.create_instance(id=uuid7(), communities=[])
         validated_user_data = UserSchema.model_validate(user_data)
-        session.add(User(**validated_user_data.__dict__))
-        return UserSchema.model_validate(validated_user_data)
+        try:
+            session.add(User(**validated_user_data.__dict__))
+            return UserSchema.model_validate(validated_user_data)   
+        except IntegrityError:
+            raise HTTPException(status_code=409, detail="User with that email exists")
 
 
-        # Given an instance of 'OAuth2PasswordBearerAuth' we can create a login handler function:
-    @post("/login")
-    async def login_handler(request: "Request[Any, Any, Any]", data: "User") -> "Response[OAuth2Login]":
-        MOCK_DB[str(data.id)] = data
-        # if we do not define a response body, the login process will return a standard OAuth2 login response.  Note the `Response[OAuth2Login]` return type.
+@post("/login", dto=UserLoginDTO)
+async def login_handler(request: "Request[Any, Any, Any]", data: "DTOData[UserLoginSchema]") -> "Response[OAuth2Login]":
+    data = data.create_instance()
+    try:
+        if MOCK_DB[str(data.email)].password == data.password:
+            return oauth2_auth.login(identifier=str(data.email))
+    except KeyError:
+        raise HTTPException(status_code=401, detail="Incorrect email or password")
 
-        # you can do whatever you want to update the response instance here
-        # e.g. response.set_cookie(...)
-        return oauth2_auth.login(identifier=str(data.id))
-
-
-    @post("/login_custom")
-    async def login_custom_response_handler(data: "User") -> "Response[User]":
-        MOCK_DB[str(data.id)] = data
-
-        # you can do whatever you want to update the response instance here
-        # e.g. response.set_cookie(...)
-        return oauth2_auth.login(identifier=str(data.id), response_body=data)
+@get("/some-path", sync_to_thread=False)
+def some_route_handler(request: "Request[User, Token, Any]") -> Any:
+    assert isinstance(request.user, User)
+    assert isinstance(request.auth, Token)

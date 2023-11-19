@@ -39,6 +39,6 @@ SQLAlchemy==2.0.22
 typing_extensions==4.8.0
 uuid7==0.1.0
 uvicorn==0.23.2
-uvloop==0.18.0
+# uvloop==0.18.0
 watchfiles==0.21.0
 websockets==11.0.3

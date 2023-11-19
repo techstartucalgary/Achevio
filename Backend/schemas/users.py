@@ -37,6 +37,7 @@ class Schema(_BaseModel):
 
 class UserSchema(Schema):
     id: UUID
+    username: str
     first_name: str
     last_name: str
     email: str
@@ -56,9 +57,12 @@ class CommunitySchema(Schema):
 
 
 
-
 class UserDTO(PydanticDTO[UserSchema]):
     pass
+
+
+class UserLoginDTO(UserDTO):
+    config = DTOConfig(include={'email', 'password'})
 
 
 class CreateUserDTO(PydanticDTO[UserSchema]):
@@ -73,6 +77,13 @@ class UserOutDTO(PydanticDTO[UserSchema]):
 
 
 
+class UserLoginSchema(Schema):
+    email: str
+    password: str
+
+
+class UserLoginDTO(PydanticDTO[UserLoginSchema]):
+    config = DTOConfig()
 
 
 

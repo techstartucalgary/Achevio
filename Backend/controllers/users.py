@@ -36,7 +36,7 @@ from crud.users import get_user_list
 class UserController(Controller):
     path = '/users'
 
-    @get('/')
+    @get('/', return_dto=UserOutDTO)
     async def get_users(self, session: AsyncSession, limit: int = 100, offset: int = 0) -> list[UserSchema]:
         return await get_user_list(session, limit, offset)
 

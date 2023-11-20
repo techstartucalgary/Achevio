@@ -17,7 +17,7 @@ from schemas.users import UserSchema
 
 
 # Function to get a list of todo items, possibly filtered by their done status
-async def get_user_list(session: AsyncSession, limit: int = 100, offset: int = 0) -> list[User]:
+async def get_user_list(session: AsyncSession, limit: int = 100, offset: int = 0) -> list[UserSchema]:
     query = select(User).options(orm.selectinload(User.communities)).limit(limit).offset(offset)
     result = await session.execute(query)
     return [UserSchema.model_validate(user) for user in result.scalars().all()]

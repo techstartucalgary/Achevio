@@ -53,9 +53,9 @@ async def on_startup() -> None:
     async with db_config.get_engine().begin() as conn:
         # Drop and recreate tables (remove this line if persistence is needed)
 
-        await conn.run_sync(Base.metadata.drop_all)
+        # await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
-        await conn.run_sync(UUIDBase.metadata.drop_all)
+        # await conn.run_sync(UUIDBase.metadata.drop_all)
         await conn.run_sync(UUIDBase.metadata.create_all)
 
 # Database configuration using environment variables
@@ -77,5 +77,6 @@ app = Litestar(
     plugins=[SQLAlchemyPlugin(db_config)],  # Plugin for SQLAlchemy support
     openapi_config=openapi_config,
     on_startup=[on_startup],  # Startup event handler
-    on_app_init=[oauth2_auth.on_app_init]
+    on_app_init=[oauth2_auth.on_app_init],
+    stores={"memory": MemoryStore()}
 )

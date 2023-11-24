@@ -62,7 +62,7 @@ class UserDTO(PydanticDTO[UserSchema]):
 
 
 class UserLoginDTO(UserDTO):
-    config = DTOConfig(include={'email', 'password'})
+    config = DTOConfig(include={'username', 'password'})
 
 
 class CreateUserDTO(PydanticDTO[UserSchema]):
@@ -78,7 +78,7 @@ class UserOutDTO(PydanticDTO[UserSchema]):
 
 
 class UserLoginSchema(Schema):
-    email: str
+    username: str
     password: str
 
 

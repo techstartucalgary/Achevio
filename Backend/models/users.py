@@ -45,10 +45,10 @@ user_community_association_table = Table(
 class User(Base):
     __tablename__ = 'user_table'
     id: Mapped[UUID] = mapped_column(primary_key=True)
-    username : Mapped[str] = mapped_column(String(100))
+    username : Mapped[str] = mapped_column(String(100), unique=True)
     first_name: Mapped[str] = mapped_column(String(100))
     last_name: Mapped[str] = mapped_column(String(100))
-    email: Mapped[str] = mapped_column(String(100), unique=True)
+    email: Mapped[str] = mapped_column(String(100))
     password: Mapped[str] = mapped_column(String(60))
     communities: Mapped[list[Community]] = relationship("Community", secondary=user_community_association_table, back_populates='users')
 

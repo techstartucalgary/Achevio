@@ -17,36 +17,20 @@ from litestar.exceptions import HTTPException
 
 # from schemas.users import UserSchema, CreateUserDTO, UserOutDTO, UserLoginDTO
 from schemas.users import *
-
+from crud.users import *
 
 from litestar.connection import ASGIConnection
 from litestar.contrib.jwt import OAuth2Login, OAuth2PasswordBearerAuth, Token
 from litestar.openapi.config import OpenAPIConfig
 
+from litestar.stores.memory import MemoryStore
 
-# Test data (replace with Redis)
-MOCK_DB: dict[str, User] = {
-    "string": User(
-        id=uuid7(),
-        username="string",
-        first_name="string",
-        last_name="string",
-        email="string",
-        password="string",
-        communities=[],
-    ),
-    "Wilbur": User(
-        id=uuid7(),
-        username="string",
-        first_name="Wilbur",
-        last_name="string",
-        email="string",
-        password="string",
-        communities=[],
-    )}
 
-async def retrieve_user_handler(token: "Token", connection: "ASGIConnection[Any, Any, Any, Any]") -> Optional[User]:
-    return MOCK_DB.get(token.sub)
+
+store = MemoryStore()
+
+async def retrieve_user_handler(token: "Token", session: AsyncSession) -> Optional[User]:
+    return await store.get(token.sub)
 
 oauth2_auth = OAuth2PasswordBearerAuth[User](
     retrieve_user_handler=retrieve_user_handler,
@@ -58,14 +42,6 @@ oauth2_auth = OAuth2PasswordBearerAuth[User](
 
 
 
-async def get_user_list(session: AsyncSession, limit: int = 100, offset: int = 0) -> list[UserSchema]:
-    query = select(User).options(orm.selectinload(User.communities)).limit(limit).offset(offset)
-    result = await session.execute(query)
-    return [UserSchema.model_validate(user) for user in result.scalars().all()]
-
-
-
-
 class UserController(Controller):
     path = '/user'
     return_dto=UserOutDTO
@@ -73,6 +49,12 @@ class UserController(Controller):
     @get('/')
     async def get_users(self, request: "Request[User, Token, Any]", session: AsyncSession, limit: int = 100, offset: int = 0) -> list[UserSchema]:
         return await get_user_list(session, limit, offset)
+    
+
+    @get('/me')
+    async def get_me(self, request: "Request[User, Token, Any]", session: AsyncSession) -> UserSchema:
+        return UserSchema.model_validate(request.user)
+    
 
     @post('/', dto=CreateUserDTO, exclude_from_auth=True)
     async def create_user(self, session: AsyncSession, data: DTOData[UserSchema]) -> UserSchema:
@@ -82,19 +64,20 @@ class UserController(Controller):
             session.add(User(**validated_user_data.__dict__))
             return UserSchema.model_validate(validated_user_data)   
         except IntegrityError:
-            raise HTTPException(status_code=409, detail="User with that email exists")
+            raise HTTPException(status_code=409, detail="User with that username exists")
 
 
 @post("/login", dto=UserLoginDTO)
-async def login_handler(request: "Request[Any, Any, Any]", data: "DTOData[UserLoginSchema]") -> "Response[OAuth2Login]":
+async def login_handler(request: "Request[Any, Any, Any]", data: "DTOData[UserLoginSchema]", session: AsyncSession) -> "Response[OAuth2Login]":
     data = data.create_instance()
     try:
-        if MOCK_DB[str(data.email)].password == data.password:
-            return oauth2_auth.login(identifier=str(data.email))
+        user = await get_user(session, data.username)
+        if user.password == data.password:
+            await store.set(user.username, user, expires_in=84000)
+            return oauth2_auth.login(identifier=str(user.username))
+        # if MOCK_DB[str(data.email)].password == data.password:
+        #     return oauth2_auth.login(identifier=str(data.email))
     except KeyError:
         raise HTTPException(status_code=401, detail="Incorrect email or password")
+    raise HTTPException(status_code=401, detail="Incorrect email or password")
 
-@get("/some-path", sync_to_thread=False)
-def some_route_handler(request: "Request[User, Token, Any]") -> Any:
-    assert isinstance(request.user, User)
-    assert isinstance(request.auth, Token)

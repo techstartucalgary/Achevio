@@ -15,6 +15,7 @@ from litestar.contrib.sqlalchemy.plugins import SQLAlchemyAsyncConfig
 from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
 from litestar.exceptions import ClientException, NotFoundException
 from litestar.status_codes import HTTP_409_CONFLICT
+from litestar.openapi.config import OpenAPIConfig
 
 from uuid import UUID
 from uuid_extensions import uuid7, uuid7str
@@ -22,7 +23,8 @@ from uuid_extensions import uuid7, uuid7str
 from models.users import Base
 
 
-from controllers.users import UserController
+from controllers.users import *
+
 
 
 
@@ -61,13 +63,22 @@ async def on_startup() -> None:
 db_config = SQLAlchemyAsyncConfig(
     connection_string=f"postgresql+psycopg://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@localhost:5432/{os.getenv('POSTGRES_DB')}")
 
+
+openapi_config = OpenAPIConfig(
+    title="Achevio API",
+    version="0.1.1.0",
+)
+
+
 cors_config = CORSConfig(allow_origins=["*"]) # NOTE: Change it for production
 
 # Create the Litestar application instance
 app = Litestar(
-    [UserController],  # List of endpoint functions
+    [UserController, login_handler],  # List of endpoint functions
     dependencies={"session": provide_transaction},  # Dependency to inject session into endpoints
     plugins=[SQLAlchemyPlugin(db_config)],  # Plugin for SQLAlchemy support
+    openapi_config=openapi_config,
     on_startup=[on_startup],  # Startup event handler
+    on_app_init=[oauth2_auth.on_app_init],
     cors_config=cors_config,
 )

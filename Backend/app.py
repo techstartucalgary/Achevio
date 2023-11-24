@@ -2,6 +2,7 @@ from typing import Optional
 from collections.abc import AsyncGenerator
 from dotenv import load_dotenv
 import os
+from litestar.config.cors import CORSConfig
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, NoResultFound
@@ -62,6 +63,7 @@ async def on_startup() -> None:
 db_config = SQLAlchemyAsyncConfig(
     connection_string=f"postgresql+psycopg://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@localhost:5432/{os.getenv('POSTGRES_DB')}")
 
+<<<<<<< HEAD
 
 openapi_config = OpenAPIConfig(
     title="Achevio API",
@@ -69,6 +71,9 @@ openapi_config = OpenAPIConfig(
 )
 
 
+=======
+cors_config = CORSConfig(allow_origins=["*"]) # NOTE: Change it for production
+>>>>>>> 2e394d615f82901125255e4fa0a3037c784a91ac
 
 # Create the Litestar application instance
 app = Litestar(
@@ -77,6 +82,10 @@ app = Litestar(
     plugins=[SQLAlchemyPlugin(db_config)],  # Plugin for SQLAlchemy support
     openapi_config=openapi_config,
     on_startup=[on_startup],  # Startup event handler
+<<<<<<< HEAD
     on_app_init=[oauth2_auth.on_app_init],
     stores={"memory": MemoryStore()}
+=======
+    cors_config=cors_config,
+>>>>>>> 2e394d615f82901125255e4fa0a3037c784a91ac
 )

@@ -40,6 +40,13 @@ user_community_association_table = Table(
     Column('user_id', ForeignKey('user_table.id'), primary_key=True),
     Column('community_id', ForeignKey('community_table.id'), primary_key=True),
 )
+# Add association tables for user->post, and user->community
+user_post_association_table = Table(
+    'user_post_association_table',
+    Base.metadata,
+    Column('user_id', ForeignKey('user_table.id'), primary_key=True),
+    Column('postId', ForeignKey('post_table.id'), primary_key=True),
+)
 
 
 class User(Base):

@@ -72,7 +72,7 @@ openapi_config = OpenAPIConfig(
 
 # Create the Litestar application instance
 app = Litestar(
-    [UserController, login_handler, some_route_handler],  # List of endpoint functions
+    [UserController, login_handler],  # List of endpoint functions
     dependencies={"session": provide_transaction},  # Dependency to inject session into endpoints
     plugins=[SQLAlchemyPlugin(db_config)],  # Plugin for SQLAlchemy support
     openapi_config=openapi_config,

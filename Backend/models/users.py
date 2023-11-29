@@ -25,6 +25,8 @@ from uuid import UUID
 
 from uuid_extensions import uuid7, uuid7str
 
+from tags import tag_community_association_table
+
 
 
 
@@ -59,4 +61,4 @@ class Community(Base):
 
     id: Mapped[UUID] = mapped_column(primary_key=True)
     users: Mapped[list[User]] = relationship("User", secondary=user_community_association_table, back_populates='communities')
-
+    tags: Mapped[list['Tag']] = relationship("Tag", secondary=tag_community_association_table, back_populates='communities')

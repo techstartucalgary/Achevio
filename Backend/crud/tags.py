@@ -1,7 +1,7 @@
 from sqlalchemy import select, orm
 from sqlalchemy.ext.asyncio import AsyncSession
 from litestar.exceptions import HTTPException
-
+from uuid import UUID
 from models.tags import Tag
 from schemas.tags import TagSchema
 

@@ -1,8 +1,9 @@
 from sqlalchemy import Table, Column, ForeignKey, String
 from sqlalchemy.orm import relationship, Mapped, mapped_column, DeclarativeBase
-from sqlalchemy.dialects.postgresql import UUID
+
 from uuid_extensions import uuid7, uuid7str
 
+from uuid import UUID
 
 class Base(DeclarativeBase):
     pass
@@ -10,8 +11,8 @@ class Base(DeclarativeBase):
 tag_community_association_table = Table(
     'tag_community_association_table',
     Base.metadata,
-    Column('tag_id', UUID(as_uuid=True), ForeignKey('tag_table.id'), primary_key=True),
-    Column('community_id', UUID(as_uuid=True), ForeignKey('community_table.id'), primary_key=True),
+    Column('tag_id', ForeignKey('tag_table.id'), primary_key=True),
+    Column('community_id', ForeignKey('community_table.id'), primary_key=True),
 )
 
 class Tag(Base):

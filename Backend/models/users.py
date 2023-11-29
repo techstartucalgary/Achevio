@@ -25,7 +25,7 @@ from uuid import UUID
 
 from uuid_extensions import uuid7, uuid7str
 
-from tags import tag_community_association_table
+from models.tags import tag_community_association_table
 
 
 

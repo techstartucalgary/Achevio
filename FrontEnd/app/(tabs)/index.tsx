@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import {
   StatusBar,
   TextInput,
@@ -12,6 +12,7 @@ import { Text, View } from "../../components/Themed";
 import { Link } from "expo-router"; // Import Link from expo-router
 
 import { StackNavigationProp } from "@react-navigation/stack";
+import axios from "axios";
 
 type RootStackParamList = {
   Signup: undefined; // undefined because you don't pass any parameters to this screen
@@ -27,9 +28,52 @@ type SignupScreenNavigationProp = StackNavigationProp<
 type Props = {
   navigation: SignupScreenNavigationProp;
 };
+
+type Response ={
+  status: string,
+  data: string
+};
 export default function LoginScreen({ navigation }: Props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loginState, setLoginState] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("")
+
+
+  useEffect(()=>{
+    if (loginState){
+      // for successful login
+
+
+    }
+    else {
+      // for unsuccessful login
+
+
+    }
+  }, [loginState])
+
+
+  async function postLoginInfo(){
+    try {
+
+      const configurationObject = {
+        method: 'post',
+        url: `https://reactnative.dev/movies.json`,
+        'Content-Type': 'application/json',
+        param: {
+          username: username,
+          password: password
+        }
+      };
+      const response:Response = await axios(configurationObject);
+      console.log(response)
+      return response
+    }catch (error) {
+      console.error(error)
+      return {status: 400, data:{}}
+    }
+  }
 
   // Function to dismiss keyboard
   const dismissKeyboard = () => {
@@ -57,8 +101,16 @@ export default function LoginScreen({ navigation }: Props) {
         />
         <TouchableOpacity
           style={styles.button}
-          onPress={() => {
+          onPress={async () => {
             /* handle login */
+            const response = await postLoginInfo()
+            console.log(response.status)
+            if (response.status === 200){
+              //navigate to main page
+            }
+            if (response.status === 400){
+              setErrorMessage("Request failed")
+            }
           }}
         >
           <Text style={styles.buttonText}>Login</Text>

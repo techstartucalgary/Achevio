@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { Link } from "expo-router";
+import axios from "axios";
 
 type RootStackParamList = {
   Signup: undefined;
@@ -25,10 +26,37 @@ type Props = {
   navigation: SignupScreenNavigationProp;
 };
 
+type Response ={
+  status: string,
+  data: string
+};
+
+
 export default function SignupScreen({ navigation }: Props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [errorMessageVisible, setErrorMessageVisible] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+  const postNewUserInfo = async () => {
+    try {
+      const configurationObject = {
+        method: 'get',
+        url: `https://reactnative.dev/movies1.json`,
+        // param: {
+        //   username: username,
+        //   password: password
+        // }
+      };
+      const response:Response = await axios(configurationObject);
+      console.log(response.status, response.data);
+      return response
+    } catch (error) {
+      console.error(error);
+      console.log(error)
+      return {status: 400, data:{}}
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -56,9 +84,24 @@ export default function SignupScreen({ navigation }: Props) {
       />
       <TouchableOpacity
         style={styles.signupBtn}
-        onPress={() => {
+        onPress={async () => {
           /* handle signup */
-        }}
+
+          if (confirmPassword ===  password){
+            const response = await postNewUserInfo()
+            if (response.status === 200){
+              //navigate to main page.
+            }
+            else{
+              // set the input boarder to red if this could be implemented
+              setErrorMessage("Connection error please try later!")
+            }
+          }else {
+            // handle inconsistent password
+            setErrorMessage("Inconsistent password")
+          }
+        }
+      }
       >
         <Text style={styles.signupText}>Signup</Text>
       </TouchableOpacity>

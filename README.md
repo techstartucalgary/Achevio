@@ -69,9 +69,9 @@ To get the backend service up and running, you'll need to have Docker installed 
     litestar run -rd
     ```
      The `-rd` flag is optional, `-r` is for reload, so that the api will automaticall relaunch whenever it detects a change in the sourcefile (great for development while testing!), and the `-d` is for debug, LiteStar will be giving more detailed traceback messages. Both are optional and you can feel free to omit them.
-   
 
-Once the service is up, you can access the API at: `http://127.0.0.1:8000/schema/swagger` 
+
+Once the service is up, you can access the API at: `http://127.0.0.1:/8000schema/swagger`
 
 
 And that's it! you can start developing 🎉!

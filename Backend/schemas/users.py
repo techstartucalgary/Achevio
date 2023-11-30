@@ -45,7 +45,7 @@ class UserSchema(Schema):
 
     communities: list[CommunitySchema] = []
 
-    
+
 class CommunitySchema(Schema):
     id: UUID
 
@@ -87,16 +87,16 @@ class UserLoginDTO(PydanticDTO[UserLoginSchema]):
 
 
 
-class CommunityDTO(PydanticDTO[CommunitySchema]):
-    pass
+# class CommunityDTO(PydanticDTO[CommunitySchema]):
+#     pass
 
 
-class CreateCommunityDTO(PydanticDTO[CommunitySchema]):
-    config = DTOConfig(exclude={'id', 'users'})
+# class CreateCommunityDTO(PydanticDTO[CommunitySchema]):
+#     config = DTOConfig(exclude={'id', 'users'})
 
 
 
-class CommunityOutDTO(PydanticDTO[CommunitySchema]):
-    pass
+# class CommunityOutDTO(PydanticDTO[CommunitySchema]):
+#     pass
 
 

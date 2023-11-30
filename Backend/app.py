@@ -21,6 +21,7 @@ from uuid import UUID
 from uuid_extensions import uuid7, uuid7str
 
 from models.users import Base
+from controllers.community import CommunityController
 
 
 from controllers.users import *
@@ -74,7 +75,7 @@ cors_config = CORSConfig(allow_origins=["*"]) # NOTE: Change it for production
 
 # Create the Litestar application instance
 app = Litestar(
-    [UserController, login_handler],  # List of endpoint functions
+    [UserController, login_handler, CommunityController],  # List of endpoint functions
     dependencies={"session": provide_transaction},  # Dependency to inject session into endpoints
     plugins=[SQLAlchemyPlugin(db_config)],  # Plugin for SQLAlchemy support
     openapi_config=openapi_config,

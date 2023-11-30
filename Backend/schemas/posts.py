@@ -60,6 +60,7 @@ class createPostDTO(PydanticDTO[postSchema]):
 
 
 class PostOutDTO(PydanticDTO[postSchema]):
+    config = DTOConfig()
     pass
 
 # FOR DB

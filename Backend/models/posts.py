@@ -31,16 +31,16 @@ import datetime
 class Base(DeclarativeBase):
     pass
 
-post_user_association_table = Table(
-    'post_user_association_table',
-    Base.metadata,
-    Column('user_id', ForeignKey('user_table.id'), primary_key=True),
-    Column('community_id', ForeignKey('community_table.id'), primary_key=True),
-)
+#post_user_association_table = Table(
+#    'post_user_association_table',
+#    Base.metadata,
+#    Column('user_id', ForeignKey('user_table.id'), primary_key=True),
+#    Column('community_id', ForeignKey('community_table.id'), primary_key=True),
+#)
 class Post(Base):
     __tablename__ = 'post_table'
     postId: Mapped[UUID] = mapped_column(primary_key=True)
-    userId: Mapped[UUID] = mapped_column(primary_key=True)
+    user_id: Mapped[UUID] = mapped_column(primary_key=True)
     communityId: Mapped[UUID] = mapped_column(primary_key=True)
     first_name: Mapped[str] = mapped_column(String(100))
     last_name: Mapped[str] = mapped_column(String(100))

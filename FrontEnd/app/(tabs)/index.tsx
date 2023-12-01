@@ -6,19 +6,20 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
-  Pressable, // Add Pressable
+  Pressable,
+  ActivityIndicator,
 } from "react-native";
 import { Text, View } from "../../components/Themed";
-import { Link } from "expo-router"; // Import Link from expo-router
-
+import { Link } from "expo-router";
+import GoogleLoginButton from "../../components/googleLoginButton";
 import { StackNavigationProp } from "@react-navigation/stack";
 
 type RootStackParamList = {
-  Signup: undefined; // undefined because you don't pass any parameters to this screen
+  Signup: undefined;
   Login: undefined;
   modal: undefined;
-  // ... other screen definitions
 };
+
 type SignupScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
   "Signup"
@@ -27,11 +28,12 @@ type SignupScreenNavigationProp = StackNavigationProp<
 type Props = {
   navigation: SignupScreenNavigationProp;
 };
+
 export default function LoginScreen({ navigation }: Props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Function to dismiss keyboard
   const dismissKeyboard = () => {
     Keyboard.dismiss();
   };
@@ -63,6 +65,11 @@ export default function LoginScreen({ navigation }: Props) {
         >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
+        {loading ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          <GoogleLoginButton />
+        )}
         <Link href="/two" asChild>
           <Pressable>
             <Text style={styles.navText}>Go to Signup</Text>
@@ -80,40 +87,40 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    padding: 20, // Add padding to avoid elements being too close to the screen edge
-    backgroundColor: "#fff", // or whatever your background color is
+    padding: 20,
+    backgroundColor: "#fff",
   },
   title: {
-    fontSize: 24, // larger font size
+    fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20, // Add some space below the title
-    color: "#333", // or whatever your text color is
+    marginBottom: 20,
+    color: "#333",
   },
   input: {
-    height: 50, // Increased input height
+    height: 50,
     borderColor: "gray",
     borderWidth: 1,
-    marginBottom: 20, // Increase space between inputs
-    width: "100%", // Make input take full width
-    paddingHorizontal: 10, // Add some padding inside the input
-    borderRadius: 5, // Round the corners
-    color: "#333", // or whatever your text color is
+    marginBottom: 20,
+    width: "100%",
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    color: "#333",
   },
   button: {
-    width: "100%", // Full width button
-    backgroundColor: "#6200EE", // A color that matches your theme
-    padding: 15, // Padding inside
-    alignItems: "center", // Center the text within
-    borderRadius: 5, // Round the corners
+    width: "100%",
+    backgroundColor: "#6200EE",
+    padding: 15,
+    alignItems: "center",
+    borderRadius: 5,
   },
   buttonText: {
-    color: "#ffffff", // Text color that contrasts with the button color
-    fontWeight: "bold", // Make text bold
+    color: "#ffffff",
+    fontWeight: "bold",
   },
   navText: {
-    color: "#6200EE", // This can be your theme color
-    fontSize: 16, // Slightly larger font size
-    fontWeight: "bold", // Optional: if you want this text to stand out more
-    marginTop: 15, // Space between the login button and this text
+    color: "#6200EE",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: 15,
   },
 });

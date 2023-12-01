@@ -24,7 +24,9 @@ type SignupScreenNavigationProp = StackNavigationProp<
 type Props = {
   navigation: SignupScreenNavigationProp;
 };
-
+// web: 936305079160-l5l7ao7l492ik2q5o4oghlhho47ukbr2.apps.googleusercontent.com
+// ios : 936305079160-57f2gdoajsr86j74rf4a7012cl6r0e4n.apps.googleusercontent.com
+// android : 936305079160-ab83cfppiao2407gcqslm6grmqumkui0.apps.googleusercontent.com
 export default function SignupScreen({ navigation }: Props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -63,7 +65,7 @@ export default function SignupScreen({ navigation }: Props) {
         <Text style={styles.signupText}>Signup</Text>
       </TouchableOpacity>
 
-      <Link href="/" style={styles.linkStyle}>
+      <Link href="/" style={styles.linkstyle}>
         <Text style={styles.loginText}>Go to Login</Text>
       </Link>
 
@@ -112,5 +114,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#6200EE",
     fontWeight: "500",
+  },
+  linkstyle: {
+    marginTop: 20,
   },
 });

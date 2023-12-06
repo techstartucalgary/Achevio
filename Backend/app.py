@@ -24,7 +24,7 @@ from models.users import Base
 
 
 from controllers.users import *
-
+from controllers.auth import oauth2_auth, login_handler
 
 
 
@@ -56,12 +56,12 @@ async def on_startup() -> None:
 
         # await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
-        # await conn.run_sync(UUIDBase.metadata.drop_all)
-        await conn.run_sync(UUIDBase.metadata.create_all)
+        # await conn.run_sync(UUIDAuditBase.metadata.drop_all)
+        await conn.run_sync(UUIDAuditBase.metadata.create_all)
 
 # Database configuration using environment variables
 db_config = SQLAlchemyAsyncConfig(
-    connection_string=f"postgresql+psycopg://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@localhost:5432/{os.getenv('POSTGRES_DB')}")
+    connection_string=os.getenv('DB_URL'))
 
 
 openapi_config = OpenAPIConfig(

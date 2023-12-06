@@ -28,6 +28,7 @@ from litestar.contrib.pydantic import PydanticDTO
 from pydantic import BaseModel as _BaseModel
 
 
+from datetime import datetime
 
 class Schema(_BaseModel):
     """Extend Pydantic's BaseModel to enable ORM mode"""
@@ -41,24 +42,27 @@ class UserSchema(Schema):
     first_name: str
     last_name: str
     email: str
+    profile_picture: Optional[str] = None
     password: str
+    created_at: datetime
+    updated_at: datetime
+    is_active: bool
+    last_login: datetime
 
     communities: list[CommunitySchema] = []
 
     
 class CommunitySchema(Schema):
-    id: UUID
-
+    id: UUID    
     name: str
     description: str
-
     users: list[UserSchema] = []
 
 
 
 
 class UserDTO(PydanticDTO[UserSchema]):
-    pass
+    config = DTOConfig()
 
 
 class UserLoginDTO(UserDTO):
@@ -66,24 +70,13 @@ class UserLoginDTO(UserDTO):
 
 
 class CreateUserDTO(PydanticDTO[UserSchema]):
-    config = DTOConfig(exclude={'id', 'communities'})
+    config = DTOConfig(include={'username', 'first_name', 'last_name', 'email', 'password'})
 
 
 class UserOutDTO(PydanticDTO[UserSchema]):
     config = DTOConfig(
         max_nested_depth=2,
     )
-
-
-
-
-class UserLoginSchema(Schema):
-    username: str
-    password: str
-
-
-class UserLoginDTO(PydanticDTO[UserLoginSchema]):
-    config = DTOConfig()
 
 
 

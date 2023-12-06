@@ -31,6 +31,7 @@ import pytz
 
 from .auth import oauth2_auth, login_handler
 
+from lib.redis import redis
 
 
 
@@ -40,6 +41,8 @@ class UserController(Controller):
 
     @get('/')
     async def get_users(self, request: "Request[User, Token, Any]", session: AsyncSession, limit: int = 100, offset: int = 0) -> list[UserSchema]:
+
+
         return await get_user_list(session, limit, offset)
     
 
@@ -59,5 +62,11 @@ class UserController(Controller):
             return validated_user_data
         except Exception as e:
             raise HTTPException(status_code=409, detail="User with that username exists")
+        
+
+    @get('/test', exclude_from_auth=True)
+    async def test(self) -> str:
+        await redis.set("foo", "bar")
+        return await redis.get("foo")
 
 

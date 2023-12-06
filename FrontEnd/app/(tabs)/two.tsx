@@ -26,11 +26,10 @@ type Props = {
   navigation: SignupScreenNavigationProp;
 };
 
-type Response ={
-  status: string,
-  data: string
-};
-
+type Response = {
+  status: number,
+  data: object,
+}
 
 export default function SignupScreen({ navigation }: Props) {
   const [username, setUsername] = useState("");
@@ -42,21 +41,53 @@ export default function SignupScreen({ navigation }: Props) {
     try {
       const configurationObject = {
         method: 'get',
-        url: `https://reactnative.dev/movies1.json`,
-        // param: {
-        //   username: username,
-        //   password: password
-        // }
+        url: `https://reactnative.dev/movies.json`,
+        param: {
+          username: username,
+          password: password
+        }
       };
       const response:Response = await axios(configurationObject);
       console.log(response.status, response.data);
       return response
-    } catch (error) {
-      console.error(error);
-      console.log(error)
-      return {status: 400, data:{}}
+    } catch (error:any) {
+      // console.error(error);
+      const eMessage = error.toString()
+      return {status: parseInt(eMessage.slice(eMessage.length-3, eMessage.length)), data:{}}
     }
   };
+  function formatCheck() {
+    let checkResult:boolean = true
+    // console.log(username, password, confirmPassword)
+    if(username.length === 0 || password.length === 0 || confirmPassword.length === 0) {
+      // handle empty input
+      checkResult = false
+      setErrorMessageVisible(true)
+      setErrorMessage("Please filling username and password")
+    }
+    else if(confirmPassword !== password){
+      // handle inconsistent password
+      checkResult = false
+      setErrorMessageVisible(true)
+      setErrorMessage("Inconsistent password")
+    }
+    return checkResult
+  }
+
+  function responseCheck(response:Response) {
+    let checkResult:boolean = true
+    if (response.status === 400){
+      checkResult = false
+      setErrorMessageVisible(true)
+      setErrorMessage("Username does exist")
+    }
+    else if(response.status === 404 ){
+      checkResult = false
+      setErrorMessageVisible(true)
+      setErrorMessage("Connection error please try later!")
+    }
+    return checkResult;
+  }
 
   return (
     <View style={styles.container}>
@@ -82,26 +113,25 @@ export default function SignupScreen({ navigation }: Props) {
         placeholder="Confirm Password"
         secureTextEntry
       />
+      {
+        errorMessageVisible ?
+            <Text style={styles.errorStyle}>
+              {errorMessage}
+            </Text>
+            : null
+      }
       <TouchableOpacity
         style={styles.signupBtn}
         onPress={async () => {
           /* handle signup */
-
-          if (confirmPassword ===  password){
-            const response = await postNewUserInfo()
-            if (response.status === 200){
-              //navigate to main page.
-            }
-            else{
-              // set the input boarder to red if this could be implemented
-              setErrorMessage("Connection error please try later!")
-            }
-          }else {
-            // handle inconsistent password
-            setErrorMessage("Inconsistent password")
+          if (formatCheck()){
+            const res = await postNewUserInfo()
+            if (responseCheck(res)){
+              //navigate to main page
+              setErrorMessageVisible(false)
+              }
           }
-        }
-      }
+        }}
       >
         <Text style={styles.signupText}>Signup</Text>
       </TouchableOpacity>
@@ -111,6 +141,7 @@ export default function SignupScreen({ navigation }: Props) {
       </Link>
 
       <StatusBar backgroundColor="#000000" barStyle="light-content" />
+
     </View>
   );
 }
@@ -156,4 +187,16 @@ const styles = StyleSheet.create({
     color: "#6200EE",
     fontWeight: "500",
   },
+  linkStyle:{
+    fontSize: 16,
+    color: "#6200EE",
+    fontWeight: "500",
+  },
+  errorStyle:{
+    fontSize: 14,
+    color: "#ee0008",
+    fontWeight: "500",
+    marginBottom: 6,
+    marginTop: -4,
+  }
 });

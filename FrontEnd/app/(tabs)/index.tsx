@@ -99,6 +99,9 @@ export default function LoginScreen({ navigation }: Props) {
           secureTextEntry
           autoCapitalize="none"
         />
+        <Text >
+          {errorMessage}
+        </Text>
         <TouchableOpacity
           style={styles.button}
           onPress={async () => {

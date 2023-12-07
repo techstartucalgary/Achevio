@@ -1,17 +1,16 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {
+  Keyboard,
+  Pressable,
   StatusBar,
+  StyleSheet,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   TouchableWithoutFeedback,
-  Keyboard,
-  Pressable, // Add Pressable
 } from "react-native";
-import { Text, View } from "../../components/Themed";
-import { Link } from "expo-router"; // Import Link from expo-router
-
-import { StackNavigationProp } from "@react-navigation/stack";
+import {Text, View} from "../../components/Themed";
+import {Link} from "expo-router"; // Import Link from expo-router
+import {StackNavigationProp} from "@react-navigation/stack";
 import axios from "axios";
 
 type RootStackParamList = {
@@ -29,51 +28,58 @@ type Props = {
   navigation: SignupScreenNavigationProp;
 };
 
-type Response ={
-  status: string,
-  data: string
-};
-export default function LoginScreen({ navigation }: Props) {
+type LoginResponse = {
+  status: number
+  data: LoginData,
+}
+
+type LoginData = {
+  access_token: string,
+  token_type: string,
+  refresh_token: string
+  expires_in: number,
+  detail: string
+}
+
+export default function LoginScreen({navigation}: Props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loginState, setLoginState] = useState(false);
   const [errorMessage, setErrorMessage] = useState("")
+  const [errorMessageVisible, setErrorMessageVisible] = useState(false)
 
-
-  useEffect(()=>{
-    if (loginState){
-      // for successful login
-
-
-    }
-    else {
-      // for unsuccessful login
-
-
-    }
-  }, [loginState])
-
-
-  async function postLoginInfo(){
+  async function postLoginInfo(): Promise<LoginResponse> {
     try {
-
       const configurationObject = {
         method: 'post',
-        url: `https://reactnative.dev/movies.json`,
-        'Content-Type': 'application/json',
-        param: {
+        // URl should replace with some route
+        url: `http://10.0.0.217:8000/login`,
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        data: {
           username: username,
           password: password
         }
       };
-      const response:Response = await axios(configurationObject);
-      console.log(response)
-      return response
-    }catch (error) {
-      console.error(error)
-      return {status: 400, data:{}}
+      return await axios(configurationObject)
+    } catch (error: any) {
+      console.error(error);
+      console.log(error.response.status, error.response.data.detail)
+      return error.response
     }
   }
+
+  function responseCheck(response: LoginResponse): boolean {
+    let checkResult: boolean = true
+    if (response.status !== 201 ) {
+      checkResult = false
+      setErrorMessageVisible(true)
+      setErrorMessage(response.data.detail)
+    }
+    return checkResult;
+  }
+
 
   // Function to dismiss keyboard
   const dismissKeyboard = () => {
@@ -99,20 +105,22 @@ export default function LoginScreen({ navigation }: Props) {
           secureTextEntry
           autoCapitalize="none"
         />
-        <Text >
-          {errorMessage}
-        </Text>
+        {
+          errorMessageVisible ?
+            <Text style={styles.errorStyle}>
+              {errorMessage}
+            </Text>
+            : null
+        }
         <TouchableOpacity
           style={styles.button}
           onPress={async () => {
-            /* handle login */
-            const response = await postLoginInfo()
-            console.log(response.status)
-            if (response.status === 200){
+            /* handle signup */
+            const res = await postLoginInfo()
+            if (responseCheck(res)) {
               //navigate to main page
-            }
-            if (response.status === 400){
-              setErrorMessage("Request failed")
+              console.log("success login")
+              setErrorMessageVisible(false)
             }
           }}
         >
@@ -124,7 +132,7 @@ export default function LoginScreen({ navigation }: Props) {
           </Pressable>
         </Link>
 
-        <StatusBar backgroundColor="#000000" barStyle="light-content" />
+        <StatusBar backgroundColor="#000000" barStyle="light-content"/>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -171,4 +179,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold", // Optional: if you want this text to stand out more
     marginTop: 15, // Space between the login button and this text
   },
+  errorStyle:{
+    fontSize: 14,
+    color: "#ee0008",
+    fontWeight: "500",
+    marginBottom: 6,
+    marginTop: -4,
+  }
 });

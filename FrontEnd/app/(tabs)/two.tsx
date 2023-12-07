@@ -1,14 +1,7 @@
-import React, { useState } from "react";
-import {
-  StatusBar,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  View,
-} from "react-native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { Link } from "expo-router";
+import React, {useState} from "react";
+import {StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View,} from "react-native";
+import {StackNavigationProp} from "@react-navigation/stack";
+import {Link} from "expo-router";
 import axios from "axios";
 
 type RootStackParamList = {
@@ -26,9 +19,20 @@ type Props = {
   navigation: SignupScreenNavigationProp;
 };
 
-type Response = {
-  status: number,
-  data: object,
+type signupResponse = {
+  status: number
+  data: signupData,
+}
+
+type signupData = {
+  communities:[],
+  email: string,
+  first_name:string,
+  last_name: string,
+  id: string,
+  username:string,
+  password:string,
+  detail:string
 }
 
 export default function SignupScreen({ navigation }: Props) {
@@ -37,28 +41,33 @@ export default function SignupScreen({ navigation }: Props) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessageVisible, setErrorMessageVisible] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
-  const postNewUserInfo = async () => {
+  const postSignupInfo = async ():Promise<signupResponse> => {
     try {
       const configurationObject = {
-        method: 'get',
-        url: `https://reactnative.dev/movies.json`,
-        param: {
+        method: 'post',
+        // URl should replace with some route
+        url: `http://10.0.0.217:8000/user`,
+        headers:{
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        data: {
           username: username,
-          password: password
+          password: password,
+          first_name: "placeholder",
+          last_name: "placeholder",
+          email: "placeholder"
         }
       };
-      const response:Response = await axios(configurationObject);
-      console.log(response.status, response.data);
-      return response
+      return await axios(configurationObject)
     } catch (error:any) {
-      // console.error(error);
-      const eMessage = error.toString()
-      return {status: parseInt(eMessage.slice(eMessage.length-3, eMessage.length)), data:{}}
+      console.error(error);
+      console.log(error.response.status, error.response.data.detail)
+      return error.response
     }
   };
-  function formatCheck() {
+  function formatCheck():boolean {
     let checkResult:boolean = true
-    // console.log(username, password, confirmPassword)
     if(username.length === 0 || password.length === 0 || confirmPassword.length === 0) {
       // handle empty input
       checkResult = false
@@ -74,17 +83,12 @@ export default function SignupScreen({ navigation }: Props) {
     return checkResult
   }
 
-  function responseCheck(response:Response) {
+  function responseCheck(response:signupResponse):boolean {
     let checkResult:boolean = true
-    if (response.status === 400){
+    if (response.status !== 201){
       checkResult = false
       setErrorMessageVisible(true)
-      setErrorMessage("Username does exist")
-    }
-    else if(response.status === 404 ){
-      checkResult = false
-      setErrorMessageVisible(true)
-      setErrorMessage("Connection error please try later!")
+      setErrorMessage(response.data.detail)
     }
     return checkResult;
   }
@@ -125,9 +129,10 @@ export default function SignupScreen({ navigation }: Props) {
         onPress={async () => {
           /* handle signup */
           if (formatCheck()){
-            const res = await postNewUserInfo()
+            const res = await postSignupInfo()
             if (responseCheck(res)){
               //navigate to main page
+              console.log("success signup")
               setErrorMessageVisible(false)
               }
           }

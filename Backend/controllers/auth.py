@@ -1,5 +1,4 @@
-import json
-from os import environ
+import os
 from typing import Optional, Any
 from dotenv import load_dotenv
 
@@ -10,7 +9,7 @@ from litestar.dto import DTOData
 from litestar.exceptions import HTTPException
 from litestar.contrib.jwt import OAuth2Login, OAuth2PasswordBearerAuth, Token
 
-from schemas.users import *
+from schemas.users import UserLoginDTO
 from models.users import User
 from crud.users import *
 

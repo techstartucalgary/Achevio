@@ -1,41 +1,27 @@
 from __future__ import annotations
 
 from typing import Optional
-from collections.abc import AsyncGenerator
-from dotenv import load_dotenv
-import os
-
-from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError, NoResultFound
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-
-from litestar import Litestar, get, post, put
-from litestar.contrib.sqlalchemy.plugins import SQLAlchemyAsyncConfig, SQLAlchemyPlugin
-from litestar.contrib.sqlalchemy.plugins import SQLAlchemyAsyncConfig
-from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
-from litestar.exceptions import ClientException, NotFoundException
-from litestar.status_codes import HTTP_409_CONFLICT
+import argon2
 
 
 from uuid import UUID
-from uuid_extensions import uuid7, uuid7str
 
-
-from litestar.dto import DataclassDTO, DTOConfig
+from litestar.dto import DTOConfig
 
 from litestar.contrib.pydantic import PydanticDTO
 from pydantic import BaseModel as _BaseModel
 
+# Initialize Argon2 for password hashing
+ph = argon2.PasswordHasher()
 
 from datetime import datetime
 
+# Define a base schema class that extends Pydantic's BaseModel
 class Schema(_BaseModel):
     """Extend Pydantic's BaseModel to enable ORM mode"""
     model_config = {"from_attributes": True}
 
-
-
+# Define the UserSchema class for user data
 class UserSchema(Schema):
     id: UUID
     username: str
@@ -51,45 +37,48 @@ class UserSchema(Schema):
 
     communities: list[CommunitySchema] = []
 
-    
+    def set_password(self, str_password):
+        self.password = ph.hash(str_password)
+
+    def check_password(self, password):
+        try:
+            return ph.verify(self.password, password)
+        except argon2.exceptions.VerifyMismatchError:
+            return False
+
+# Define the CommunitySchema class for community data
 class CommunitySchema(Schema):
     id: UUID    
     name: str
     description: str
     users: list[UserSchema] = []
 
-
-
-
+# Define a DTO for user data
 class UserDTO(PydanticDTO[UserSchema]):
     config = DTOConfig()
 
-
+# Define a DTO for user login data
 class UserLoginDTO(UserDTO):
     config = DTOConfig(include={'username', 'password'})
 
-
+# Define a DTO for creating a new user
 class CreateUserDTO(PydanticDTO[UserSchema]):
     config = DTOConfig(include={'username', 'first_name', 'last_name', 'email', 'password'})
 
-
+# Define a DTO for user data output
 class UserOutDTO(PydanticDTO[UserSchema]):
     config = DTOConfig(
         max_nested_depth=2,
     )
 
-
-
+# Define a DTO for community data
 class CommunityDTO(PydanticDTO[CommunitySchema]):
     pass
 
-
+# Define a DTO for creating a new community
 class CreateCommunityDTO(PydanticDTO[CommunitySchema]):
     config = DTOConfig(exclude={'id', 'users'})
 
-
-
+# Define a DTO for community data output
 class CommunityOutDTO(PydanticDTO[CommunitySchema]):
     pass
-
-

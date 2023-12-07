@@ -23,7 +23,7 @@ from models.users import Base
 
 
 from controllers.users import *
-from controllers.auth import oauth2_auth, login_handler
+from controllers.auth import oauth2_auth, login_handler, logout_handler
 
 from lib import (
     openapi,
@@ -73,7 +73,7 @@ cors_config = CORSConfig(allow_origins=["*"]) # NOTE: Change it for production
 
 # Create the Litestar application instance
 app = Litestar(
-    [UserController, login_handler],  # List of endpoint functions
+    [UserController, login_handler, logout_handler],  # List of endpoint functions
     dependencies={"session": provide_transaction},  # Dependency to inject session into endpoints
     plugins=[SQLAlchemyPlugin(db_config)],  # Plugin for SQLAlchemy support
     stores=StoreRegistry(default_factory=cache.redis_store_factory),

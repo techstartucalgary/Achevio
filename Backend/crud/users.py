@@ -27,5 +27,5 @@ async def get_user(session: AsyncSession, username: str) -> UserSchema:
     try:
         return UserSchema.model_validate(result.scalar_one())
     except:
-        raise HTTPException(status_code=401, detail="Incorrect email or password")
+        raise HTTPException(status_code=401, detail="Error retrieving user")
     # return result.scalar_one()

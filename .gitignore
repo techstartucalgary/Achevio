@@ -1,7 +1,7 @@
 .DS_Store
 *.pyc
 git rm node_modules -r --cached
-./Backend/.env
 venv
 FrontEnd/
 Backend/__pycache__/app.cpython-311.pyc
+Backend/.env

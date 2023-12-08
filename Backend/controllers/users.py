@@ -46,7 +46,7 @@ class UserController(Controller):
 
     # Define a GET route for retrieving the current user's information
     @get('/me')
-    async def get_me(self, request: "Request[User, Token, Any]", session: AsyncSession) -> UserSchema:
+    async def get_me(self, request: "Request[User, Token, Any]", session: AsyncSession) -> str:
         """
         Get the user's own information.
 
@@ -57,6 +57,7 @@ class UserController(Controller):
         Returns:
             UserSchema: The user's information in UserSchema format.
         """
+        return request.user
         return UserSchema.model_validate(request.user)
 
     # Define a POST route for creating a new user

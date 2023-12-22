@@ -11,14 +11,16 @@ from uuid_extensions import uuid7, uuid7str
 from models.users import User
 from litestar.dto import DTOData
 from litestar.exceptions import HTTPException
-from schemas.users import *
-from crud.users import *
 from litestar.connection import ASGIConnection
 from litestar.contrib.jwt import OAuth2Login, OAuth2PasswordBearerAuth, Token
 from litestar.openapi.config import OpenAPIConfig
 from litestar.stores.memory import MemoryStore
 from .auth import oauth2_auth, login_handler
 from lib.redis import redis
+
+from schemas.users import *
+from crud.users import *
+
 
 # Define a UserController class that inherits from Controller
 class UserController(Controller):
@@ -27,8 +29,9 @@ class UserController(Controller):
     # Specify the return DTO (Data Transfer Object) for the controller
     return_dto = UserOutDTO
 
+
     # Define a GET route for retrieving a list of users
-    @get('/')
+    @get('/', exclude_from_auth=True)
     async def get_users(self, request: "Request[User, Token, Any]", session: AsyncSession, limit: int = 100, offset: int = 0) -> list[UserSchema]:
         """
         Get a list of users.
@@ -45,7 +48,7 @@ class UserController(Controller):
         return await get_user_list(session, limit, offset)
 
     # Define a GET route for retrieving the current user's information
-    @get('/me')
+    @get('/me', exclude_from_auth=True)
     async def get_me(self, request: "Request[User, Token, Any]", session: AsyncSession) -> str:
         """
         Get the user's own information.

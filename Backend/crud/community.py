@@ -1,3 +1,4 @@
+from uuid import UUID
 from sqlalchemy import select, orm
 from sqlalchemy.ext.asyncio import AsyncSession
 from litestar.exceptions import HTTPException
@@ -16,16 +17,24 @@ from schemas.community import CommunitySchema
 
 # Function to get a list of todo items, possibly filtered by their done status
 async def get_community_list(session: AsyncSession, limit: int = 100, offset: int = 0) -> list[CommunitySchema]:
-    query = select(Community).limit(limit).offset(offset)
-    print(query)
-
+    query = select(Community).options(orm.selectinload(Community.users)).limit(limit).offset(offset)
     result = await session.execute(query)
-    # return "woah"
-    print(result)
-
     return [CommunitySchema.model_validate(community) for community in result.scalars().all()]
 
 
+async def get_community_by_id(session: AsyncSession, id: UUID) -> CommunitySchema:
+    query = select(Community).options(orm.selectinload(Community.users)).where(Community.id == id)
+    result = await session.execute(query)
+    return CommunitySchema.model_validate(result.scalar_one())
+    # try:
+    #     print("WORD!")
+    #     for i in result.scalar_one():
+    #         print("WORD2")
+    #         print(i.id)
+    #     return CommunitySchema.model_validate(result.scalar_one())
+    # except:
+    #     raise HTTPException(status_code=401, detail="Error retrieving community")
+    
 
 # async def get_community(session: AsyncSession, name: str) -> UserSchema:
 #     query = select(User).options(orm.selectinload(Community.users)).where(Community.name == name)

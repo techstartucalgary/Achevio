@@ -17,5 +17,5 @@ if TYPE_CHECKING:
 class Community(UUIDAuditBase):
     __tablename__ = 'community_table'
     name: Mapped[str] = mapped_column(String(100), unique=True)
-    description: Mapped[str] = mapped_column(String(100), unique=True)
+    description: Mapped[str] = mapped_column(String(100))
     users: Mapped[list["User"]] = relationship("User", secondary="user_community_association_table", back_populates='communities')

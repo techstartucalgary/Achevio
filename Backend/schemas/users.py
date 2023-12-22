@@ -25,7 +25,7 @@ class UserSchema(Schema):
     updated_at: datetime
     is_active: bool
     last_login: datetime
-
+    
     communities: "list[CommunitySchema]" = []
 
     def set_password(self, str_password):

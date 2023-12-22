@@ -6,6 +6,7 @@ from litestar.dto import DTOConfig
 from litestar.contrib.pydantic import PydanticDTO
 from litestar.contrib.sqlalchemy.dto import SQLAlchemyDTO
 from .schema import Schema
+from uuid_extensions import uuid7, uuid7str
 
 from models.community import Community
 

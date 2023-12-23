@@ -1,21 +1,16 @@
 # Import necessary modules and libraries
-from os import environ
-from typing import Optional, Any
+from typing import Any
 import datetime
 import pytz
-from sqlalchemy import select, orm
 from sqlalchemy.ext.asyncio import AsyncSession
 from litestar import Response, Request, get, post, put
 from litestar import Controller
-from uuid_extensions import uuid7, uuid7str
+from uuid_extensions import uuid7
 from models.user import User
 from litestar.dto import DTOData
 from litestar.exceptions import HTTPException
-from litestar.connection import ASGIConnection
-from litestar.contrib.jwt import OAuth2Login, OAuth2PasswordBearerAuth, Token
-from litestar.openapi.config import OpenAPIConfig
-from litestar.stores.memory import MemoryStore
-from .auth import oauth2_auth, login_handler
+from litestar.contrib.jwt import OAuth2Login, Token
+from .auth import oauth2_auth
 from lib.redis import redis
 from schemas.community import *
 
@@ -23,7 +18,6 @@ from schemas.users import *
 from crud.users import *
 from models.user import User
 from models.community import Community
-from models.user_community_association import UserCommunityAssociation
 from crud.community import *
 
 # Define a UserController class that inherits from Controller
@@ -68,9 +62,7 @@ class UserController(Controller):
             list[UserSchema]: A list of user objects in UserSchema format.
         """
         user = await get_user_list(session, limit, offset)
-        print(user)
         return user
-        # return [UserSchema.model_validate(user) for user in await get_user_list(session, limit, offset)]
 
 
     # Define a GET route for retrieving the current user's information
@@ -108,7 +100,6 @@ class UserController(Controller):
         user_data = data.create_instance(id=uuid7(), communities=[], created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
         validated_user_data = UserSchema.model_validate(user_data)
         validated_user_data.set_password(validated_user_data.password)
-        print(validated_user_data)
         try:
             session.add(User(**validated_user_data.__dict__))
             return validated_user_data
@@ -135,7 +126,6 @@ class UserController(Controller):
         user_data = data.create_instance(id=uuid7(), communities=[], created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
         validated_user_data = UserSchema.model_validate(user_data)
         validated_user_data.set_password(validated_user_data.password)
-        print(validated_user_data)
         try:
             session.add(User(**validated_user_data.__dict__))
             token = oauth2_auth.login(identifier=str(validated_user_data.username))
@@ -176,7 +166,6 @@ class UserController(Controller):
         Returns:
             str: A message indicating success.
         """
-
         return await user_leave_community(session, communityID, request.user)
 
     # Define a GET route for testing, excluding it from authentication Delete later on!

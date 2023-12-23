@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Optional
 
 from uuid import UUID
 
@@ -13,9 +14,10 @@ from models.community import Community
 # Define the CommunitySchema class for community data
 class CommunitySchema(Schema):
     id: UUID    
+    owner_id: UUID
     name: str
     description: str
-    users: "list[UserSchema]" = []
+    users: "list[UserCommunityAssociationSchema]" = None
 
 
 
@@ -26,7 +28,7 @@ class CommunityDTO(PydanticDTO[CommunitySchema]):
 
 # Define a DTO for creating a new community
 class CreateCommunityDTO(PydanticDTO[CommunitySchema]):
-    config = DTOConfig(exclude={'id', 'users'})
+    config = DTOConfig(exclude={'id', 'users', 'owner_id'})
 
 # Define a DTO for community data output
 class CommunityOutDTO(PydanticDTO[CommunitySchema]):
@@ -40,5 +42,9 @@ class CommunityOutDTO(PydanticDTO[CommunitySchema]):
 #     pass
 
 
-from .users import UserSchema
+from .user_community_association import UserCommunityAssociationSchema
 CommunitySchema.model_rebuild()
+
+
+
+

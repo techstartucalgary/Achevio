@@ -26,7 +26,7 @@ class UserSchema(Schema):
     is_active: bool
     last_login: datetime
     
-    communities: "list[CommunitySchema]" = []
+    communities: "list[UserCommunityAssociationSchema]" = []
 
     def set_password(self, str_password):
         self.password = ph.hash(str_password)
@@ -36,9 +36,6 @@ class UserSchema(Schema):
             return ph.verify(self.password, password)
         except argon2.exceptions.VerifyMismatchError:
             return False
-
-
-
 
 
 # Define a DTO for user data
@@ -61,5 +58,6 @@ class UserOutDTO(PydanticDTO[UserSchema]):
 
 
 
+from .user_community_association import UserCommunityAssociationSchema
 from .community import CommunitySchema
 UserSchema.model_rebuild()

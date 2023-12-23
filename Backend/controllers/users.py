@@ -163,6 +163,22 @@ class UserController(Controller):
             raise HTTPException(status_code=409, detail=f"Error creating community: {e}") 
 
 
+    @post('/{communityID:str}/leave')
+    async def leave_community(self, request: "Request[User, Token, Any]", session: AsyncSession, communityID: str) -> str:
+        """
+        Leave a community.
+
+        Args:
+            request (Request): The HTTP request object.
+            session (AsyncSession): The database session.
+            communityID (str): The ID of the community to leave.
+
+        Returns:
+            str: A message indicating success.
+        """
+
+        return await user_leave_community(session, communityID, request.user)
+
     # Define a GET route for testing, excluding it from authentication Delete later on!
     @get('/test', exclude_from_auth=True)
     async def test(self) -> str:

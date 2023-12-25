@@ -9,8 +9,8 @@ from litestar.dto import DTOData
 from litestar.exceptions import HTTPException
 from litestar.contrib.jwt import OAuth2Login, OAuth2PasswordBearerAuth, Token
 
-from schemas.users import UserLoginDTO
-from models.users import User
+from schemas.users import UserLoginDTO, UserSchema
+from models.user import User
 from crud.users import *
 
 from uuid_extensions import uuid7, uuid7str
@@ -44,7 +44,7 @@ oauth2_auth = OAuth2PasswordBearerAuth[User](
     retrieve_user_handler=retrieve_user_handler,
     token_secret=os.getenv("JWT_SECRET"),
     token_url="/login",
-    default_token_expiration=datetime.timedelta(seconds=60),
+    default_token_expiration=datetime.timedelta(seconds=6000),
     exclude=["/login", "/schema"],
 )
 
@@ -66,7 +66,7 @@ async def login_handler(request: Request, data: DTOData[UserSchema], session: As
         HTTPException: If the login credentials are incorrect.
     """
     input_data = data.as_builtins()
-    user = await get_user(session, input_data['username'])
+    user = UserSchema.model_validate(await get_user(session, input_data['username']))
     if user and user.check_password(input_data['password']):
         # Generate and store an OAuth2 token.
         token = oauth2_auth.login(identifier=str(user.username))

@@ -18,12 +18,12 @@ from litestar.status_codes import HTTP_409_CONFLICT
 
 from uuid import UUID
 from uuid_extensions import uuid7, uuid7str
-
-from models.users import Base
+from controllers.community import CommunityController
 
 
 from controllers.users import *
 from controllers.auth import oauth2_auth, login_handler, logout_handler
+from models.base import Base
 
 from lib import (
     openapi,
@@ -57,10 +57,18 @@ async def on_startup() -> None:
     async with db_config.get_engine().begin() as conn:
         # Drop and recreate tables (remove this line if persistence is needed)
 
-        # await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
+        # await conn.run_sync(Base.metadata.drop_all)        
+        # await conn.run_sync(UUIDBase.metadata.drop_all)
         # await conn.run_sync(UUIDAuditBase.metadata.drop_all)
+
+        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(UUIDBase.metadata.create_all)
         await conn.run_sync(UUIDAuditBase.metadata.create_all)
+
+
+
+
+
 
 # Database configuration using environment variables
 db_config = SQLAlchemyAsyncConfig(
@@ -73,7 +81,7 @@ cors_config = CORSConfig(allow_origins=["*"]) # NOTE: Change it for production
 
 # Create the Litestar application instance
 app = Litestar(
-    [UserController, login_handler, logout_handler],  # List of endpoint functions
+    [UserController, CommunityController, login_handler, logout_handler],  # List of endpoint functions
     dependencies={"session": provide_transaction},  # Dependency to inject session into endpoints
     plugins=[SQLAlchemyPlugin(db_config)],  # Plugin for SQLAlchemy support
     stores=StoreRegistry(default_factory=cache.redis_store_factory),

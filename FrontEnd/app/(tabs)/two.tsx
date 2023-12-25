@@ -1,14 +1,8 @@
-import React, { useState } from "react";
-import {
-  StatusBar,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  View,
-} from "react-native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { Link } from "expo-router";
+import React, {useState} from "react";
+import {StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View,} from "react-native";
+import {StackNavigationProp} from "@react-navigation/stack";
+import {Link} from "expo-router";
+import axios from "axios";
 
 type RootStackParamList = {
   Signup: undefined;
@@ -24,13 +18,80 @@ type SignupScreenNavigationProp = StackNavigationProp<
 type Props = {
   navigation: SignupScreenNavigationProp;
 };
-// web: 936305079160-l5l7ao7l492ik2q5o4oghlhho47ukbr2.apps.googleusercontent.com
-// ios : 936305079160-57f2gdoajsr86j74rf4a7012cl6r0e4n.apps.googleusercontent.com
-// android : 936305079160-ab83cfppiao2407gcqslm6grmqumkui0.apps.googleusercontent.com
+
+
+type signupResponse = {
+  status: number
+  data: signupData,
+}
+
+type signupData = {
+  communities:[],
+  email: string,
+  first_name:string,
+  last_name: string,
+  id: string,
+  username:string,
+  password:string,
+  detail:string
+}
 export default function SignupScreen({ navigation }: Props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [errorMessageVisible, setErrorMessageVisible] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+  const postSignupInfo = async ():Promise<signupResponse> => {
+    try {
+      const configurationObject = {
+        method: 'post',
+        // URl should replace with some route
+        url: `http://10.0.0.217:8000/user`,
+        headers:{
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        data: {
+          username: username,
+          password: password,
+          first_name: "placeholder",
+          last_name: "placeholder",
+          email: "placeholder"
+        }
+      };
+      return await axios(configurationObject)
+    } catch (error:any) {
+      console.error(error);
+      console.log(error.response.status, error.response.data.detail)
+      return error.response
+    }
+  };
+  function formatCheck():boolean {
+    let checkResult:boolean = true
+    if(username.length === 0 || password.length === 0 || confirmPassword.length === 0) {
+      // handle empty input
+      checkResult = false
+      setErrorMessageVisible(true)
+      setErrorMessage("Please filling username and password")
+    }
+    else if(confirmPassword !== password){
+      // handle inconsistent password
+      checkResult = false
+      setErrorMessageVisible(true)
+      setErrorMessage("Inconsistent password")
+    }
+    return checkResult
+  }
+
+  function responseCheck(response:signupResponse):boolean {
+    let checkResult:boolean = true
+    if (response.status !== 201){
+      checkResult = false
+      setErrorMessageVisible(true)
+      setErrorMessage(response.data.detail)
+    }
+    return checkResult;
+  }
 
   return (
     <View style={styles.container}>
@@ -56,10 +117,25 @@ export default function SignupScreen({ navigation }: Props) {
         placeholder="Confirm Password"
         secureTextEntry
       />
+      {
+        errorMessageVisible ?
+            <Text style={styles.errorStyle}>
+              {errorMessage}
+            </Text>
+            : null
+      }
       <TouchableOpacity
         style={styles.signupBtn}
-        onPress={() => {
+        onPress={async () => {
           /* handle signup */
+          if (formatCheck()){
+            const res = await postSignupInfo()
+            if (responseCheck(res)){
+              //navigate to main page
+              console.log("success signup")
+              setErrorMessageVisible(false)
+              }
+          }
         }}
       >
         <Text style={styles.signupText}>Signup</Text>
@@ -70,6 +146,7 @@ export default function SignupScreen({ navigation }: Props) {
       </Link>
 
       <StatusBar backgroundColor="#000000" barStyle="light-content" />
+
     </View>
   );
 }
@@ -115,7 +192,17 @@ const styles = StyleSheet.create({
     color: "#6200EE",
     fontWeight: "500",
   },
-  linkstyle: {
-    marginTop: 20,
+
+  linkStyle:{
+    fontSize: 16,
+    color: "#6200EE",
+    fontWeight: "500",
   },
+  errorStyle:{
+    fontSize: 14,
+    color: "#ee0008",
+    fontWeight: "500",
+    marginBottom: 6,
+    marginTop: -4,
+  }
 });

@@ -19,6 +19,7 @@ type Props = {
   navigation: SignupScreenNavigationProp;
 };
 
+
 type signupResponse = {
   status: number
   data: signupData,
@@ -34,7 +35,6 @@ type signupData = {
   password:string,
   detail:string
 }
-
 export default function SignupScreen({ navigation }: Props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -141,7 +141,7 @@ export default function SignupScreen({ navigation }: Props) {
         <Text style={styles.signupText}>Signup</Text>
       </TouchableOpacity>
 
-      <Link href="/" style={styles.linkStyle}>
+      <Link href="/" style={styles.linkstyle}>
         <Text style={styles.loginText}>Go to Login</Text>
       </Link>
 
@@ -192,6 +192,7 @@ const styles = StyleSheet.create({
     color: "#6200EE",
     fontWeight: "500",
   },
+
   linkStyle:{
     fontSize: 16,
     color: "#6200EE",

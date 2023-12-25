@@ -2,6 +2,6 @@
 *.pyc
 git rm node_modules -r --cached
 venv
-FrontEnd/
 Backend/__pycache__/app.cpython-311.pyc
+node_modules
 Backend/.env

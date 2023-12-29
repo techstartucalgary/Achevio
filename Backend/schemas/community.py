@@ -7,9 +7,6 @@ from litestar.dto import DTOConfig
 from litestar.contrib.pydantic import PydanticDTO
 from litestar.contrib.sqlalchemy.dto import SQLAlchemyDTO
 from .schema import Schema
-from uuid_extensions import uuid7, uuid7str
-
-from models.community import Community
 
 # Define the CommunitySchema class for community data
 class CommunitySchema(Schema):
@@ -20,15 +17,26 @@ class CommunitySchema(Schema):
     users: "list[UserCommunityAssociationSchema]" = None
 
 
+    postdays: "list[CreatePostdaySchema]"
+
+
+class BaseCommunitySchema(Schema):
+    id: UUID    
+    owner_id: UUID
+    name: str
+    description: str
+    users: "list[UserCommunityAssociationSchema]" = None
 
 
 # Define a DTO for community data
 class CommunityDTO(PydanticDTO[CommunitySchema]):
-    pass
+    config = DTOConfig(
+        max_nested_depth=2,
+    )
 
 # Define a DTO for creating a new community
 class CreateCommunityDTO(PydanticDTO[CommunitySchema]):
-    config = DTOConfig(exclude={'id', 'users', 'owner_id'})
+    config = DTOConfig(exclude={'id', 'users', 'owner_id', 'postdays.0.id'})
 
 # Define a DTO for community data output
 class CommunityOutDTO(PydanticDTO[CommunitySchema]):
@@ -41,7 +49,8 @@ class CommunityOutDTO(PydanticDTO[CommunitySchema]):
 # class CommunityOutDTO(SQLAlchemyDTO[Community]):
 #     pass
 
-
+# from .postday import PostdaySchema
+from .postday import CreatePostdaySchema
 from .user_community_association import UserCommunityAssociationSchema
 CommunitySchema.model_rebuild()
 

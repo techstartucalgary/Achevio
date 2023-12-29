@@ -47,11 +47,11 @@ class UserLoginDTO(UserDTO):
     config = DTOConfig(include={'username', 'password'})
 
 # Define a DTO for creating a new user
-class CreateUserDTO(PydanticDTO[UserSchema]):
+class CreateUserDTO(UserDTO):
     config = DTOConfig(include={'username', 'first_name', 'last_name', 'email', 'password'})
 
 # Define a DTO for user data output
-class UserOutDTO(PydanticDTO[UserSchema]):
+class UserOutDTO(UserDTO):
     config = DTOConfig(
         max_nested_depth=2,
     )
@@ -59,5 +59,4 @@ class UserOutDTO(PydanticDTO[UserSchema]):
 
 
 from .user_community_association import UserCommunityAssociationSchema
-from .community import CommunitySchema
 UserSchema.model_rebuild()

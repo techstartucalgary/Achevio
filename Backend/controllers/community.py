@@ -11,6 +11,8 @@ from litestar.dto import DTOData
 import datetime
 import pytz
 from uuid_extensions import uuid7
+from uuid import UUID
+from crud.postday import *
 
 class CommunityController(Controller):
     path = '/community'
@@ -33,8 +35,22 @@ class CommunityController(Controller):
         
 
     @get('/{id:str}', exclude_from_auth=True)
-    async def get_community(self, request: Request, session: AsyncSession, id: UUID) -> CommunitySchema:
+    async def get_community(self, session: AsyncSession, id: str) -> CommunitySchema:
+        ans = await get_community_by_id(session, id)
+        print(ans.postdays)
         return await get_community_by_id(session, id)
+    
+
+    # @get('/{community_id:str}/addPostday/{day:str}', exclude_from_auth=True)
+    # async def add_postday(self, session: AsyncSession, community_id: str, day: str) -> str:
+    #     day = await get_postday_by_name(session, day)
+    #     community = await get_community_by_id(session, community_id)
+    #     try:
+    #         community.postdays.append(day)
+    #         session.commit()
+    #         return community
+    #     except Exception as e:
+    #         raise HTTPException(status_code=409, detail=f"Error adding postday: {e}")
     
 
     # @put('/{}', dto=CommunityOutDTO, exclude_from_auth=True)

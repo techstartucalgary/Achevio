@@ -6,19 +6,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from litestar import Response, Request, get, post, put
 from litestar import Controller
 from uuid_extensions import uuid7
+from Backend.crud.postday import get_postday_by_name
 from models.user import User
 from litestar.dto import DTOData
 from litestar.exceptions import HTTPException
 from litestar.contrib.jwt import OAuth2Login, Token
 from .auth import oauth2_auth
 from lib.redis import redis
-from schemas.community import *
+from schemas.community import CommunitySchema, CreateCommunityDTO
 
-from schemas.users import *
-from crud.users import *
+from schemas.users import CreateUserDTO, UserSchema, UserOutDTO
 from models.user import User
 from models.community import Community
-from crud.community import *
+from crud.users import get_user, get_user_list, user_join_community, user_leave_community
+
 
 # Define a UserController class that inherits from Controller
 class UserController(Controller):
@@ -140,12 +141,33 @@ class UserController(Controller):
 
     @post('/community', dto=CreateCommunityDTO)
     async def create_community(self, request: "Request[User, Token, Any]", session: AsyncSession, data: DTOData[CommunitySchema]) -> CommunitySchema:
+        """
+        Create a new community with the current user as the owner.
+
+        Args:
+            request (Request): The HTTP request object containing user and token information.
+            session (AsyncSession): The database session for committing the new community.
+            data (DTOData[CommunitySchema]): The data for creating the new community.
+
+        Returns:
+            CommunitySchema: The newly created community's information.
+
+        Raises:
+            HTTPException: If there's an error in creating the community.
+        """
         user = await get_user(session, request.user)
         current_time = datetime.datetime.now(pytz.utc)
-        commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time, owner_id=user.id)
+        commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time, owner_id=user.id, postdays=[])
         validated_community_data = CommunitySchema.model_validate(commiunity_data)
         try:
-            session.add(Community(**validated_community_data.__dict__))
+            community = Community(**validated_community_data.__dict__)
+            session.add(community)
+            postdays = data.as_builtins()['postdays']
+            for i in range(len(postdays)):
+                print(i)
+                postday = await get_postday_by_name(session, postdays[i].__dict__['day'])
+                community.postdays.append(postday)
+            validated_community_data = CommunitySchema.model_validate(commiunity_data)
             await user_join_community(session, validated_community_data.id, request.user, "owner")
             await session.commit()
             return validated_community_data

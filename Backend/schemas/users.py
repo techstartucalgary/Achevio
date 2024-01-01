@@ -25,6 +25,8 @@ class UserSchema(Schema):
     updated_at: datetime
     is_active: bool
     last_login: datetime
+
+    posts: "list[PostSchema]" = []
     
     communities: "list[UserCommunityAssociationSchema]" = []
 
@@ -57,6 +59,6 @@ class UserOutDTO(UserDTO):
     )
 
 
-
+from .post import PostSchema
 from .user_community_association import UserCommunityAssociationSchema
 UserSchema.model_rebuild()

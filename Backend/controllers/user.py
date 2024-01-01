@@ -2,23 +2,22 @@
 from typing import Any
 import datetime
 import pytz
-from sqlalchemy.ext.asyncio import AsyncSession
 from litestar import Response, Request, get, post, put
 from litestar import Controller
-from uuid_extensions import uuid7
-from Backend.crud.postday import get_postday_by_name
-from models.user import User
 from litestar.dto import DTOData
 from litestar.exceptions import HTTPException
 from litestar.contrib.jwt import OAuth2Login, Token
-from .auth import oauth2_auth
 from lib.redis import redis
-from schemas.community import CommunitySchema, CreateCommunityDTO
+from sqlalchemy.ext.asyncio import AsyncSession
+from uuid_extensions import uuid7
 
 from schemas.users import CreateUserDTO, UserSchema, UserOutDTO
+from schemas.community import CommunitySchema, CreateCommunityDTO
 from models.user import User
 from models.community import Community
 from crud.users import get_user, get_user_list, user_join_community, user_leave_community
+from crud.postday import get_postday_by_name
+from .auth import oauth2_auth
 
 
 # Define a UserController class that inherits from Controller
@@ -29,8 +28,8 @@ class UserController(Controller):
     return_dto = UserOutDTO
 
     @put('/join/{communityID:str}')
-    async def join_community(self, request: "Request[User, Token, Any]", session: AsyncSession, communityID: str) -> UserSchema:
-        """
+    async def join_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, communityID: str) -> UserSchema:
+        '''
         Join a community.
 
         Args:
@@ -40,7 +39,7 @@ class UserController(Controller):
 
         Returns:
             str: A message indicating success.
-        """
+        '''
 
         user = UserSchema.model_validate(await user_join_community(session, communityID, request.user))
         await session.commit()
@@ -49,8 +48,8 @@ class UserController(Controller):
 
     # Define a GET route for retrieving a list of users
     @get('/', exclude_from_auth=True)
-    async def get_users(self, request: "Request[User, Token, Any]", session: AsyncSession, limit: int = 100, offset: int = 0) -> list[UserSchema]:
-        """
+    async def get_users(self, request: 'Request[User, Token, Any]', session: AsyncSession, limit: int = 100, offset: int = 0) -> list[UserSchema]:
+        '''
         Get a list of users.
 
         Args:
@@ -61,15 +60,15 @@ class UserController(Controller):
 
         Returns:
             list[UserSchema]: A list of user objects in UserSchema format.
-        """
+        '''
         user = await get_user_list(session, limit, offset)
         return user
 
 
     # Define a GET route for retrieving the current user's information
     @get('/me')
-    async def get_me(self, request: "Request[User, Token, Any]", session: AsyncSession) -> UserSchema:
-        """
+    async def get_me(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> UserSchema:
+        '''
         Get the user's own information.
 
         Args:
@@ -78,13 +77,13 @@ class UserController(Controller):
 
         Returns:
             UserSchema: The user's information in UserSchema format.
-        """
+        '''
         return UserSchema.model_validate(await get_user(session, request.user))
 
     # Define a POST route for creating a new user
     @post('/', dto=CreateUserDTO, exclude_from_auth=True)
     async def create_user(self, session: AsyncSession, data: DTOData[UserSchema]) -> UserSchema:
-        """
+        '''
         Create a new user.
 
         Args:
@@ -96,21 +95,22 @@ class UserController(Controller):
         
         Raises:
             HTTPException: If a user with the same username already exists.
-        """
+        '''
         current_time = datetime.datetime.now(pytz.utc)
-        user_data = data.create_instance(id=uuid7(), communities=[], created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
+        user_data = data.create_instance(id=uuid7(), communities=[], posts=[], created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
         validated_user_data = UserSchema.model_validate(user_data)
         validated_user_data.set_password(validated_user_data.password)
         try:
             session.add(User(**validated_user_data.__dict__))
             return validated_user_data
         except Exception as e:
-            raise HTTPException(status_code=409, detail=f"User with that username exists")
+            raise HTTPException(status_code=409, detail=f'Error {e}')
+
 
 
     @post('/create_user_and_login', dto=CreateUserDTO, exclude_from_auth=True)
     async def create_user_and_login(self, session: AsyncSession, data: DTOData[UserSchema]) -> Response[OAuth2Login]:
-        """
+        '''
         Create a new user and logs in. This might become the new default way of creating users.
 
         Args:
@@ -122,26 +122,26 @@ class UserController(Controller):
         
         Raises:
             HTTPException: If a user with the same username already exists.
-        """
+        '''
         current_time = datetime.datetime.now(pytz.utc)
-        user_data = data.create_instance(id=uuid7(), communities=[], created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
+        user_data = data.create_instance(id=uuid7(), communities=[], posts=[], created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
         validated_user_data = UserSchema.model_validate(user_data)
         validated_user_data.set_password(validated_user_data.password)
         try:
             session.add(User(**validated_user_data.__dict__))
             token = oauth2_auth.login(identifier=str(validated_user_data.username))
-            session_key = f"session:{validated_user_data.username}"
-            await redis.hmset(session_key, {"userId": str(validated_user_data.id), "username": validated_user_data.username, "token": str(token.cookies)})
+            session_key = f'session:{validated_user_data.username}'
+            await redis.hmset(session_key, {'userId': str(validated_user_data.id), 'username': validated_user_data.username, 'token': str(token.cookies)})
             
             return token
         except Exception as e:
-            raise HTTPException(status_code=409, detail=f"User with that username exists")
+            raise HTTPException(status_code=409, detail=f'User with that username exists')
 
 
 
     @post('/community', dto=CreateCommunityDTO)
-    async def create_community(self, request: "Request[User, Token, Any]", session: AsyncSession, data: DTOData[CommunitySchema]) -> CommunitySchema:
-        """
+    async def create_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: DTOData[CommunitySchema]) -> CommunitySchema:
+        '''
         Create a new community with the current user as the owner.
 
         Args:
@@ -154,7 +154,7 @@ class UserController(Controller):
 
         Raises:
             HTTPException: If there's an error in creating the community.
-        """
+        '''
         user = await get_user(session, request.user)
         current_time = datetime.datetime.now(pytz.utc)
         commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time, owner_id=user.id, postdays=[])
@@ -168,16 +168,16 @@ class UserController(Controller):
                 postday = await get_postday_by_name(session, postdays[i].__dict__['day'])
                 community.postdays.append(postday)
             validated_community_data = CommunitySchema.model_validate(commiunity_data)
-            await user_join_community(session, validated_community_data.id, request.user, "owner")
+            await user_join_community(session, validated_community_data.id, request.user, 'owner')
             await session.commit()
             return validated_community_data
         except Exception as e:
-            raise HTTPException(status_code=409, detail=f"Error creating community: {e}") 
+            raise HTTPException(status_code=409, detail=f'Error creating community: {e}') 
 
 
     @post('/{communityID:str}/leave')
-    async def leave_community(self, request: "Request[User, Token, Any]", session: AsyncSession, communityID: str) -> str:
-        """
+    async def leave_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, communityID: str) -> str:
+        '''
         Leave a community.
 
         Args:
@@ -187,19 +187,19 @@ class UserController(Controller):
 
         Returns:
             str: A message indicating success.
-        """
+        '''
         return await user_leave_community(session, communityID, request.user)
 
     # Define a GET route for testing, excluding it from authentication Delete later on!
     @get('/test', exclude_from_auth=True)
     async def test(self) -> str:
-        """
+        '''
         Test route for Redis functionality.
 
         Returns:
             str: A test message from Redis.
-        """
-        await redis.set("foo", "bar")
-        return await redis.get("foo")
+        '''
+        await redis.set('foo', 'bar')
+        return await redis.get('foo')
 
 

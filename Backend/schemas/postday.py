@@ -14,8 +14,10 @@ class PostdaySchema(Schema):
     
     communities: list[CommunitySchema] = []
 
+
 class CreatePostdaySchema(Schema):
     day: str
+
 
 class PostdayDTO(PydanticDTO[PostdaySchema]):
     config = DTOConfig(

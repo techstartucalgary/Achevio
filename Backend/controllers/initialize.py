@@ -27,4 +27,4 @@ class InitializeController(Controller):
             postday = Postday(id=uuid7(), day=day)
             session.add(postday)
         await session.commit()
-        return "Postdays created"
+        return 'Postdays created'

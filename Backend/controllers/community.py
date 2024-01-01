@@ -31,7 +31,7 @@ class CommunityController(Controller):
             session.add(Community(**validated_community_data.__dict__))
             return validated_community_data
         except Exception as e:
-            raise HTTPException(status_code=409, detail=f"Error creating community: {e}")
+            raise HTTPException(status_code=409, detail=f'Error creating community: {e}')
         
 
     @get('/{id:str}', exclude_from_auth=True)
@@ -50,7 +50,7 @@ class CommunityController(Controller):
     #         session.commit()
     #         return community
     #     except Exception as e:
-    #         raise HTTPException(status_code=409, detail=f"Error adding postday: {e}")
+    #         raise HTTPException(status_code=409, detail=f'Error adding postday: {e}')
     
 
     # @put('/{}', dto=CommunityOutDTO, exclude_from_auth=True)
@@ -62,5 +62,5 @@ class CommunityController(Controller):
     #         session.add(community)
     #         return community
     #     except Exception as e:
-    #         raise HTTPException(status_code=409, detail=f"Error adding member: {e}")
+    #         raise HTTPException(status_code=409, detail=f'Error adding member: {e}')
 

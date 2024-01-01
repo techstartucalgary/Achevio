@@ -21,7 +21,7 @@ from uuid_extensions import uuid7, uuid7str
 from controllers.community import CommunityController
 
 
-from controllers.users import UserController
+from controllers.user import UserController
 from controllers.postday import PostdayController
 from controllers.initialize import InitializeController
 from controllers.auth import oauth2_auth, login_handler, logout_handler

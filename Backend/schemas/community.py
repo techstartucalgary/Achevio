@@ -43,12 +43,6 @@ class CommunityOutDTO(PydanticDTO[CommunitySchema]):
     pass
 
 
-# class CreateCommunityDTO(SQLAlchemyDTO[Community]):
-#     config = DTOConfig(exclude={'id', 'users'})
-
-# class CommunityOutDTO(SQLAlchemyDTO[Community]):
-#     pass
-
 # from .postday import PostdaySchema
 from .postday import CreatePostdaySchema
 from .user_community_association import UserCommunityAssociationSchema

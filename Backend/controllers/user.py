@@ -1,15 +1,20 @@
 # Import necessary modules and libraries
-from typing import Any
+from typing import Any, Annotated
+import os
 import datetime
 import pytz
-from litestar import Response, Request, get, post, put
+from litestar import Response, Request, get, post, put, patch, MediaType
 from litestar import Controller
 from litestar.dto import DTOData
 from litestar.exceptions import HTTPException
 from litestar.contrib.jwt import OAuth2Login, Token
+from litestar.datastructures import UploadFile
+from litestar.enums import RequestEncodingType
+from litestar.params import Body
 from lib.redis import redis
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid_extensions import uuid7
+import aiofiles
 
 from schemas.users import CreateUserDTO, UserSchema, UserOutDTO
 from schemas.community import CommunitySchema, CreateCommunityDTO
@@ -164,7 +169,6 @@ class UserController(Controller):
             session.add(community)
             postdays = data.as_builtins()['postdays']
             for i in range(len(postdays)):
-                print(i)
                 postday = await get_postday_by_name(session, postdays[i].__dict__['day'])
                 community.postdays.append(postday)
             validated_community_data = CommunitySchema.model_validate(commiunity_data)
@@ -190,6 +194,30 @@ class UserController(Controller):
         '''
         return await user_leave_community(session, communityID, request.user)
 
+
+
+    @patch(path="/profile_image", media_type=MediaType.TEXT)
+    async def update_profile_picture(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[UploadFile, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
+        user = get_user(session, request.user)
+
+        content = await data.read()
+        filename = data.filename
+        
+        image_dir = "static/images/users"
+        os.makedirs(image_dir, exist_ok=True)
+
+        file_path = os.path.join(image_dir, filename)
+        async with aiofiles.open(file_path, 'wb') as outfile:
+            await outfile.write(content)
+
+        return f"{file_path}"
+
+
+    
+
+
+
+
     # Define a GET route for testing, excluding it from authentication Delete later on!
     @get('/test', exclude_from_auth=True)
     async def test(self) -> str:
@@ -201,5 +229,6 @@ class UserController(Controller):
         '''
         await redis.set('foo', 'bar')
         return await redis.get('foo')
+    
 
 

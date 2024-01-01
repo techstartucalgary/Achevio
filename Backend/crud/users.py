@@ -67,7 +67,7 @@ async def get_user_list(session: AsyncSession, limit: int = 100, offset: int = 0
     return result.scalars().all()
 
 
-async def get_user(session: AsyncSession, username: str) -> UserSchema:
+async def get_user(session: AsyncSession, username: str) -> User:
     """
     Retrieve a single user by their username.
 

@@ -21,7 +21,7 @@ class User(UUIDAuditBase):
 
     communities = relationship('UserCommunityAssociation', back_populates='user')
 
-    posts: Mapped[list['Post']] = relationship()
+    posts: Mapped[list['Post']] = relationship(lazy='selectin')
 
 
 

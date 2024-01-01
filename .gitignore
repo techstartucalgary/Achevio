@@ -5,3 +5,5 @@ venv
 Backend/__pycache__/app.cpython-311.pyc
 node_modules
 Backend/.env
+Backend/static/images/users/*
+Backend/static/images/posts/*

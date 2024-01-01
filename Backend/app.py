@@ -1,26 +1,21 @@
-from typing import Optional
 from collections.abc import AsyncGenerator
 from dotenv import load_dotenv
 import os
 from litestar.config.cors import CORSConfig
 
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from litestar import Litestar, get, post, put
+from litestar import Litestar
 from litestar.contrib.sqlalchemy.plugins import SQLAlchemyAsyncConfig, SQLAlchemyPlugin
 from litestar.contrib.sqlalchemy.plugins import SQLAlchemyAsyncConfig
 from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
-from litestar.exceptions import ClientException, NotFoundException
+from litestar.exceptions import ClientException
 from litestar.status_codes import HTTP_409_CONFLICT
+from litestar.static_files.config import StaticFilesConfig
 
-from uuid import UUID
-from uuid_extensions import uuid7, uuid7str
 from controllers.community import CommunityController
-
-
 from controllers.user import UserController
 from controllers.postday import PostdayController
 from controllers.initialize import InitializeController
@@ -92,4 +87,9 @@ app = Litestar(
     on_startup=[on_startup],  # Startup event handler
     on_app_init=[oauth2_auth.on_app_init],
     cors_config=cors_config,
+    static_files_config=[
+        StaticFilesConfig(directories=['static/images/users'], path='/user/image'),
+        StaticFilesConfig(directories=['static/images/posts'], path='/post/image'),
+
+    ]
 )

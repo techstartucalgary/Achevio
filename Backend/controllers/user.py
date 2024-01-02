@@ -3,6 +3,7 @@ from typing import Any, Annotated
 import os
 import datetime
 import pytz
+from uuid import UUID
 from litestar import Response, Request, get, post, put, patch, MediaType
 from litestar import Controller
 from litestar.dto import DTOData
@@ -18,18 +19,29 @@ import aiofiles
 
 from schemas.users import CreateUserDTO, UserSchema, UserOutDTO
 from schemas.community import CommunitySchema, CreateCommunityDTO
+from schemas.post import PostSchema, CreatePostSchema, PostDTO, CreatePostDTO
 from models.user import User
 from models.community import Community
+from models.post import Post
 from crud.users import get_user, get_user_list, user_join_community, user_leave_community
 from crud.postday import get_postday_by_name
 from .auth import oauth2_auth
 
 
-# Define a UserController class that inherits from Controller
+from pydantic import BaseModel, ConfigDict
+
+from litestar.datastructures import UploadFile
+
+class FormData(BaseModel):
+    title: str
+    file: UploadFile
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+
+
 class UserController(Controller):
-    # Define the base path for this controller
     path = '/user'
-    # Specify the return DTO (Data Transfer Object) for the controller
     return_dto = UserOutDTO
 
     @put('/join/{communityID:str}')
@@ -51,7 +63,6 @@ class UserController(Controller):
         return user
         
 
-    # Define a GET route for retrieving a list of users
     @get('/', exclude_from_auth=True)
     async def get_users(self, request: 'Request[User, Token, Any]', session: AsyncSession, limit: int = 100, offset: int = 0) -> list[UserSchema]:
         '''
@@ -70,7 +81,6 @@ class UserController(Controller):
         return user
 
 
-    # Define a GET route for retrieving the current user's information
     @get('/me')
     async def get_me(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> UserSchema:
         '''
@@ -85,7 +95,6 @@ class UserController(Controller):
         '''
         return UserSchema.model_validate(await get_user(session, request.user))
 
-    # Define a POST route for creating a new user
     @post('/', dto=CreateUserDTO, exclude_from_auth=True)
     async def create_user(self, session: AsyncSession, data: DTOData[UserSchema]) -> UserSchema:
         '''
@@ -160,9 +169,8 @@ class UserController(Controller):
         Raises:
             HTTPException: If there's an error in creating the community.
         '''
-        user = await get_user(session, request.user)
         current_time = datetime.datetime.now(pytz.utc)
-        commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time, owner_id=user.id, postdays=[])
+        commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time, postdays=[])
         validated_community_data = CommunitySchema.model_validate(commiunity_data)
         try:
             community = Community(**validated_community_data.__dict__)
@@ -196,12 +204,14 @@ class UserController(Controller):
 
 
 
-    @patch(path="/profile_image", media_type=MediaType.TEXT)
-    async def update_profile_picture(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[UploadFile, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
-        user = get_user(session, request.user)
 
-        content = await data.read()
-        filename = data.filename
+    
+    @patch('/profile_image', media_type=MediaType.TEXT)
+    async def update_profile_picture(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[FormData, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
+        user = await get_user(session, request.user)
+
+        content = await data.file.read()
+        filename = f'{user.id}.jpg'
         
         image_dir = "static/images/users"
         os.makedirs(image_dir, exist_ok=True)
@@ -211,6 +221,27 @@ class UserController(Controller):
             await outfile.write(content)
 
         return f"{file_path}"
+    
+
+
+
+    @post('/post', media_type=MediaType.TEXT)
+    async def create_post(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[CreatePostSchema, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
+        user = await get_user(session, request.user)
+        image = await data.file.read()
+
+        post = Post(id=uuid7(), title=data.title, caption=data.caption, user_id=user.id, community_id=data.community_id)
+        session.add(post)
+
+        
+        image_dir = "static/images/posts"
+        os.makedirs(image_dir, exist_ok=True)
+        filename = f'{post.id}.jpg'
+
+        file_path = os.path.join(image_dir, filename)
+        async with aiofiles.open(file_path, 'wb') as outfile:
+            await outfile.write(image)
+        return f"File created at {file_path}"
 
 
     

@@ -7,9 +7,8 @@ from sqlalchemy import String
 class Post(UUIDAuditBase):
     __tablename__ = 'post_table'
     
-    title: Mapped[str] = mapped_column(String(100), unique=True)
+    title: Mapped[str] = mapped_column(String(100))
     caption: Mapped[str] = mapped_column(String(100))
-    image: Mapped[UUID] = mapped_column(UUID, nullable=False)
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey('user_table.id'))
     community_id: Mapped[UUID] = mapped_column(ForeignKey('community_table.id'))

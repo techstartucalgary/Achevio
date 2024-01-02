@@ -12,7 +12,7 @@ class Community(UUIDAuditBase):
     
     name: Mapped[str] = mapped_column(String(100), unique=True)
     description: Mapped[str] = mapped_column(String(100))
-    owner_id: Mapped[UUID] = mapped_column(UUID, nullable=False)
+    # owner_id: Mapped[UUID] = mapped_column(UUID, nullable=False)
 
     users = relationship('UserCommunityAssociation', back_populates='community')
     

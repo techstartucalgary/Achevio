@@ -28,17 +28,6 @@ from crud.postday import get_postday_by_name
 from .auth import oauth2_auth
 
 
-from pydantic import BaseModel, ConfigDict
-
-from litestar.datastructures import UploadFile
-
-class FormData(BaseModel):
-    title: str
-    file: UploadFile
-
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-
 
 class UserController(Controller):
     path = '/user'

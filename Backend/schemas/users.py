@@ -42,8 +42,9 @@ class UserSchema(Schema):
 
 # Define a DTO for user data
 class UserDTO(PydanticDTO[UserSchema]):
-    config = DTOConfig()
-
+    config = DTOConfig(
+        max_nested_depth=2,
+    )
 # Define a DTO for user login data
 class UserLoginDTO(UserDTO):
     config = DTOConfig(include={'username', 'password'})

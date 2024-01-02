@@ -25,6 +25,7 @@ from models.community import Community
 from models.post import Post
 from crud.users import get_user, get_user_list, user_join_community, user_leave_community
 from crud.postday import get_postday_by_name
+from crud.tag import get_tag_by_name
 from .auth import oauth2_auth
 
 
@@ -159,7 +160,9 @@ class UserController(Controller):
             HTTPException: If there's an error in creating the community.
         '''
         current_time = datetime.datetime.now(pytz.utc)
-        commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time, postdays=[])
+
+        commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time, postdays=[], tags=[])
+
         validated_community_data = CommunitySchema.model_validate(commiunity_data)
         try:
             community = Community(**validated_community_data.__dict__)
@@ -168,9 +171,14 @@ class UserController(Controller):
             for i in range(len(postdays)):
                 postday = await get_postday_by_name(session, postdays[i].__dict__['day'])
                 community.postdays.append(postday)
+            tags = data.as_builtins()['tags']
+            for i in range(len(tags)):
+                tag = await get_tag_by_name(session, tags[i].__dict__['name'])
+                community.tags.append(tag)
             validated_community_data = CommunitySchema.model_validate(commiunity_data)
             await user_join_community(session, validated_community_data.id, request.user, 'owner')
             await session.commit()
+
             return validated_community_data
         except Exception as e:
             raise HTTPException(status_code=409, detail=f'Error creating community: {e}') 

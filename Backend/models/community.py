@@ -4,7 +4,9 @@ from litestar.contrib.sqlalchemy.base import UUIDAuditBase
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy import String
 from .community_postday import community_postday_association
+from .community_tag import community_tag_association
 from .postday import Postday
+from .tag import Tag
 
 
 class Community(UUIDAuditBase):
@@ -18,6 +20,10 @@ class Community(UUIDAuditBase):
     
     postdays: Mapped[list['Postday']] = relationship(
         secondary=community_postday_association,
-        back_populates='communities',
-        lazy='selectin'
+        back_populates='communities'
+    )
+
+    tags: Mapped[list['Tag']] = relationship(
+        secondary=community_tag_association,
+        # lazy='selectin'
     )

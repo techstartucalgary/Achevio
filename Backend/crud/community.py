@@ -18,7 +18,7 @@ async def get_community_list(session: AsyncSession, limit: int = 100, offset: in
         list[Community]: A list of Community objects.
     """
     # Create a query to select communities with related users and postdays, with a limit and offset for pagination, and execute it.
-    query = select(Community).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.postdays)).limit(limit).offset(offset)
+    query = select(Community).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.postdays)).options(orm.selectinload(Community.tags)).limit(limit).offset(offset)
     result = await session.execute(query)
     
     # Return all community records as a list.
@@ -40,7 +40,7 @@ async def get_community_by_id(session: AsyncSession, id: UUID) -> Community:
         HTTPException: If there's an error retrieving the community or if the community doesn't exist.
     """
     # Create a query to find the community by its UUID and execute it.
-    query = select(Community).options(orm.selectinload(Community.users)).where(Community.id == id)
+    query = select(Community).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.tags)).options(orm.selectinload(Community.postdays)).where(Community.id == id)
     result = await session.execute(query)
     try:
         # Return the single community or None if not found.

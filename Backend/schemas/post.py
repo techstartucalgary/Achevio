@@ -36,7 +36,9 @@ class CreatePostSchema(Schema):
 
 
 class PostDTO(PydanticDTO[PostSchema]):
-    config = DTOConfig()
+    config = DTOConfig(
+        max_nested_depth=2,
+    )
 
 
 class CreatePostDTO(PydanticDTO[PostSchema]):

@@ -20,6 +20,6 @@ class UserCommunityAssociationSchema(Schema):
 
 
 
-from .users import UserSchema
-from .community import CommunitySchema
-UserCommunityAssociationSchema.model_rebuild()
+# from .users import UserSchema
+# from .community import CommunitySchema
+# UserCommunityAssociationSchema.model_rebuild()

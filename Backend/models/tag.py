@@ -9,11 +9,12 @@ if TYPE_CHECKING:
     from .community import Community
 
 
-class Postday(UUIDBase):
-    __tablename__ = 'postday_table'
-    day: Mapped[str] = mapped_column(String(10), unique=True)
+class Tag(UUIDBase):
+    __tablename__ = 'tag_table'
+    name: Mapped[str] = mapped_column(String(100), unique=True)
     
-    communities: Mapped[list['Community']] = relationship(
-        secondary=community_postday_association,
-        back_populates='postdays'
-    )
+    # communities: Mapped[list['Community']] = relationship(
+    #     secondary=community_postday_association,
+    #     back_populates='tags',
+    #     lazy='selectin'
+    # )

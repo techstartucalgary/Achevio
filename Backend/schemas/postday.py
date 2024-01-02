@@ -9,14 +9,13 @@ from .schema import Schema
 
 
 class PostdaySchema(Schema):
-    id: UUID
     day: str
     
-    communities: list[CommunitySchema] = []
+#     communities: list[CommunitySchema] = []
 
 
-class CreatePostdaySchema(Schema):
-    day: str
+# class CreatePostdaySchema(Schema):
+#     day: str
 
 
 class PostdayDTO(PydanticDTO[PostdaySchema]):
@@ -25,10 +24,11 @@ class PostdayDTO(PydanticDTO[PostdaySchema]):
     )
 
 
-class CreatePostdayDTO(PydanticDTO[PostdaySchema]):
-    config = DTOConfig(exclude={'id', 'communities'})
+# class CreatePostdayDTO(PydanticDTO[PostdaySchema]):
+#     config = DTOConfig(exclude={'id', 'communities'})
 
 
 from .community import CommunitySchema
+from .tag import TagSchema
 from .user_community_association import UserCommunityAssociationSchema
 PostdaySchema.model_rebuild()

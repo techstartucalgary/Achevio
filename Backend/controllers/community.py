@@ -24,8 +24,6 @@ class CommunityController(Controller):
 
     @get('/{id:str}', exclude_from_auth=True)
     async def get_community(self, session: AsyncSession, id: str) -> CommunitySchema:
-        ans = await get_community_by_id(session, id)
-        print(ans.postdays)
         return await get_community_by_id(session, id)
     
 

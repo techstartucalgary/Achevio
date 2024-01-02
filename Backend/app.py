@@ -83,11 +83,11 @@ app = Litestar(
     dependencies={"session": provide_transaction},  # Dependency to inject session into endpoints
     plugins=[SQLAlchemyPlugin(db_config)],  # Plugin for SQLAlchemy support
     stores=StoreRegistry(default_factory=cache.redis_store_factory),
-    openapi_config=openapi.config,
-    on_startup=[on_startup],  # Startup event handler
-    on_app_init=[oauth2_auth.on_app_init],
-    cors_config=cors_config,
-    static_files_config=[
+    openapi_config=openapi.config, # OpenAPI configuration for Swagger UI
+    on_startup=[on_startup],  # Startup event handler to initialize DB tables
+    on_app_init=[oauth2_auth.on_app_init],  # Startup event handler to initialize OAuth2
+    cors_config=cors_config, # CORS configuration
+    static_files_config=[   # Static files configuration for user and post images
         StaticFilesConfig(directories=['static/images/users'], path='/user/image'),
         StaticFilesConfig(directories=['static/images/posts'], path='/post/image'),
 

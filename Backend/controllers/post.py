@@ -11,7 +11,10 @@ class PostController(Controller):
     return_dto = PostDTO
 
     @post('/', exclude_from_auth=True)
-    async def get_posts(self, session: AsyncSession, limit: int=100, offset: int=0) -> PostSchema:
+    async def get_alL_posts(self, session: AsyncSession, limit: int=100, offset: int=0) -> PostSchema:
         return await get_posts_list(session, limit, offset)
 
 
+    @post('/{user_id:str}', exclude_from_auth=True)
+    async def get_user_posts(self, session: AsyncSession, limit: int=100, offset: int=0) -> PostSchema:
+        return await get_posts_list(session, limit, offset)

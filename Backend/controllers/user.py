@@ -207,10 +207,10 @@ class UserController(Controller):
 
     
     @patch('/profile_image', media_type=MediaType.TEXT)
-    async def update_profile_picture(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[FormData, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
+    async def update_profile_picture(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[UploadFile, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
         user = await get_user(session, request.user)
 
-        content = await data.file.read()
+        content = await data.read()
         filename = f'{user.id}.jpg'
         
         image_dir = "static/images/users"
@@ -220,7 +220,7 @@ class UserController(Controller):
         async with aiofiles.open(file_path, 'wb') as outfile:
             await outfile.write(content)
 
-        return f"{file_path}"
+        return f"Profile picture updated at: {file_path}"
     
 
 

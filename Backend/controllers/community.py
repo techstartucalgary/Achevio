@@ -22,6 +22,15 @@ class CommunityController(Controller):
     async def get_communities(self, request: Request, session: AsyncSession, limit: int = 100, offset: int = 0) -> list[CommunitySchema]:
         return await get_community_list(session, limit, offset)
 
+    @get('/{id:str}', exclude_from_auth=True)
+    async def get_community(self, session: AsyncSession, id: str) -> CommunitySchema:
+        ans = await get_community_by_id(session, id)
+        print(ans.postdays)
+        return await get_community_by_id(session, id)
+    
+
+
+    ''' This endpoint has been deprecated, please use the user_create_community endpoint instead
     @post('/', dto=CreateCommunityDTO, exclude_from_auth=True)
     async def create_community(self, session: AsyncSession, data: DTOData[CommunitySchema]) -> CommunitySchema:
         current_time = datetime.datetime.now(pytz.utc)
@@ -32,35 +41,4 @@ class CommunityController(Controller):
             return validated_community_data
         except Exception as e:
             raise HTTPException(status_code=409, detail=f'Error creating community: {e}')
-        
-
-    @get('/{id:str}', exclude_from_auth=True)
-    async def get_community(self, session: AsyncSession, id: str) -> CommunitySchema:
-        ans = await get_community_by_id(session, id)
-        print(ans.postdays)
-        return await get_community_by_id(session, id)
-    
-
-    # @get('/{community_id:str}/addPostday/{day:str}', exclude_from_auth=True)
-    # async def add_postday(self, session: AsyncSession, community_id: str, day: str) -> str:
-    #     day = await get_postday_by_name(session, day)
-    #     community = await get_community_by_id(session, community_id)
-    #     try:
-    #         community.postdays.append(day)
-    #         session.commit()
-    #         return community
-    #     except Exception as e:
-    #         raise HTTPException(status_code=409, detail=f'Error adding postday: {e}')
-    
-
-    # @put('/{}', dto=CommunityOutDTO, exclude_from_auth=True)
-    # async def add_member(self, request: Request, session: AsyncSession, id: UUID, data: DTOData[CommunitySchema]) -> CommunitySchema:
-    #     community = await get_community_by_id(session, id)
-    #     user = await get_user(session, request.user.username)
-    #     community.users.append(user)
-    #     try:
-    #         session.add(community)
-    #         return community
-    #     except Exception as e:
-    #         raise HTTPException(status_code=409, detail=f'Error adding member: {e}')
-
+    '''

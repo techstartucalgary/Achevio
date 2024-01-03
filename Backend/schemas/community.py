@@ -1,36 +1,57 @@
-from typing import List, Optional
+from __future__ import annotations
+
 from uuid import UUID
-from pydantic import BaseModel, UUID4, constr
-from datetime import datetime
-from pydantic import BaseModel as _BaseModel
 
-class UserBase(BaseModel):
+from litestar.dto import DTOConfig
+from litestar.contrib.pydantic import PydanticDTO
+from .schema import Schema
+
+
+class CommunitySchema(Schema):
     id: UUID
-
-
-class CommunityBase(BaseModel):
+    # owner_id: UUID
     name: str
     description: str
-    post_days: str  # or List[str] if you want to store as a list
+    users: list[UserCommunityAssociationSchema] = None
 
-class CommunityCreate(CommunityBase):
-    pass
+    postdays: list[PostdaySchema]
 
-class Community(CommunityBase):
+    tags: list[TagSchema]
+
+
+class BaseCommunitySchema(Schema):
     id: UUID
-    owner: UserBase
-    members: List[UserBase] = []
-    # posts: List[PostBase] = []  # Assuming you have a PostBase schema
-    # tags: List[TagBase] = []  # Assuming you have a TagBase schema
+    owner_id: UUID
+    name: str
+    description: str
+    users: list[UserCommunityAssociationSchema] = None
 
 
-class Schema(_BaseModel):
-    """Extend Pydantic's BaseModel to enable ORM mode"""
-    model_config = {"from_attributes": True}
+class CommunityDTO(PydanticDTO[CommunitySchema]):
+    config = DTOConfig(
+        max_nested_depth=2,
+    )
 
 
-# Community creation DTO
-class CreateCommunityDTO(BaseModel):
-    name: constr(min_length=3, max_length=100)
-    description: Optional[str] = None
+class CreateCommunityDTO(PydanticDTO[CommunitySchema]):
+    config = DTOConfig(
+        exclude={'id', 'users', 'owner_id', 'postdays.0.id'},
+        max_nested_depth=2,
+        )
+
+
+class CommunityOutDTO(PydanticDTO[CommunitySchema]):
+    config = DTOConfig(
+        max_nested_depth=2,
+    )
+
+
+# from .postday import PostdaySchema
+from .tag import TagSchema
+from .postday import PostdaySchema
+from .user_community_association import UserCommunityAssociationSchema
+CommunitySchema.model_rebuild()
+
+
+
 

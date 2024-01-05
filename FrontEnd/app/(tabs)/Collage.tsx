@@ -1,10 +1,10 @@
 import React from 'react'
 import { Text } from 'react-native'
 
-const Settings = () => {
+const Collage = () => {
   return (
-    <Text>Settings</Text>
+    <Text>Collage</Text>
   )
 }
 
-export default Settings
+export default Collage

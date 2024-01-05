@@ -25,6 +25,8 @@ class UserSchema(Schema):
     updated_at: datetime
     is_active: bool
     last_login: datetime
+
+    posts: "list[PostSchema]" = []
     
     communities: "list[UserCommunityAssociationSchema]" = []
 
@@ -40,24 +42,24 @@ class UserSchema(Schema):
 
 # Define a DTO for user data
 class UserDTO(PydanticDTO[UserSchema]):
-    config = DTOConfig()
-
+    config = DTOConfig(
+        max_nested_depth=2,
+    )
 # Define a DTO for user login data
 class UserLoginDTO(UserDTO):
     config = DTOConfig(include={'username', 'password'})
 
 # Define a DTO for creating a new user
-class CreateUserDTO(PydanticDTO[UserSchema]):
+class CreateUserDTO(UserDTO):
     config = DTOConfig(include={'username', 'first_name', 'last_name', 'email', 'password'})
 
 # Define a DTO for user data output
-class UserOutDTO(PydanticDTO[UserSchema]):
+class UserOutDTO(UserDTO):
     config = DTOConfig(
         max_nested_depth=2,
     )
 
 
-
+from .post import PostSchema
 from .user_community_association import UserCommunityAssociationSchema
-from .community import CommunitySchema
 UserSchema.model_rebuild()

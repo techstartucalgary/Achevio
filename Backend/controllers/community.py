@@ -11,6 +11,8 @@ from litestar.dto import DTOData
 import datetime
 import pytz
 from uuid_extensions import uuid7
+from uuid import UUID
+from crud.postday import *
 
 class CommunityController(Controller):
     path = '/community'
@@ -20,6 +22,13 @@ class CommunityController(Controller):
     async def get_communities(self, request: Request, session: AsyncSession, limit: int = 100, offset: int = 0) -> list[CommunitySchema]:
         return await get_community_list(session, limit, offset)
 
+    @get('/{id:str}', exclude_from_auth=True)
+    async def get_community(self, session: AsyncSession, id: str) -> CommunitySchema:
+        return await get_community_by_id(session, id)
+    
+
+
+    ''' This endpoint has been deprecated, please use the user_create_community endpoint instead
     @post('/', dto=CreateCommunityDTO, exclude_from_auth=True)
     async def create_community(self, session: AsyncSession, data: DTOData[CommunitySchema]) -> CommunitySchema:
         current_time = datetime.datetime.now(pytz.utc)
@@ -29,22 +38,5 @@ class CommunityController(Controller):
             session.add(Community(**validated_community_data.__dict__))
             return validated_community_data
         except Exception as e:
-            raise HTTPException(status_code=409, detail=f"Error creating community: {e}")
-        
-
-    @get('/{id:str}', exclude_from_auth=True)
-    async def get_community(self, request: Request, session: AsyncSession, id: UUID) -> CommunitySchema:
-        return await get_community_by_id(session, id)
-    
-
-    # @put('/{}', dto=CommunityOutDTO, exclude_from_auth=True)
-    # async def add_member(self, request: Request, session: AsyncSession, id: UUID, data: DTOData[CommunitySchema]) -> CommunitySchema:
-    #     community = await get_community_by_id(session, id)
-    #     user = await get_user(session, request.user.username)
-    #     community.users.append(user)
-    #     try:
-    #         session.add(community)
-    #         return community
-    #     except Exception as e:
-    #         raise HTTPException(status_code=409, detail=f"Error adding member: {e}")
-
+            raise HTTPException(status_code=409, detail=f'Error creating community: {e}')
+    '''

@@ -1,28 +1,27 @@
 # Association.py
-from sqlalchemy import Column, Integer, ForeignKey, String, UUID
+from sqlalchemy import Column, ForeignKey, String, UUID
 from sqlalchemy.orm import relationship
-from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
+from litestar.contrib.sqlalchemy.base import UUIDBase
 import enum
-from sqlalchemy import Integer, Enum
-from .base import Base
-from sqlalchemy.schema import UniqueConstraint, PrimaryKeyConstraint
+
+from sqlalchemy.schema import UniqueConstraint
 
 class UserCommunityRoles(enum.Enum):
-    Owner = "Owner"
-    Admin = "Admin"
-    Member = "Member"
+    Owner = 'Owner'
+    Admin = 'Admin'
+    Member = 'Member'
 
 
 class UserCommunityAssociation(UUIDBase):
-    __tablename__ = "association_table"
-    user_id = Column(UUID, ForeignKey("user_table.id"))
-    community_id = Column(UUID, ForeignKey("community_table.id"))
+    __tablename__ = 'user_community_association_table'
+    user_id = Column(UUID, ForeignKey('user_table.id'))
+    community_id = Column(UUID, ForeignKey('community_table.id'))
 
     role = Column(String)
     community_name = Column(String)
 
-    community = relationship("Community", back_populates="users")
-    user = relationship("User", back_populates="communities")
+    community = relationship('Community', back_populates='users')
+    user = relationship('User', back_populates='communities')
 
 
     __table_args__ = (

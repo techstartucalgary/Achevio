@@ -1,14 +1,14 @@
-// _layout.tsx
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Link, Tabs } from "expo-router";
-import { Pressable, useColorScheme } from "react-native";
-import { FontAwesome as vectorIcon } from "@expo/vector-icons";
-
+import {Tabs} from "expo-router";
+import React from "react";
 import Colors from "../../constants/Colors";
+import { Pressable, useColorScheme } from "react-native";
+import {FontAwesome as vectorIcon } from "@expo/vector-icons";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import HomeIcon from "../../assets/icons/homeIcon";
+import CameraIcon from "../../assets/icons/CameraIcon";
+import CollageIcon from "../../assets/icons/collageIcon";
+import SearchIcon from "../../assets/icons/searchIcon";
 
-/**
- * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
- */
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof vectorIcon>["name"];
   color: string;
@@ -16,43 +16,38 @@ function TabBarIcon(props: {
   return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
 }
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+const ScreenLayout = () => {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Login",
-          tabBarIcon: ({ color }) => <TabBarIcon name="moon-o" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? "light"].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="two"
-        options={{
-          title: "Signup",
-          tabBarIcon: ({ color }) => <TabBarIcon name="sun-o" color={color} />,
-        }}
-      />
+    <Tabs>
+      <Tabs.Screen name="Communities" options={{
+        tabBarIcon: ({ color }) => <TabBarIcon name="users" color={color} />,
+        headerShown: false,
+        tabBarLabel: ''
+      }} />
+      <Tabs.Screen name="Search" options={{
+        tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+        headerShown: false,
+        tabBarLabel: ''
+      
+      }} />
+      <Tabs.Screen name="Camera" options ={{
+        tabBarIcon: ({ color }) => <TabBarIcon name="camera" color={color} />,
+        headerShown: false,
+        tabBarLabel: ''
+      }}/>
+      <Tabs.Screen name="Profile" options ={{
+        tabBarIcon: ({ color }) => <TabBarIcon name="photo" color={color} />,
+        headerShown: false,
+        tabBarLabel: ''
+      
+      }}/>
+      <Tabs.Screen name="Settings" options={{
+        tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+        headerShown: false,
+        tabBarLabel: ''
+      }} />
+      
     </Tabs>
   );
 }
+export default ScreenLayout

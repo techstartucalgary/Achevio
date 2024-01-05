@@ -7,21 +7,20 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Keyboard,
-  Pressable,
   ActivityIndicator,
 } from "react-native";
 import { Text, View } from "../../components/Themed";
-import { Link } from "expo-router";
+import { Link, router} from "expo-router";
 import GoogleLoginButton from "../../components/googleLoginButton";
 import { StackNavigationProp } from "@react-navigation/stack";
-} from "react-native";
 import axios from "axios";
+
 
 type RootStackParamList = {
   Signup: undefined;
   Login: undefined;
   modal: undefined;
+  Camera: undefined;
 };
 
 type SignupScreenNavigationProp = StackNavigationProp<
@@ -50,6 +49,7 @@ type LoginData = {
   refresh_token: string
   expires_in: number,
   detail: string
+  }
 
 
   async function postLoginInfo(): Promise<LoginResponse> {
@@ -74,7 +74,6 @@ type LoginData = {
       return error.response
     }
   }
-
   function responseCheck(response: LoginResponse): boolean {
     let checkResult: boolean = true
     if (response.status !== 201 ) {
@@ -88,6 +87,10 @@ type LoginData = {
   const dismissKeyboard = () => {
     Keyboard.dismiss();
   };
+
+  function onPressLoginButton(): void {
+    router.push('/(tabs)/Camera')
+  }
 
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
@@ -117,15 +120,19 @@ type LoginData = {
         }
         <TouchableOpacity
           style={styles.button}
-          onPress={async () => {
-            /* handle signup */
-            const res = await postLoginInfo()
-            if (responseCheck(res)) {
-              //navigate to main page
-              console.log("success login")
-              setErrorMessageVisible(false)
-            }
-          }}
+          // onPress={async () => {
+          //   /* handle signup */
+          //   const res = await postLoginInfo()
+          //   if (responseCheck(res)) {
+          //     //navigate to main page
+          //     console.log("success login")
+          //     setErrorMessageVisible(false)
+          //   }
+          // }}
+          onPress={() => 
+            onPressLoginButton()
+         
+          }
         >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>

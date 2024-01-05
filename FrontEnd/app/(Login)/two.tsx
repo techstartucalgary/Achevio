@@ -204,5 +204,9 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     marginBottom: 6,
     marginTop: -4,
+  },
+  linkstyle:{
+    marginTop: 20,
   }
+  
 });

@@ -7,21 +7,20 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Keyboard,
-  Pressable,
   ActivityIndicator,
 } from "react-native";
 import { Text, View } from "../../components/Themed";
-import { Link } from "expo-router";
+import { Link, router} from "expo-router";
 import GoogleLoginButton from "../../components/googleLoginButton";
 import { StackNavigationProp } from "@react-navigation/stack";
-} from "react-native";
 import axios from "axios";
+
 
 type RootStackParamList = {
   Signup: undefined;
   Login: undefined;
   modal: undefined;
+  Camera: undefined;
 };
 
 type SignupScreenNavigationProp = StackNavigationProp<
@@ -50,36 +49,54 @@ type LoginData = {
   refresh_token: string
   expires_in: number,
   detail: string
+  }
 
 
-  async function postLoginInfo(): Promise<LoginResponse> {
+  async function postLoginInfo(username: string, password: string): Promise<LoginResponse | null> {
     try {
       const configurationObject = {
         method: 'post',
-        // URl should be replaced with some route
-        url: `http://10.0.0.217:8000/login`,
+        url: `http://172.18.0.1:8000/login`,
         headers: {
           'accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        data: {
-          username: username,
-          password: password
-        }
+        data: { username, password }
       };
-      return await axios(configurationObject)
-    } catch (error: any) {
-      console.error(error);
-      console.log(error.response.status, error.response.data.detail)
-      return error.response
+
+      const response = await axios(configurationObject);
+      if (response.status === 201) {
+        return {
+          status: response.status,
+          data: response.data,
+        };
+      } else {
+        // Handle other statuses as needed
+        setErrorMessage("Unexpected response status: " + response.status);
+        setErrorMessageVisible(true);
+        return null;
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // Extracting error details from axios error object
+        const serverError = error as any;
+        if (serverError && serverError.response) {
+          console.error("Error response: ", serverError.response.status, serverError.response.data);
+          setErrorMessage(serverError.response.data.detail || "An error occurred");
+          setErrorMessageVisible(true);
+        } else {
+          console.error("Error: ", error);
+          setErrorMessage("An error occurred");
+          setErrorMessageVisible(true);
+        }
+      }
+      return null;
     }
   }
-
   function responseCheck(response: LoginResponse): boolean {
     let checkResult: boolean = true
     if (response.status !== 201 ) {
       checkResult = false
-      setErrorMessageVisible(true)
       setErrorMessage(response.data.detail)
     }
     return checkResult;
@@ -89,6 +106,18 @@ type LoginData = {
     Keyboard.dismiss();
   };
 
+  async function onPressLoginButton (username: string, password: string) {
+    setLoading(true)
+    // const res = await postLoginInfo(username, password)
+    // if (responseCheck(res)) {
+    //   //navigate to main page
+    //   console.log("success login")
+    //   setErrorMessageVisible(false)
+    //   router.push('/(tabs)/Camera')
+    // }
+    setLoading(false)
+    router.push('/(tabs)/Camera')
+  }
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <View style={styles.container}>
@@ -117,15 +146,19 @@ type LoginData = {
         }
         <TouchableOpacity
           style={styles.button}
-          onPress={async () => {
-            /* handle signup */
-            const res = await postLoginInfo()
-            if (responseCheck(res)) {
-              //navigate to main page
-              console.log("success login")
-              setErrorMessageVisible(false)
-            }
-          }}
+          // onPress={async () => {
+          //   /* handle signup */
+          //   const res = await postLoginInfo()
+          //   if (responseCheck(res)) {
+          //     //navigate to main page
+          //     console.log("success login")
+          //     setErrorMessageVisible(false)
+          //   }
+          // }}
+          onPress={() => 
+            onPressLoginButton(username, password)
+         
+          }
         >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>

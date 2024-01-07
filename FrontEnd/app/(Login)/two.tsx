@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View,} from "react-native";
+import {Alert, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View,} from "react-native";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {Link} from "expo-router";
 import axios from "axios";
@@ -20,11 +20,6 @@ type Props = {
 };
 
 
-type signupResponse = {
-  status: number
-  data: signupData,
-}
-
 type signupData = {
   communities:[],
   email: string,
@@ -35,118 +30,131 @@ type signupData = {
   password:string,
   detail:string
 }
-export default function SignupScreen({ navigation }: Props) {
+export default function SignupScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [errorMessageVisible, setErrorMessageVisible] = useState(false)
-  const [errorMessage, setErrorMessage] = useState("")
-  const postSignupInfo = async ():Promise<signupResponse> => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const validateInput = () => {
+    if (!email || !username || !password || !confirmPassword) {
+      Alert.alert("Error", "Please fill in all fields.");
+      return false;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match.");
+      return false;
+    }
+    // Add any additional validation here (e.g., email format, password strength)
+    return true;
+  };
+
+  const postSignupInfo = async () => {
+    console.log("signup has been pressed"); // for debugging
+    if (!validateInput()){
+      console.log("validateInput failed"); // for debugging
+      return;
+    }
+    setIsLoading(true);
     try {
-      const configurationObject = {
-        method: 'post',
-        // URl should replace with some route
-        url: `http://10.0.0.217:8000/user`,
-        headers:{
+      const response = await axios.post('http://127.0.0.1:8000/user', {
+        username,
+        password,
+        email,
+        first_name: "Magdy",
+        last_name: "Hafez",
+      }, {
+        headers: {
           'accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        data: {
-          username: username,
-          password: password,
-          first_name: "placeholder",
-          last_name: "placeholder",
-          email: "placeholder"
-        }
-      };
-      return await axios(configurationObject)
-    } catch (error:any) {
-      console.error(error);
-      console.log(error.response.status, error.response.data.detail)
-      return error.response
+      });
+
+      if (response.status === 201) {
+        Alert.alert("Success", "Signup successful!");
+        // handle successful signup, like navigation or clearing the form
+      } else {
+        Alert.alert("Error", response.data.detail || "An unexpected error occurred.");
+      }
+    } catch (error) {
+      console.log("Error details:", error);
+      // Check for additional details
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log(error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message);
+      }    
+    } finally {
+      setIsLoading(false);
     }
   };
-  function formatCheck():boolean {
-    let checkResult:boolean = true
-    if(username.length === 0 || password.length === 0 || confirmPassword.length === 0) {
-      // handle empty input
-      checkResult = false
-      setErrorMessageVisible(true)
-      setErrorMessage("Please filling username and password")
+  const getRequest = async () => {
+    try {
+      const response = await axios.get('http://172.18.0.1:8000/user');
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
     }
-    else if(confirmPassword !== password){
-      // handle inconsistent password
-      checkResult = false
-      setErrorMessageVisible(true)
-      setErrorMessage("Inconsistent password")
-    }
-    return checkResult
-  }
-
-  function responseCheck(response:signupResponse):boolean {
-    let checkResult:boolean = true
-    if (response.status !== 201){
-      checkResult = false
-      setErrorMessageVisible(true)
-      setErrorMessage(response.data.detail)
-    }
-    return checkResult;
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Signup</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={setUsername}
-        value={username}
-        placeholder="Username"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setPassword}
-        value={password}
-        placeholder="Password"
-        secureTextEntry
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setConfirmPassword}
-        value={confirmPassword}
-        placeholder="Confirm Password"
-        secureTextEntry
-      />
-      {
-        errorMessageVisible ?
-            <Text style={styles.errorStyle}>
-              {errorMessage}
-            </Text>
-            : null
-      }
-      <TouchableOpacity
+      {isLoading? (
+        <Text>Loading...</Text>
+      ) : (
+        <>
+        <Text style={styles.title}>Signup</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={setUsername}
+          value={username}
+          placeholder="Username"
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          onChangeText={setEmail}
+          value={email}
+          placeholder="Email"
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          onChangeText={setPassword}
+          value={password}
+          placeholder="Password"
+          secureTextEntry
+        />
+        <TextInput
+          style={styles.input}
+          onChangeText={setConfirmPassword}
+          value={confirmPassword}
+          placeholder="Confirm Password"
+          secureTextEntry
+        />
+        <TouchableOpacity
         style={styles.signupBtn}
-        onPress={async () => {
-          /* handle signup */
-          if (formatCheck()){
-            const res = await postSignupInfo()
-            if (responseCheck(res)){
-              //navigate to main page
-              console.log("success signup")
-              setErrorMessageVisible(false)
-              }
-          }
-        }}
-      >
-        <Text style={styles.signupText}>Signup</Text>
-      </TouchableOpacity>
-
-      <Link href="/" style={styles.linkstyle}>
-        <Text style={styles.loginText}>Go to Login</Text>
-      </Link>
-
-      <StatusBar backgroundColor="#000000" barStyle="light-content" />
-
+        onPress={getRequest}
+        disabled={isLoading}
+        >
+          <Text style={styles.signupText}>Signup</Text>
+        </TouchableOpacity>
+  
+        <Link href="/" style={styles.linkstyle}>
+          <Text style={styles.loginText}>Go to Login</Text>
+        </Link>
+  
+        <StatusBar backgroundColor="#000000" barStyle="light-content" />
+      </>
+      )}
     </View>
   );
 }

@@ -27,8 +27,6 @@ export default function CameraPage() {
   const cameraRef = useRef<Camera>(null);
   const [type, setType] = useState(CameraType.back);
   const [flashMode, setFlashMode] = useState(FlashMode.off);
-  const [photo, setPhoto] = useState(null);
-  const navigation = useTypedNavigation();
 
   useEffect(() => {
     (async () => {
@@ -71,12 +69,12 @@ export default function CameraPage() {
       if (type === CameraType.front) {
         const flippedImage = await flipImage(uri);
         router.push({
-          pathname: '/PhotoPreview', // The route name
+          pathname: '/(pages)/Photopreview', // The route name
           params: { photoUri: flippedImage.uri }, // Parameters as an object
         });
         } else {
         router.push({
-          pathname: '/Photopreview', // The route name
+          pathname: '/(pages)/Photopreview', // The route name
           params: { photoUri: uri }, // Parameters as an object
         });
       }

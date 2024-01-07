@@ -1,4 +1,4 @@
-import {Tabs} from "expo-router";
+import {Stack, Tabs} from "expo-router";
 import React from "react";
 import Colors from "../../constants/Colors";
 import { Pressable, useColorScheme } from "react-native";
@@ -15,15 +15,16 @@ function TabBarIcon(props: {
 }) {
   return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
 }
-
 const ScreenLayout = () => {
   return (
-    <Tabs>
-      <Tabs.Screen name="Communities" options={{
+    <Tabs screenOptions={{ headerShown: false }}>
+      <Tabs.Screen name="Communities" 
+      options={{
         tabBarIcon: ({ color }) => <TabBarIcon name="users" color={color} />,
         headerShown: false,
-        tabBarLabel: ''
-      }} />
+        tabBarLabel: '',
+      }}>
+      </Tabs.Screen>
       <Tabs.Screen name="Search" options={{
         tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
         headerShown: false,
@@ -35,13 +36,13 @@ const ScreenLayout = () => {
         headerShown: false,
         tabBarLabel: ''
       }}/>
-      <Tabs.Screen name="Profile" options ={{
+      <Tabs.Screen name="Collage" options ={{
         tabBarIcon: ({ color }) => <TabBarIcon name="photo" color={color} />,
         headerShown: false,
         tabBarLabel: ''
       
       }}/>
-      <Tabs.Screen name="Settings" options={{
+      <Tabs.Screen name="Profile" options={{
         tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
         headerShown: false,
         tabBarLabel: ''

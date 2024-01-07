@@ -1,16 +1,13 @@
-import React from 'react';
-import { useState } from 'react';
-import { View, Image, StyleSheet, Button, Text,TouchableOpacity } from 'react-native';
+import React, {useMemo} from 'react';
+import { View, Image, StyleSheet, Text,TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { router } from 'expo-router';
-import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, router } from "expo-router";
 
 
 export default function PhotoPreviewPage() {
-    const route = useRouter();
     const params = useLocalSearchParams();
     const photoUri = params.photoUri;
-    const [image, setImage] = useState(photoUri);
+    const image = useMemo(() => photoUri, []);
 
 
     return (

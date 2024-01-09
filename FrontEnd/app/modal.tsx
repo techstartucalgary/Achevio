@@ -5,9 +5,8 @@ import { View, Text } from "../components/Themed";
 import { StackNavigationProp } from "@react-navigation/stack";
 
 type RootStackParamList = {
-  Signup: undefined; // undefined because you don't pass any parameters to this screen
+  Signup: undefined; 
   Login: undefined;
-  // ... other screen definitions
 };
 type SignupScreenNavigationProp = StackNavigationProp<
   RootStackParamList,

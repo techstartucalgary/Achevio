@@ -26,6 +26,11 @@ class CommunityController(Controller):
     async def get_community(self, session: AsyncSession, id: str) -> CommunitySchema:
         return await get_community_by_id(session, id)
     
+    @put('/TransferOwnership/{id:str}/{newUser:str}', exclude_from_auth=True)
+    async def transfer_ownership(self, session: AsyncSession, id: str, newUser: str) -> CommunitySchema:
+        return await transfer_community_ownership(session, id, newUser)
+
+    
 
 
     ''' This endpoint has been deprecated, please use the user_create_community endpoint instead

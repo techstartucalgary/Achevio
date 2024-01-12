@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
   Keyboard,
   Pressable,
@@ -10,11 +10,10 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Text, View } from "../../components/Themed";
-import { Link, router} from "expo-router";
+import { Link, router } from "expo-router";
 import GoogleLoginButton from "../../components/googleLoginButton";
 import { StackNavigationProp } from "@react-navigation/stack";
 import axios from "axios";
-
 
 type RootStackParamList = {
   Signup: undefined;
@@ -23,10 +22,7 @@ type RootStackParamList = {
   Camera: undefined;
 };
 
-type SignupScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "Signup"
->;
+type SignupScreenNavigationProp = StackNavigationProp<RootStackParamList, "Signup">;
 
 type Props = {
   navigation: SignupScreenNavigationProp;
@@ -35,33 +31,32 @@ export default function LoginScreen({ navigation }: Props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("")
-  const [errorMessageVisible, setErrorMessageVisible] = useState(false)
-  
-type LoginResponse = {
-  status: number
-  data: LoginData,
-}
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessageVisible, setErrorMessageVisible] = useState(false);
 
-type LoginData = {
-  access_token: string,
-  token_type: string,
-  refresh_token: string
-  expires_in: number,
-  detail: string
-  }
+  type LoginResponse = {
+    status: number;
+    data: LoginData;
+  };
 
+  type LoginData = {
+    access_token: string;
+    token_type: string;
+    refresh_token: string;
+    expires_in: number;
+    detail: string;
+  };
 
   async function postLoginInfo(username: string, password: string): Promise<LoginResponse | null> {
     try {
       const configurationObject = {
-        method: 'post',
-        url: `http://172.18.0.1:8000/login`,
+        method: "post",
+        url: `http:/10.13.103.218:8000/login`,
         headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
+          accept: "application/json",
+          "Content-Type": "application/json",
         },
-        data: { username, password }
+        data: { username, password },
       };
 
       const response = await axios(configurationObject);
@@ -94,10 +89,10 @@ type LoginData = {
     }
   }
   function responseCheck(response: LoginResponse): boolean {
-    let checkResult: boolean = true
-    if (response.status !== 201 ) {
-      checkResult = false
-      setErrorMessage(response.data.detail)
+    let checkResult: boolean = true;
+    if (response.status !== 201) {
+      checkResult = false;
+      setErrorMessage(response.data.detail);
     }
     return checkResult;
   }
@@ -106,8 +101,8 @@ type LoginData = {
     Keyboard.dismiss();
   };
 
-  async function onPressLoginButton (username: string, password: string) {
-    setLoading(true)
+  async function onPressLoginButton(username: string, password: string) {
+    setLoading(true);
     // const res = await postLoginInfo(username, password)
     // if (responseCheck(res)) {
     //   //navigate to main page
@@ -115,8 +110,8 @@ type LoginData = {
     //   setErrorMessageVisible(false)
     //   router.push('/(tabs)/Camera')
     // }
-    setLoading(false)
-    router.push('/(tabs)/Camera')
+    setLoading(false);
+    router.push("/(tabs)/Camera");
   }
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
@@ -137,13 +132,7 @@ type LoginData = {
           secureTextEntry
           autoCapitalize="none"
         />
-        {
-          errorMessageVisible ?
-            <Text style={styles.errorStyle}>
-              {errorMessage}
-            </Text>
-            : null
-        }
+        {errorMessageVisible ? <Text style={styles.errorStyle}>{errorMessage}</Text> : null}
         <TouchableOpacity
           style={styles.button}
           // onPress={async () => {
@@ -155,25 +144,17 @@ type LoginData = {
           //     setErrorMessageVisible(false)
           //   }
           // }}
-          onPress={() => 
-            onPressLoginButton(username, password)
-         
-          }
-        >
+          onPress={() => onPressLoginButton(username, password)}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
-        {loading ? (
-          <ActivityIndicator size="large" color="#0000ff" />
-        ) : (
-          <GoogleLoginButton />
-        )}
+        {loading ? <ActivityIndicator size="large" color="#0000ff" /> : <GoogleLoginButton />}
         <Link href="/two" asChild>
           <Pressable>
             <Text style={styles.navText}>Go to Signup</Text>
           </Pressable>
         </Link>
 
-        <StatusBar backgroundColor="#000000" barStyle="light-content"/>
+        <StatusBar backgroundColor="#000000" barStyle="light-content" />
       </View>
     </TouchableWithoutFeedback>
   );
@@ -220,11 +201,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 15,
   },
-  errorStyle:{
+  errorStyle: {
     fontSize: 14,
     color: "#ee0008",
     fontWeight: "500",
     marginBottom: 6,
     marginTop: -4,
-  }
+  },
 });

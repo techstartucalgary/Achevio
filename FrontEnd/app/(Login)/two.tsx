@@ -1,7 +1,15 @@
-import React, {useState} from "react";
-import {Alert, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View,} from "react-native";
-import {StackNavigationProp} from "@react-navigation/stack";
-import {Link} from "expo-router";
+import React, { useState } from "react";
+import {
+  Alert,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { Link } from "expo-router";
 import axios from "axios";
 
 type RootStackParamList = {
@@ -10,26 +18,22 @@ type RootStackParamList = {
   // ... other screen definitions
 };
 
-type SignupScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "Signup"
->;
+type SignupScreenNavigationProp = StackNavigationProp<RootStackParamList, "Signup">;
 
 type Props = {
   navigation: SignupScreenNavigationProp;
 };
 
-
 type signupData = {
-  communities:[],
-  email: string,
-  first_name:string,
-  last_name: string,
-  id: string,
-  username:string,
-  password:string,
-  detail:string
-}
+  communities: [];
+  email: string;
+  first_name: string;
+  last_name: string;
+  id: string;
+  username: string;
+  password: string;
+  detail: string;
+};
 export default function SignupScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -52,24 +56,28 @@ export default function SignupScreen() {
 
   const postSignupInfo = async () => {
     console.log("signup has been pressed"); // for debugging
-    if (!validateInput()){
+    if (!validateInput()) {
       console.log("validateInput failed"); // for debugging
       return;
     }
     setIsLoading(true);
     try {
-      const response = await axios.post('http://127.0.0.1:8000/user', {
-        username,
-        password,
-        email,
-        first_name: "Magdy",
-        last_name: "Hafez",
-      }, {
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
+      const response = await axios.post(
+        "http://10.13.103.218:8000/user",
+        {
+          username,
+          password,
+          email,
+          first_name: "Magdy",
+          last_name: "Hafez",
         },
-      });
+        {
+          headers: {
+            accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.status === 201) {
         Alert.alert("Success", "Signup successful!");
@@ -90,70 +98,81 @@ export default function SignupScreen() {
         console.log(error.request);
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log('Error', error.message);
-      }    
+        console.log("Error", error.message);
+      }
     } finally {
       setIsLoading(false);
     }
   };
   const getRequest = async () => {
     try {
-      const response = await axios.get('http://172.18.0.1:8000/user');
+      const response = await axios.post(
+        "http://10.13.103.218:8000/user",
+        {
+          username: "magdy",
+          password: "magdy",
+          email: "siyfg",
+          first_name: "Magdy",
+          last_name: "Hafez",
+        },
+        {
+          headers: {
+            accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
       console.log(response.data);
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   return (
     <View style={styles.container}>
-      {isLoading? (
+      {isLoading ? (
         <Text>Loading...</Text>
       ) : (
         <>
-        <Text style={styles.title}>Signup</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={setUsername}
-          value={username}
-          placeholder="Username"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={setEmail}
-          value={email}
-          placeholder="Email"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={setPassword}
-          value={password}
-          placeholder="Password"
-          secureTextEntry
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={setConfirmPassword}
-          value={confirmPassword}
-          placeholder="Confirm Password"
-          secureTextEntry
-        />
-        <TouchableOpacity
-        style={styles.signupBtn}
-        onPress={getRequest}
-        disabled={isLoading}
-        >
-          <Text style={styles.signupText}>Signup</Text>
-        </TouchableOpacity>
-  
-        <Link href="/" style={styles.linkstyle}>
-          <Text style={styles.loginText}>Go to Login</Text>
-        </Link>
-  
-        <StatusBar backgroundColor="#000000" barStyle="light-content" />
-      </>
+          <Text style={styles.title}>Signup</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={setUsername}
+            value={username}
+            placeholder="Username"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={setEmail}
+            value={email}
+            placeholder="Email"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={setPassword}
+            value={password}
+            placeholder="Password"
+            secureTextEntry
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={setConfirmPassword}
+            value={confirmPassword}
+            placeholder="Confirm Password"
+            secureTextEntry
+          />
+          <TouchableOpacity style={styles.signupBtn} onPress={getRequest} disabled={isLoading}>
+            <Text style={styles.signupText}>Signup</Text>
+          </TouchableOpacity>
+
+          <Link href="/" style={styles.linkstyle}>
+            <Text style={styles.loginText}>Go to Login</Text>
+          </Link>
+
+          <StatusBar backgroundColor="#000000" barStyle="light-content" />
+        </>
       )}
     </View>
   );
@@ -201,20 +220,19 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  linkStyle:{
+  linkStyle: {
     fontSize: 16,
     color: "#6200EE",
     fontWeight: "500",
   },
-  errorStyle:{
+  errorStyle: {
     fontSize: 14,
     color: "#ee0008",
     fontWeight: "500",
     marginBottom: 6,
     marginTop: -4,
   },
-  linkstyle:{
+  linkstyle: {
     marginTop: 20,
-  }
-  
+  },
 });

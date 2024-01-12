@@ -29,7 +29,6 @@ from crud.tag import get_tag_by_name
 from .auth import oauth2_auth
 
 
-
 class UserController(Controller):
     path = '/user'
     return_dto = UserOutDTO
@@ -51,7 +50,6 @@ class UserController(Controller):
         user = UserSchema.model_validate(await user_join_community(session, communityID, request.user))
         await session.commit()
         return user
-        
 
     @get('/', exclude_from_auth=True)
     async def get_users(self, request: 'Request[User, Token, Any]', session: AsyncSession, limit: int = 100, offset: int = 0) -> list[UserSchema]:
@@ -70,7 +68,6 @@ class UserController(Controller):
         user = await get_user_list(session, limit, offset)
         return user
 
-
     @get('/me')
     async def get_me(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> UserSchema:
         '''
@@ -85,34 +82,33 @@ class UserController(Controller):
         '''
         return UserSchema.model_validate(await get_user(session, request.user))
 
+    # DEPRECATED PLEASE USE THE NEW ONE
+    # @post('/', dto=CreateUserDTO, exclude_from_auth=True)
+    # async def create_user(self, session: AsyncSession, data: DTOData[UserSchema]) -> UserSchema:
+    #     '''
+    #     Create a new user.
+
+    #     Args:
+    #         session (AsyncSession): The database session.
+    #         data (DTOData[UserSchema]): Data for creating the new user.
+
+    #     Returns:
+    #         UserSchema: The created user's information in UserSchema format.
+
+    #     Raises:
+    #         HTTPException: If a user with the same username already exists.
+    #     '''
+    #     current_time = datetime.datetime.now(pytz.utc)
+    #     user_data = data.create_instance(id=uuid7(), communities=[], posts=[], created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
+    #     validated_user_data = UserSchema.model_validate(user_data)
+    #     validated_user_data.set_password(validated_user_data.password)
+    #     try:
+    #         session.add(User(**validated_user_data.__dict__))
+    #         return validated_user_data
+    #     except Exception as e:
+    #         raise HTTPException(status_code=409, detail=f'Error {e}')
+
     @post('/', dto=CreateUserDTO, exclude_from_auth=True)
-    async def create_user(self, session: AsyncSession, data: DTOData[UserSchema]) -> UserSchema:
-        '''
-        Create a new user.
-
-        Args:
-            session (AsyncSession): The database session.
-            data (DTOData[UserSchema]): Data for creating the new user.
-
-        Returns:
-            UserSchema: The created user's information in UserSchema format.
-        
-        Raises:
-            HTTPException: If a user with the same username already exists.
-        '''
-        current_time = datetime.datetime.now(pytz.utc)
-        user_data = data.create_instance(id=uuid7(), communities=[], posts=[], created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
-        validated_user_data = UserSchema.model_validate(user_data)
-        validated_user_data.set_password(validated_user_data.password)
-        try:
-            session.add(User(**validated_user_data.__dict__))
-            return validated_user_data
-        except Exception as e:
-            raise HTTPException(status_code=409, detail=f'Error {e}')
-
-
-
-    @post('/create_user_and_login', dto=CreateUserDTO, exclude_from_auth=True)
     async def create_user_and_login(self, session: AsyncSession, data: DTOData[UserSchema]) -> Response[OAuth2Login]:
         '''
         Create a new user and logs in. This might become the new default way of creating users.
@@ -123,25 +119,26 @@ class UserController(Controller):
 
         Returns:
             UserSchema: The created user's information in UserSchema format.
-        
+
         Raises:
             HTTPException: If a user with the same username already exists.
         '''
         current_time = datetime.datetime.now(pytz.utc)
-        user_data = data.create_instance(id=uuid7(), communities=[], posts=[], created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
+        user_data = data.create_instance(id=uuid7(), communities=[], posts=[
+        ], created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
         validated_user_data = UserSchema.model_validate(user_data)
         validated_user_data.set_password(validated_user_data.password)
         try:
             session.add(User(**validated_user_data.__dict__))
-            token = oauth2_auth.login(identifier=str(validated_user_data.username))
+            token = oauth2_auth.login(
+                identifier=str(validated_user_data.username))
             session_key = f'session:{validated_user_data.username}'
             await redis.hmset(session_key, {'userId': str(validated_user_data.id), 'username': validated_user_data.username, 'token': str(token.cookies)})
-            
+
             return token
         except Exception as e:
-            raise HTTPException(status_code=409, detail=f'User with that username exists')
-
-
+            raise HTTPException(
+                status_code=409, detail=f'User with that username exists')
 
     @post('/community', dto=CreateCommunityDTO)
     async def create_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: DTOData[CommunitySchema]) -> CommunitySchema:
@@ -161,9 +158,11 @@ class UserController(Controller):
         '''
         current_time = datetime.datetime.now(pytz.utc)
 
-        commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time, postdays=[], tags=[])
+        commiunity_data = data.create_instance(id=uuid7(), users=[
+        ], created_at=current_time, updated_at=current_time, postdays=[], tags=[])
 
-        validated_community_data = CommunitySchema.model_validate(commiunity_data)
+        validated_community_data = CommunitySchema.model_validate(
+            commiunity_data)
         try:
             community = Community(**validated_community_data.__dict__)
             session.add(community)
@@ -175,14 +174,15 @@ class UserController(Controller):
             for i in range(len(tags)):
                 tag = await get_tag_by_name(session, tags[i].__dict__['name'])
                 community.tags.append(tag)
-            validated_community_data = CommunitySchema.model_validate(commiunity_data)
+            validated_community_data = CommunitySchema.model_validate(
+                commiunity_data)
             await user_join_community(session, validated_community_data.id, request.user, 'owner')
             await session.commit()
 
             return validated_community_data
         except Exception as e:
-            raise HTTPException(status_code=409, detail=f'Error creating community: {e}') 
-
+            raise HTTPException(
+                status_code=409, detail=f'Error creating community: {e}')
 
     @post('/{communityID:str}/leave')
     async def leave_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, communityID: str) -> str:
@@ -199,17 +199,13 @@ class UserController(Controller):
         '''
         return await user_leave_community(session, communityID, request.user)
 
-
-
-
-    
     @patch('/profile_image', media_type=MediaType.TEXT)
     async def update_profile_picture(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[UploadFile, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
         user = await get_user(session, request.user)
 
         content = await data.read()
         filename = f'{user.id}.jpg'
-        
+
         image_dir = "static/images/users"
         os.makedirs(image_dir, exist_ok=True)
 
@@ -218,19 +214,16 @@ class UserController(Controller):
             await outfile.write(content)
 
         return f"Profile picture updated at: {file_path}"
-    
-
-
 
     @post('/post', media_type=MediaType.TEXT)
     async def create_post(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[CreatePostSchema, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
         user = await get_user(session, request.user)
         image = await data.file.read()
 
-        post = Post(id=uuid7(), title=data.title, caption=data.caption, user_id=user.id, community_id=data.community_id)
+        post = Post(id=uuid7(), title=data.title, caption=data.caption,
+                    user_id=user.id, community_id=data.community_id)
         session.add(post)
 
-        
         image_dir = "static/images/posts"
         os.makedirs(image_dir, exist_ok=True)
         filename = f'{post.id}.jpg'
@@ -240,13 +233,8 @@ class UserController(Controller):
             await outfile.write(image)
         return f"File created at {file_path}"
 
-
-    
-
-
-
-
     # Define a GET route for testing, excluding it from authentication Delete later on!
+
     @get('/test', exclude_from_auth=True)
     async def test(self) -> str:
         '''
@@ -257,6 +245,3 @@ class UserController(Controller):
         '''
         await redis.set('foo', 'bar')
         return await redis.get('foo')
-    
-
-

@@ -23,7 +23,7 @@ from schemas.post import PostSchema, CreatePostSchema, PostDTO, CreatePostDTO
 from models.user import User
 from models.community import Community
 from models.post import Post
-from crud.users import get_user, get_user_list, user_join_community, user_leave_community
+from crud.users import get_user_by_username, get_user_by_id,get_user_list, user_join_community, user_leave_community
 from crud.postday import get_postday_by_name
 from crud.tag import get_tag_by_name
 from .auth import oauth2_auth
@@ -83,32 +83,33 @@ class UserController(Controller):
         Returns:
             UserSchema: The user's information in UserSchema format.
         '''
-        return UserSchema.model_validate(await get_user(session, request.user))
+        return UserSchema.model_validate(await get_user_by_id(session, request.user))
 
-    @post('/', dto=CreateUserDTO, exclude_from_auth=True)
-    async def create_user(self, session: AsyncSession, data: DTOData[UserSchema]) -> UserSchema:
-        '''
-        Create a new user.
+    # DEPRECATED
+    # @post('/', dto=CreateUserDTO, exclude_from_auth=True)
+    # async def create_user(self, session: AsyncSession, data: DTOData[UserSchema]) -> UserSchema:
+    #     '''
+    #     Create a new user.
 
-        Args:
-            session (AsyncSession): The database session.
-            data (DTOData[UserSchema]): Data for creating the new user.
+    #     Args:
+    #         session (AsyncSession): The database session.
+    #         data (DTOData[UserSchema]): Data for creating the new user.
 
-        Returns:
-            UserSchema: The created user's information in UserSchema format.
+    #     Returns:
+    #         UserSchema: The created user's information in UserSchema format.
         
-        Raises:
-            HTTPException: If a user with the same username already exists.
-        '''
-        current_time = datetime.datetime.now(pytz.utc)
-        user_data = data.create_instance(id=uuid7(), communities=[], posts=[], created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
-        validated_user_data = UserSchema.model_validate(user_data)
-        validated_user_data.set_password(validated_user_data.password)
-        try:
-            session.add(User(**validated_user_data.__dict__))
-            return validated_user_data
-        except Exception as e:
-            raise HTTPException(status_code=409, detail=f'Error {e}')
+    #     Raises:
+    #         HTTPException: If a user with the same username already exists.
+    #     '''
+    #     current_time = datetime.datetime.now(pytz.utc)
+    #     user_data = data.create_instance(id=uuid7(), communities=[], posts=[], created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
+    #     validated_user_data = UserSchema.model_validate(user_data)
+    #     validated_user_data.set_password(validated_user_data.password)
+    #     try:
+    #         session.add(User(**validated_user_data.__dict__))
+    #         return validated_user_data
+    #     except Exception as e:
+    #         raise HTTPException(status_code=409, detail=f'Error {e}')
 
 
 
@@ -128,14 +129,14 @@ class UserController(Controller):
             HTTPException: If a user with the same username already exists.
         '''
         current_time = datetime.datetime.now(pytz.utc)
-        user_data = data.create_instance(id=uuid7(), communities=[], posts=[], created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
+        user_data = data.create_instance(id=uuid7(),communities=[], posts=[], created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
         validated_user_data = UserSchema.model_validate(user_data)
         validated_user_data.set_password(validated_user_data.password)
         try:
             session.add(User(**validated_user_data.__dict__))
-            token = oauth2_auth.login(identifier=str(validated_user_data.username))
-            session_key = f'session:{validated_user_data.username}'
-            await redis.hmset(session_key, {'userId': str(validated_user_data.id), 'username': validated_user_data.username, 'token': str(token.cookies)})
+            token = oauth2_auth.login(identifier=str(validated_user_data.id))
+            session_key = f'session:{validated_user_data.id}'
+            await redis.hmset(session_key, {'user_id': str(validated_user_data.id), 'username': validated_user_data.username, 'token': str(token.cookies)})
             
             return token
         except Exception as e:
@@ -205,7 +206,7 @@ class UserController(Controller):
     
     @patch('/profile_image', media_type=MediaType.TEXT)
     async def update_profile_picture(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[UploadFile, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
-        user = await get_user(session, request.user)
+        user = await get_user_by_id(session, request.user)
 
         content = await data.read()
         filename = f'{user.id}.jpg'
@@ -224,7 +225,7 @@ class UserController(Controller):
 
     @post('/post', media_type=MediaType.TEXT)
     async def create_post(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[CreatePostSchema, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
-        user = await get_user(session, request.user)
+        user = await get_user_by_id(session, request.user)
         image = await data.file.read()
 
         post = Post(id=uuid7(), title=data.title, caption=data.caption, user_id=user.id, community_id=data.community_id)

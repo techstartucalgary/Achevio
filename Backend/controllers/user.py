@@ -113,8 +113,8 @@ class UserController(Controller):
 
 
 
-    @post('/create_user_and_login', dto=CreateUserDTO, exclude_from_auth=True)
-    async def create_user_and_login(self, session: AsyncSession, data: DTOData[UserSchema]) -> Response[OAuth2Login]:
+    @post('/', dto=CreateUserDTO, exclude_from_auth=True)
+    async def create_user_login(self, session: AsyncSession, data: DTOData[UserSchema]) -> Response[OAuth2Login]:
         '''
         Create a new user and logs in. This might become the new default way of creating users.
 

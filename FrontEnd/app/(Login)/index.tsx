@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Image,
   Keyboard,
   Pressable,
   StatusBar,
@@ -9,6 +10,8 @@ import {
   TouchableWithoutFeedback,
   ActivityIndicator,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+
 import { Text, View } from "../../components/Themed";
 import { Link, router } from "expo-router";
 import GoogleLoginButton from "../../components/googleLoginButton";
@@ -116,7 +119,11 @@ export default function LoginScreen({ navigation }: Props) {
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <View style={styles.container}>
-        <Text style={styles.title}>Login</Text>
+        {/* the image for the login page goes here with the realtive path FrontEnd/assets/images/temp_rocket.png  */}
+
+        <Image source={require("../../assets/images/temp_rocket.png")} style={styles.image} />
+
+        <Text style={styles.title}>Welcome Back!</Text>
         <TextInput
           style={styles.input}
           onChangeText={setUsername}
@@ -148,6 +155,7 @@ export default function LoginScreen({ navigation }: Props) {
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
         {loading ? <ActivityIndicator size="large" color="#0000ff" /> : <GoogleLoginButton />}
+        <Text style={styles.navText}>---------------- OR ----------------</Text>
         <Link href="/two" asChild>
           <Pressable>
             <Text style={styles.navText}>Go to Signup</Text>
@@ -166,37 +174,39 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "#fff",
+    backgroundColor: "#03214a",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    color: "#333",
+    color: "#fff",
   },
   input: {
     height: 50,
     borderColor: "gray",
+    backgroundColor: "#fffeeb",
     borderWidth: 1,
     marginBottom: 20,
     width: "100%",
     paddingHorizontal: 10,
-    borderRadius: 5,
+    borderRadius: 20,
     color: "#333",
   },
   button: {
     width: "100%",
-    backgroundColor: "#6200EE",
+    backgroundColor: "#a2d2ff",
     padding: 15,
     alignItems: "center",
-    borderRadius: 5,
+    borderRadius: 20,
+    marginBottom: 10,
   },
   buttonText: {
     color: "#ffffff",
     fontWeight: "bold",
   },
   navText: {
-    color: "#6200EE",
+    color: "#fffeeb",
     fontSize: 16,
     fontWeight: "bold",
     marginTop: 15,
@@ -207,5 +217,10 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     marginBottom: 6,
     marginTop: -4,
+  },
+  image: {
+    width: 300,
+    height: 300,
+    marginBottom: 20,
   },
 });

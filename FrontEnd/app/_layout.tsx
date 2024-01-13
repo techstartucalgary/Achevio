@@ -1,14 +1,10 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
-
+import { Text } from "react-native";
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -51,15 +47,20 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <Text>this is the strt part of teh entire page</Text>
       <Stack>
         <Stack.Screen name="(Login)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: "modal" }} />
         <Stack.Screen
           name="(tabs)"
-          options={{ headerShown: false, presentation:"fullScreenModal" }}
-          />
-        <Stack.Screen name="(pages)" options={{ headerShown: false, presentation:"fullScreenModal" }} />
+          options={{ headerShown: false, presentation: "fullScreenModal" }}
+        />
+        <Stack.Screen
+          name="(pages)"
+          options={{ headerShown: false, presentation: "fullScreenModal" }}
+        />
       </Stack>
+      <Text>this is the end part of teh entire page</Text>
     </ThemeProvider>
   );
 }

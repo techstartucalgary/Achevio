@@ -3,7 +3,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Link, Tabs } from "expo-router";
 import { Pressable, useColorScheme } from "react-native";
 import { FontAwesome as vectorIcon } from "@expo/vector-icons";
-
+import { Text } from "react-native";
 import Colors from "../../constants/Colors";
 
 /**
@@ -27,7 +27,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Login Page",
+          title: "Login",
           tabBarIcon: ({ color }) => <TabBarIcon name="moon-o" color={color} />,
           headerRight: () => (
             <Link href="/modal" asChild>
@@ -48,7 +48,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="two"
         options={{
-          title: "Signup page",
+          title: "Signup",
           tabBarIcon: ({ color }) => <TabBarIcon name="sun-o" color={color} />,
         }}
       />

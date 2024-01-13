@@ -23,7 +23,7 @@ from schemas.post import PostSchema, CreatePostSchema, PostDTO, CreatePostDTO
 from models.user import User
 from models.community import Community
 from models.post import Post
-from crud.users import get_user, get_user_list, user_join_community, user_leave_community
+from crud.users import get_user, get_user_list, user_join_community, user_leave_community, transfer_community_ownership
 from crud.postday import get_postday_by_name
 from crud.tag import get_tag_by_name
 from .auth import oauth2_auth
@@ -242,7 +242,11 @@ class UserController(Controller):
 
 
     
-
+    @post('/TransferOwnership/{id:str}/{newUser:str}')
+    async def transfer_ownership(self, request: 'Request[User, Token, Any]', session: AsyncSession, id: str, newUser: str) -> str:
+        user = await get_user(session, request.user)
+        await transfer_community_ownership(session, id, user, newUser)
+        return f"Ownership Transfered to {newUser}"
 
 
 

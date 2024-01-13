@@ -14,6 +14,9 @@ from uuid_extensions import uuid7
 from uuid import UUID
 from crud.postday import *
 
+from litestar.contrib.jwt import OAuth2Login, Token
+from models.user import User
+
 class CommunityController(Controller):
     path = '/community'
     return_dto = CommunityOutDTO
@@ -26,9 +29,7 @@ class CommunityController(Controller):
     async def get_community(self, session: AsyncSession, id: str) -> CommunitySchema:
         return await get_community_by_id(session, id)
     
-    @put('/TransferOwnership/{id:str}/{newUser:str}', exclude_from_auth=True)
-    async def transfer_ownership(self, session: AsyncSession, id: str, newUser: str) -> CommunitySchema:
-        return await transfer_community_ownership(session, id, newUser)
+    
 
     
 

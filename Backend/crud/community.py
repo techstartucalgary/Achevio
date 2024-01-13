@@ -5,6 +5,8 @@ from litestar.exceptions import HTTPException
 
 from models.community import Community
 
+from models.user import User
+
 async def get_community_list(session: AsyncSession, limit: int = 100, offset: int = 0) -> list[Community]:
     """
     Retrieve a list of communities with optional pagination.
@@ -73,37 +75,3 @@ async def get_community_by_name(session: AsyncSession, name: str) -> Community:
     except:
         # Raise an HTTP exception if there's an issue retrieving the community.
         raise HTTPException(status_code=401, detail="Error retrieving community")
-
-async def transfer_community_ownership(session: AsyncSession, id: UUID, new_owner: UUID) -> Community:
-    """
-    Transfer ownership of a community to a new user.
-
-    Args:
-        session (AsyncSession): The database session for executing queries.
-        id (UUID): The unique identifier of the community to transfer ownership of.
-        new_owner (UUID): The unique identifier of the new owner.
-
-    Returns:
-        Community: The Community object with the specified UUID.
-
-    Raises:
-        HTTPException: If there's an error retrieving the community or if the community doesn't exist.
-    """
-
-    community = await get_community_by_id(session, id)
-    if community is None:
-        raise HTTPException(status_code=401, detail="Community not found")
-    
-    try:
-        community.owner_id = new_owner
-        session.commit()
-        return community
-    except:
-        # Raise an HTTP exception if there's an issue retrieving the community.
-        raise HTTPException(status_code=401, detail="Error retrieving community")
-
-
-    # Create a query to find the community by its UUID and execute it.
-    query = select(Community).where(Community.id == id)
-    result = await session.execute(query)
-   

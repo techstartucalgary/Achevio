@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Image,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { Link } from "expo-router";
@@ -134,12 +135,17 @@ export default function SignupScreen() {
         <Text>Loading...</Text>
       ) : (
         <>
-          <Text style={styles.title}>Signup</Text>
+          <Image source={require("../../assets/images/temp_rocket.png")} style={styles.image} />
+          <Text style={styles.title}>Glad to have you on board !</Text>
+          <Text style={styles.subheading}>
+            But first we would like to get to know a little bit more about you{" "}
+          </Text>
           <TextInput
             style={styles.input}
             onChangeText={setUsername}
             value={username}
             placeholder="Username"
+            placeholderTextColor="#343a40"
             autoCapitalize="none"
           />
           <TextInput
@@ -147,6 +153,7 @@ export default function SignupScreen() {
             onChangeText={setEmail}
             value={email}
             placeholder="Email"
+            placeholderTextColor="#343a40"
             autoCapitalize="none"
           />
           <TextInput
@@ -154,6 +161,7 @@ export default function SignupScreen() {
             onChangeText={setPassword}
             value={password}
             placeholder="Password"
+            placeholderTextColor="#343a40"
             secureTextEntry
           />
           <TextInput
@@ -161,14 +169,15 @@ export default function SignupScreen() {
             onChangeText={setConfirmPassword}
             value={confirmPassword}
             placeholder="Confirm Password"
+            placeholderTextColor="#343a40"
             secureTextEntry
           />
           <TouchableOpacity style={styles.signupBtn} onPress={getRequest} disabled={isLoading}>
             <Text style={styles.signupText}>Signup</Text>
           </TouchableOpacity>
-
+          <Text style={styles.navText}>---------------- OR ----------------</Text>
           <Link href="/" style={styles.linkstyle}>
-            <Text style={styles.loginText}>Go to Login</Text>
+            <Text style={styles.loginText}>Go back to Login</Text>
           </Link>
 
           <StatusBar backgroundColor="#000000" barStyle="light-content" />
@@ -183,46 +192,61 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "white",
+    backgroundColor: "#03214a",
     paddingHorizontal: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
+    color: "#fffeeb",
+  },
+  subheading: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 20,
+    color: "#fffeeb",
+    textAlign: "center",
   },
   input: {
     width: "100%",
-    height: 50,
+    height: 40,
     borderColor: "gray",
+    backgroundColor: "#fffeeb",
+
     borderWidth: 1,
-    marginBottom: 20,
+    marginBottom: 10,
     paddingLeft: 10,
-    borderRadius: 5,
+    borderRadius: 20,
   },
   signupBtn: {
     width: "100%",
-    height: 50,
-    backgroundColor: "#6200EE",
+    height: 40,
+    backgroundColor: "#a2d2ff",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 4,
+    borderRadius: 20,
     marginBottom: 12,
   },
   signupText: {
     fontSize: 18,
-    color: "#FFFFFF",
+    color: "#fffeeb",
     fontWeight: "bold",
   },
   loginText: {
     fontSize: 16,
-    color: "#6200EE",
+    color: "#fffeeb",
     fontWeight: "500",
   },
-
+  navText: {
+    color: "#fffeeb",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: 15,
+  },
   linkStyle: {
     fontSize: 16,
-    color: "#6200EE",
+    color: "#fffeeb",
     fontWeight: "500",
   },
   errorStyle: {
@@ -234,5 +258,10 @@ const styles = StyleSheet.create({
   },
   linkstyle: {
     marginTop: 20,
+  },
+  image: {
+    width: 300,
+    height: 300,
+    marginBottom: 20,
   },
 });

@@ -119,8 +119,6 @@ export default function LoginScreen({ navigation }: Props) {
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <View style={styles.container}>
-        {/* the image for the login page goes here with the realtive path FrontEnd/assets/images/temp_rocket.png  */}
-
         <Image source={require("../../assets/images/temp_rocket.png")} style={styles.image} />
 
         <Text style={styles.title}>Welcome Back!</Text>
@@ -129,6 +127,7 @@ export default function LoginScreen({ navigation }: Props) {
           onChangeText={setUsername}
           value={username}
           placeholder="Username"
+          placeholderTextColor="#343a40"
           autoCapitalize="none"
         />
         <TextInput
@@ -136,6 +135,7 @@ export default function LoginScreen({ navigation }: Props) {
           onChangeText={setPassword}
           value={password}
           placeholder="Password"
+          placeholderTextColor="#343a40"
           secureTextEntry
           autoCapitalize="none"
         />
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   buttonText: {
-    color: "#ffffff",
+    color: "#fffeeb",
     fontWeight: "bold",
   },
   navText: {

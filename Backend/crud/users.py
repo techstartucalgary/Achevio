@@ -140,7 +140,7 @@ async def transfer_community_ownership(session: AsyncSession, id: UUID, user: Us
     if community is None:
         raise HTTPException(status_code=401, detail="Community not found")
     
-    new_owner = await get_user(session, new_owner)
+    new_owner = await get_user_by_id(session, new_owner)
 
     query = select(UserCommunityAssociation).where(UserCommunityAssociation.community_id == id, UserCommunityAssociation.user_id == user.id)
     result = await session.execute(query)

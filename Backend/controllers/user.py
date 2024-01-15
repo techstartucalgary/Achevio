@@ -244,10 +244,10 @@ class UserController(Controller):
 
     
     @post('/TransferOwnership/{id:str}/{newUser:str}')
-    async def transfer_ownership(self, request: 'Request[User, Token, Any]', session: AsyncSession, id: str, newUser: str) -> str:
-        user = await get_user(session, request.user)
-        await transfer_community_ownership(session, id, user, newUser)
-        return f"Ownership Transfered to {newUser}"
+    async def transfer_ownership(self, request: 'Request[User, Token, Any]', session: AsyncSession, communityID: str, newUserID: str) -> str:
+        user = await get_user_by_id(session, request.user)
+        await transfer_community_ownership(session, id, user, newUserID)
+        return f"Ownership Transfered to {newUserID}"
 
 
 

@@ -9,7 +9,7 @@ from schemas.users import UserSchema
 from models.community import Community
 from schemas.community import CommunitySchema
 
-async def user_join_community(session: AsyncSession, communityID: UUID, username: User, role: str = "member") -> UserSchema:
+async def user_join_community(session: AsyncSession, communityID: UUID, user_id: User, role: str = "member") -> UserSchema:
     """
     Add a user to a community with a specified role.
 
@@ -24,7 +24,7 @@ async def user_join_community(session: AsyncSession, communityID: UUID, username
     """
     # Retrieve the specified community and user.
     community = await get_community_by_id(session, communityID)
-    user = await get_user(session, username)
+    user = await get_user_by_id(session, user_id)
     
     # Create a new association between the user and community with the given role.
     user_community_join = UserCommunityAssociation(user_id=user.id, community_id=community.id, role=role, community_name=community.name)
@@ -32,7 +32,7 @@ async def user_join_community(session: AsyncSession, communityID: UUID, username
     return user
 
 
-async def user_leave_community(session: AsyncSession, communityID: UUID, username: User) -> str:
+async def user_leave_community(session: AsyncSession, communityID: UUID, user_id: UUID) -> str:
     """
     Remove a user from a community.
 
@@ -45,11 +45,13 @@ async def user_leave_community(session: AsyncSession, communityID: UUID, usernam
         str: A message indicating the user has left the community.
     """
     # Retrieve the user and delete the association with the community.
-    user = await get_user(session, username)
+    user = await get_user_by_id(session, user_id)
     query = delete(UserCommunityAssociation).where(UserCommunityAssociation.community_id == communityID).where(UserCommunityAssociation.user_id == user.id)
-    await session.execute(query)
-    return f"{username} has left the community with ID {communityID}"
-
+    result = await session.execute(query)
+    if result.scalar_one_or_none():
+        return f"{user.username} has left the community with ID {communityID}"
+    return f"{user.username} is not a member of the community with ID {communityID}"
+        
 
 async def get_user_list(session: AsyncSession, limit: int = 100, offset: int = 0) -> list[User]:
     """
@@ -69,7 +71,7 @@ async def get_user_list(session: AsyncSession, limit: int = 100, offset: int = 0
     return result.scalars().all()
 
 
-async def get_user(session: AsyncSession, username: str) -> User:
+async def get_user_by_username(session: AsyncSession, username: str) -> User:
     """
     Retrieve a single user by their username.
 
@@ -85,6 +87,31 @@ async def get_user(session: AsyncSession, username: str) -> User:
     """
     # Create a query to find the user by username and execute it.
     query = select(User).options(orm.selectinload(User.communities)).where(User.username == username)
+    result = await session.execute(query)
+    try:
+        return result.scalar_one()
+    except:
+        # Raise an HTTP exception if there's an issue retrieving the user.
+        raise HTTPException(status_code=401, detail="Error retrieving user")
+
+
+
+async def get_user_by_id(session: AsyncSession, id: UUID) -> User:
+    """
+    Retrieve a single user by their username.
+
+    Args:
+        session (AsyncSession): The database session for executing queries.
+        username (str): The username of the user to retrieve.
+
+    Returns:
+        UserSchema: The user object with the specified username.
+
+    Raises:
+        HTTPException: If there's an error retrieving the user or if the user doesn't exist.
+    """
+    # Create a query to find the user by username and execute it.
+    query = select(User).options(orm.selectinload(User.communities)).where(User.id == id)
     result = await session.execute(query)
     try:
         return result.scalar_one()

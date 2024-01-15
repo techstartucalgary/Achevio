@@ -5,6 +5,8 @@ from litestar.exceptions import HTTPException
 
 from models.community import Community
 
+from models.user import User
+
 async def get_community_list(session: AsyncSession, limit: int = 100, offset: int = 0) -> list[Community]:
     """
     Retrieve a list of communities with optional pagination.

@@ -6,6 +6,8 @@ from models.user import User
 from crud.community import get_community_by_id
 from models.user_community_association import UserCommunityAssociation
 from schemas.users import UserSchema
+from models.community import Community
+from schemas.community import CommunitySchema
 
 async def user_join_community(session: AsyncSession, communityID: UUID, user_id: User, role: str = "member") -> UserSchema:
     """
@@ -116,3 +118,48 @@ async def get_user_by_id(session: AsyncSession, id: UUID) -> User:
     except:
         # Raise an HTTP exception if there's an issue retrieving the user.
         raise HTTPException(status_code=401, detail="Error retrieving user")
+
+
+async def transfer_community_ownership(session: AsyncSession, id: UUID, user: User, new_owner: str) -> Community:
+    """
+    Transfer ownership of a community to a new user.
+
+    Args:
+        session (AsyncSession): The database session for executing queries.
+        id (UUID): The unique identifier of the community to transfer ownership of.
+        new_owner (UUID): The unique identifier of the new owner.
+
+    Returns:
+        Community: The Community object with the specified UUID.
+
+    Raises:
+        HTTPException: If there's an error retrieving the community or if the community doesn't exist.
+    """
+    
+    community = await get_community_by_id(session, id)
+    if community is None:
+        raise HTTPException(status_code=401, detail="Community not found")
+    
+    new_owner = await get_user_by_id(session, new_owner)
+
+    query = select(UserCommunityAssociation).where(UserCommunityAssociation.community_id == id, UserCommunityAssociation.user_id == user.id)
+    result = await session.execute(query)
+    user_association = result.scalar_one_or_none()
+    if user_association is None:
+        raise HTTPException(status_code=401, detail="Unauthrized Transfer")
+    if user_association.role != "owner":
+        raise HTTPException(status_code=401, detail="Unauthrized Transfer")
+ 
+        
+    query = select(UserCommunityAssociation).where(UserCommunityAssociation.community_id == id, UserCommunityAssociation.user_id == new_owner.id)
+    result = await session.execute(query)
+    new_owner_association = result.scalar_one_or_none()
+    if new_owner_association is None:
+        raise HTTPException(status_code=401, detail="The new owner is not a member of the community")
+
+    user_association.role = "admin"
+    new_owner_association.role = "owner"
+
+    await session.commit()
+    return community
+    

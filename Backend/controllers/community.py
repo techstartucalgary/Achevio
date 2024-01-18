@@ -2,25 +2,25 @@
 from typing import Optional, Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from litestar import Response, Request, get, post, put
+from litestar import Response, Request, get, post, put, delete
 from litestar import Controller
-
-from schemas.community import *
-from crud.community import * 
+from schemas.community import CommunityOutDTO, CommunitySchema
+from crud.community import get_community_list, get_community_by_id, delete_community_by_id 
 from litestar.dto import DTOData
 import datetime
 import pytz
 from uuid_extensions import uuid7
 from uuid import UUID
-from crud.postday import *
+
 
 from litestar.contrib.jwt import OAuth2Login, Token
 from models.user import User
 
+
 class CommunityController(Controller):
     path = '/community'
     return_dto = CommunityOutDTO
-
+    
     @get('/', exclude_from_auth=True)
     async def get_communities(self, request: Request, session: AsyncSession, limit: int = 100, offset: int = 0) -> list[CommunitySchema]:
         return await get_community_list(session, limit, offset)
@@ -29,6 +29,13 @@ class CommunityController(Controller):
     async def get_community(self, session: AsyncSession, id: str) -> CommunitySchema:
         return await get_community_by_id(session, id)
     
+    @delete('/{id:str}')
+    async def delete_community(self, request: Request['User','Token',Any], session: AsyncSession, id: str, ) -> None:
+        
+        await delete_community_by_id(session, id, request.user)
+        print(f"Community {id} deleted")
+        return  None
+   
     
 
     

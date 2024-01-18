@@ -15,8 +15,7 @@ export {
 } from "expo-router";
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "(Login)",
+  initialRouteName: "(Login)/authSwiper",
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -56,9 +55,18 @@ function RootLayoutNav() {
         <Stack.Screen name="modal" options={{ presentation: "modal" }} />
         <Stack.Screen
           name="(tabs)"
-          options={{ headerShown: false, presentation:"fullScreenModal" }}
-          />
-        <Stack.Screen name="(pages)" options={{ headerShown: false, presentation:"fullScreenModal" }} />
+          options={{
+            headerShown: false,
+            gestureEnabled: false, // Disable swipe gesture
+          }}
+        />
+        <Stack.Screen
+          name="(pages)"
+          options={{
+            headerShown: false,
+            gestureDirection: "horizontal"
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );

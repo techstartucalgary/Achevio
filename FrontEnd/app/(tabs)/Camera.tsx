@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TouchableOpacity, StyleSheet, Text, StatusBar, Image } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Text, StatusBar, Image, Dimensions } from 'react-native';
 import { Camera, CameraType, FlashMode } from 'expo-camera';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons'; // Make sure to install @expo/vector-icons
@@ -21,12 +21,16 @@ type NavigationProp = StackNavigationProp<RootStackParamList>;
 function useTypedNavigation() {
   return useNavigation<NavigationProp>();
 }
+const screenWidth = Dimensions.get('window').width;
+const cameraHeight = (screenWidth / 4) * 3;
 
 export default function CameraPage() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const cameraRef = useRef<Camera>(null);
   const [type, setType] = useState(CameraType.back);
   const [flashMode, setFlashMode] = useState(FlashMode.off);
+
+
 
   useEffect(() => {
     (async () => {
@@ -94,7 +98,7 @@ export default function CameraPage() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <Camera style={styles.camera} type={type} flashMode={flashMode} ref={cameraRef}>
+      <Camera style={[styles.camera, { height: cameraHeight }]} type={type} flashMode={flashMode} ref={cameraRef}>
         <View style={styles.buttonContainer}>
           {/* Capture Button */}
           <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
@@ -123,6 +127,8 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
+    width: screenWidth,
+    height: cameraHeight,
   },
   buttonContainer: {
     backgroundColor: 'transparent',

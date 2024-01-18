@@ -1,11 +1,11 @@
-import React, { useRef, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, Image, Dimensions, TouchableOpacity } from 'react-native';
+import React, { useRef, useEffect, useState } from 'react';
+import { StyleSheet, Text, View, FlatList, Image, Dimensions, TouchableOpacity, Modal } from 'react-native';
 import { getDayOfYear, getISODay } from 'date-fns';
 import { router } from 'expo-router';
 import uuid from 'react-native-uuid';
 // Constants
 const windowWidth = Dimensions.get('window').width;
-const DATE_ITEM_WIDTH = windowWidth / 5; // Display 5 items at a time
+const DATE_ITEM_WIDTH = (windowWidth / 6); // Display 5 items at a time
 
 // Generate dates data with dynamic range
 const generateDatesData = () => {
@@ -14,7 +14,7 @@ const generateDatesData = () => {
   const currentDayOfYear = getDayOfYear(today);
   const daysInWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  return Array.from({ length: 7 }, (_, i) => {
+  return Array.from({ length: 30 }, (_, i) => {
     const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i - 3);
     return {
       key: String(currentDayOfYear + i - 3),
@@ -27,10 +27,48 @@ const generateDatesData = () => {
 
 const datesData = generateDatesData();
 const todayIndex = datesData.findIndex(item => item.isToday);
-
+// Post Details Modal Component
+const PostDetailsModal = ({ post, isVisible, onClose }) => {
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={isVisible}
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Image source={{ uri: post.userImage }} style={styles.userImage} />
+            <Text style={styles.postUser}>{post.user}</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>×</Text>
+            </TouchableOpacity>
+          </View>
+          <Image source={{ uri: post.imageUri }} style={styles.modalPostImage} />
+          <Text style={styles.postCaption}>{post.caption}</Text>
+          <FlatList
+            data={post.comments}
+            renderItem={({ item }) => (
+              <Text key={item.id} style={styles.postComment}>{item.text}</Text>
+            )}
+            keyExtractor={(item) => item.id}
+            style={styles.commentsList}
+          />
+        </View>
+      </View>
+    </Modal>
+  );
+};
 const postData = Array.from({ length: 10 }, (_, index) => ({
   key: String(index),
-  imageUri: 'https://via.placeholder.com/150'
+  imageUri: 'https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais',
+  userImage: 'https://static.vecteezy.com/system/resources/previews/019/896/008/original/male-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png',
+  user: 'User ' + (index + 1),
+  caption: 'Caption for post ' + (index + 1),
+  comments: [
+    { id: uuid.v4(), text: 'Comment 1 for post ' + (index + 1) }
+  ],
 }));
 
 const communitiesData = Array.from({ length: 10 }, (_, index) => ({
@@ -41,6 +79,21 @@ const communitiesData = Array.from({ length: 10 }, (_, index) => ({
 
 const Communities = () => {
   const flatListRef = useRef(null);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  // Function to handle post item press
+  const handlePostPress = (post) => {
+    setSelectedPost(post);
+    setModalVisible(true);
+  };
+
+  // Component for rendering post items
+  const renderPostItem = ({ item }) => (
+    <TouchableOpacity onPress={() => handlePostPress(item)}>
+      <Image source={{ uri: item.imageUri }} style={styles.postImage} />
+    </TouchableOpacity>
+  );
 
   useEffect(() => {
     // Check if today's index is valid and scroll to it
@@ -60,10 +113,6 @@ const Communities = () => {
       </View>
     );
   };
-  // Component for rendering post items
-  const renderPostItem = ({ item }) => (
-    <Image source={{ uri: item.imageUri }} style={styles.postImage} />
-  );
   const id = uuid.v4();
   // Component for rendering community items
   const renderCommunityItem = ({ item }) => (
@@ -115,6 +164,7 @@ const Communities = () => {
   );
 
   return (
+    <>
     <FlatList
       ListHeaderComponent={ListHeader}
       data={communitiesData}
@@ -122,6 +172,15 @@ const Communities = () => {
       keyExtractor={(item) => item.key}
       style={styles.container}
     />
+    {selectedPost && (
+        <PostDetailsModal
+          post={selectedPost}
+          isVisible={modalVisible}
+          onClose={() => setModalVisible(false)}
+        />
+      )}
+    </>
+    
   );
 };
 
@@ -142,7 +201,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   highlight: {
-    backgroundColor: 'orange', // Your highlight color
+    backgroundColor: 'lightblue', // Your highlight color
+    borderRadius: 10,
   },
   dateDay: {
     color: '#fff',
@@ -159,6 +219,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     padding: 10,
   },
+
   postsList: {
     flexGrow: 0, // Ensure the FlatList does not expand
     paddingLeft: 10,
@@ -172,18 +233,82 @@ const styles = StyleSheet.create({
   communityItem: {
     backgroundColor: '#1e1e1e',
     padding: 15,
+    height: 100,  
     marginVertical: 8,
     marginHorizontal: 10,
     borderRadius: 10, // if you want rounded corners
   },
+
+  postUser: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  postCaption: {
+    fontSize: 16,
+    marginVertical: 10,
+  },
+
+
   communityTitle: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 28,
     fontWeight: 'bold',
   },
   communityStreak: {
     color: '#fff',
     marginTop: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    maxHeight: Dimensions.get('window').height * 0.9,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  userImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+  },
+  modalPostImage: {
+    width: '100%',
+    height: 600,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  closeButton: {
+    marginLeft: 'auto',
+    backgroundColor: 'transparent',
+    padding: 10,
+    width: 40,
+
+  },
+  closeButtonText: {
+    fontSize: 24,
+    color: '#333',
+  },
+  commentsList: {
+    marginTop: 10,
+  },
+  // Restyle postComment if needed
+  postComment: {
+    fontSize: 14,
+    color: '#333',
+    paddingVertical: 4,
   },
 });
 

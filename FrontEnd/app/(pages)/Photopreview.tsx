@@ -1,41 +1,53 @@
-import React, {useMemo} from 'react';
-import { View, Image, StyleSheet, Text,TouchableOpacity } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, Image, StyleSheet, Text, TouchableOpacity, TextInput } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, router } from "expo-router";
-
+import axios from 'axios';
 
 export default function PhotoPreviewPage() {
-    const params = useLocalSearchParams();
-    const photoUri = params.photoUri;
-    const image = useMemo(() => photoUri, []);
-
-
-    return (
-      <View style={styles.container}>
-        {/* Image covering the entire screen */}
-        <Image source={{ uri: image.toString() }} style={styles.image} />
+  const params = useLocalSearchParams();
+  const photoUri = params.photoUri;
+  const image = useMemo(() => photoUri, []);
+  const handleSubmit = () => {
+    router.push({
+      pathname: '/EditPost',
+      params: {
+        photoUri: image,
+      },
+    })
+  };
+  
+  return (
+    <View style={styles.container}>
+      <Image source={{ uri: image.toString() }} style={styles.image} />
       <Text style={styles.instructions}>Here's your picture!</Text>
-        {/* Semi-transparent overlay with buttons */}
-        <View style={styles.overlay}>
-          <TouchableOpacity style={styles.button} onPress={() => 
-            router.push('/Camera')}>
-
-            <Text style={styles.buttonText}>Retake</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => {
-            /* Implement proceed action */
-            }}>
-            <Text style={styles.buttonText}>Proceed</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.overlay}>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/Camera')}>
+          <Text style={styles.buttonText}>Retake</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+          <Text style={styles.buttonText}>Proceed</Text>
+        </TouchableOpacity>
       </View>
-    );
-  }
+    </View>
+  );
+}
   
   const styles = StyleSheet.create({
     container: {
       flex: 1,
+      width: '100%',
       backgroundColor: 'black', // This will be the color behind the image if it doesn't cover the entire screen due to aspect ratio
+    },
+    captionInput: {
+      height: 50,
+      margin: 12,
+      borderWidth: 1,
+      borderColor: '#fff',
+      padding: 10,
+      color: '#fff',
+      borderRadius: 10,
+      backgroundColor: '#ffffffa0', // Semi-transparent white
     },
     overlay: {
       position: 'absolute', 
@@ -51,10 +63,13 @@ export default function PhotoPreviewPage() {
       marginHorizontal: 20,
     },
     image: {
-        width: '100%', // Adjust as needed
-        height: '80%', // Adjust as needed
-        resizeMode: 'contain',
-      },
+      width: '100%',
+      height: '100%',
+      resizeMode: 'cover',
+      marginHorizontal: 0,
+      marginTop: 0,
+    },
+    
       instructions: {
         fontSize: 18,
         margin: 10,

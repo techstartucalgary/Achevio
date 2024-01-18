@@ -147,11 +147,6 @@ export default function SignupScreen() {
         >
           <Text style={styles.signupText}>Signup</Text>
         </TouchableOpacity>
-  
-        <Link href="/" style={styles.linkstyle}>
-          <Text style={styles.loginText}>Go to Login</Text>
-        </Link>
-  
         <StatusBar backgroundColor="#000000" barStyle="light-content" />
       </>
       )}

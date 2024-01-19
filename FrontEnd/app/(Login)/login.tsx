@@ -56,7 +56,7 @@ type LoginData = {
     try {
       const configurationObject = {
         method: 'post',
-        url: `http://10.13.83.165:8000/login`,
+        url: `http://10.13.85.26:8000/login`,
         headers: {
           'accept': 'application/json',
           'Content-Type': 'application/json',
@@ -107,15 +107,15 @@ type LoginData = {
   };
 
   async function onPressLoginButton (username: string, password: string) {
-    // setLoading(true)
-    // const res = await postLoginInfo(username, password)
-    // if (responseCheck(res)) {
-    //   console.log("success login")
-    //   setErrorMessageVisible(false)
-    //   router.push('/(tabs)/Camera')
-    // }
-    // setLoading(false)
-    router.push('/(tabs)/Camera')
+    setLoading(true)
+    const res = await postLoginInfo(username, password)
+    if (responseCheck(res)) {
+      console.log("success login")
+      setErrorMessageVisible(false)
+      router.push('/(tabs)/Camera')
+    }
+    setLoading(false)
+    // router.push('/(tabs)/Camera')
   }
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>

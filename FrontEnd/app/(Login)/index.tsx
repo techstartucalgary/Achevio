@@ -6,6 +6,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Colors from "../../constants/Colors";
 import LoginScreen from './login';
 import SignupScreen from './signup';
+import Landing from './Landing';
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -28,9 +29,13 @@ export default function TabLayout() {
       
       activeDotColor={Colors.light.tint}
     >
+    <View style={styles.slide}>
+        <Landing />
+      </View>
       <View style={styles.slide}>
         <LoginScreen />
       </View>
+      
       <View style={styles.slide}>
         <SignupScreen />
       </View>

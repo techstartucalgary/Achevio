@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, Text } from '../../components/Themed'
 
-const three = () => {
+const Landing = () => {
   return (
     <View>
       <Text>three</Text>
@@ -9,4 +9,4 @@ const three = () => {
   )
 }
 
-export default three
+export default Landing

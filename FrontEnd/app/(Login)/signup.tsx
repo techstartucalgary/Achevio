@@ -58,7 +58,7 @@ export default function SignupScreen() {
     }
     setIsLoading(true);
     try {
-      const response = await axios.post('http://127.0.0.1:8000/user', {
+      const response = await axios.post('http://10.13.85.26:8000/user', {
         username,
         password,
         email,
@@ -98,7 +98,7 @@ export default function SignupScreen() {
   };
   const getRequest = async () => {
     try {
-      const response = await axios.get('http://172.18.0.1:8000/user');
+      const response = await axios.get('http://10.13.85.26:8000/user');
       console.log(response.data);
     } catch (error) {
       console.error(error);
@@ -142,7 +142,7 @@ export default function SignupScreen() {
         />
         <TouchableOpacity
         style={styles.signupBtn}
-        onPress={getRequest}
+        onPress={postSignupInfo}
         disabled={isLoading}
         >
           <Text style={styles.signupText}>Signup</Text>

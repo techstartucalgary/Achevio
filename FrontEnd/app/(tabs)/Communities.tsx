@@ -2,6 +2,9 @@ import React, { useRef, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, FlatList, Image, Dimensions, TouchableOpacity, Modal } from 'react-native';
 import { getDayOfYear, getISODay } from 'date-fns';
 import { router } from 'expo-router';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faComment, faHeart } from '@fortawesome/free-solid-svg-icons';
+
 import uuid from 'react-native-uuid';
 // Constants
 const windowWidth = Dimensions.get('window').width;
@@ -24,11 +27,38 @@ const generateDatesData = () => {
     };
   });
 };
+const CommentModal = ({ isVisible, onClose, }) => {
+
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={isVisible}
+      onRequestClose={onClose}
+    >
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <Text style={styles.modalText}>Comments will go here...</Text>
+          <TouchableOpacity
+            style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
+            onPress={onClose}
+          >
+            <Text style={styles.textStyle}>Hide Comments</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+};
 
 const datesData = generateDatesData();
 const todayIndex = datesData.findIndex(item => item.isToday);
+
 // Post Details Modal Component
-const PostDetailsModal = ({ post, isVisible, onClose }) => {
+const PostDetailsModal = ({ post, isVisible, onClose, onComment }) => {
+  const handleLikePress = () => {
+    // Handle like press
+  }
   return (
     <Modal
       animationType="slide"
@@ -47,14 +77,21 @@ const PostDetailsModal = ({ post, isVisible, onClose }) => {
           </View>
           <Image source={{ uri: post.imageUri }} style={styles.modalPostImage} />
           <Text style={styles.postCaption}>{post.caption}</Text>
-          <FlatList
-            data={post.comments}
-            renderItem={({ item }) => (
-              <Text key={item.id} style={styles.postComment}>{item.text}</Text>
-            )}
-            keyExtractor={(item) => item.id}
-            style={styles.commentsList}
-          />
+          <View style={styles.actionsContainer}>
+          <TouchableOpacity 
+            onPress={() => onComment()} 
+            style={styles.actionButton}
+          >
+            <FontAwesomeIcon icon={faComment} size={24} color={"#555"} />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={handleLikePress} 
+            style={styles.actionButton}
+          >
+            <FontAwesomeIcon icon={faHeart} size={24} color={"#555"} />
+          </TouchableOpacity>
+        </View>
+
         </View>
       </View>
     </Modal>
@@ -81,6 +118,8 @@ const Communities = () => {
   const flatListRef = useRef(null);
   const [selectedPost, setSelectedPost] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [commentsModalVisible, setCommentsModalVisible] = useState(false);
+
 
   // Function to handle post item press
   const handlePostPress = (post) => {
@@ -176,9 +215,15 @@ const Communities = () => {
         <PostDetailsModal
           post={selectedPost}
           isVisible={modalVisible}
+          onComment={() => setCommentsModalVisible(!commentsModalVisible)}
           onClose={() => setModalVisible(false)}
         />
       )}
+        <CommentModal 
+
+        isVisible={commentsModalVisible} 
+        onClose={() => setCommentsModalVisible(false)} 
+      />
     </>
     
   );
@@ -238,7 +283,21 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     borderRadius: 10, // if you want rounded corners
   },
-
+  openButton: {
+    backgroundColor: "#F194FF",
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center"
+  },
   postUser: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -248,8 +307,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginVertical: 10,
   },
-
-
   communityTitle: {
     color: '#fff',
     fontSize: 28,
@@ -309,6 +366,38 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
     paddingVertical: 4,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white", 
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 10,
+  },
+  actionButton: {
+    padding: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    borderRadius: 5,
+    marginRight: 10, // Add some space between buttons
   },
 });
 

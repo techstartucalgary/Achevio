@@ -19,6 +19,7 @@ class UserCommunityAssociation(UUIDBase):
 
     role = Column(String)
     community_name = Column(String)
+    colour = Column(String)
 
     community = relationship('Community', back_populates='users')
     user = relationship('User', back_populates='communities')

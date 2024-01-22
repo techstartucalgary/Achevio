@@ -12,5 +12,7 @@ class Post(UUIDAuditBase):
 
     user_id: Mapped[UUID] = mapped_column(ForeignKey('user_table.id'))
     community_id: Mapped[UUID] = mapped_column(ForeignKey('community_table.id'))
-    # user: Mapped['User'] = relationship('User', back_populates='posts')    
+    # user: Mapped['User'] = relationship('User', back_populates='posts')
+
+    # store community name     
 

@@ -37,7 +37,8 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("")
   const [errorMessageVisible, setErrorMessageVisible] = useState(false)
-  
+  const url = 'http://10.14.140.52:8000'
+
 type LoginResponse = {
   status: number
   data: LoginData,
@@ -56,7 +57,7 @@ type LoginData = {
     try {
       const configurationObject = {
         method: 'post',
-        url: `http://10.13.85.26:8000/login`,
+        url: `${url}/login`,
         headers: {
           'accept': 'application/json',
           'Content-Type': 'application/json',

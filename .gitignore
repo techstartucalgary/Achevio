@@ -1,11 +1,2 @@
-.DS_Store
-*.pyc
-git rm node_modules -r --cached
-venv
-Backend/__pycache__/app.cpython-311.pyc
 node_modules
-Backend/.env
-Backend/myenv
-FrontEnd/.expo
-Backend/static/images/users/*
-Backend/static/images/posts/*
+/Backend/ 

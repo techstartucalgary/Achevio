@@ -24,34 +24,10 @@ const postData: Post[] = [
   // ...more posts
 ];
 
-const CommentModal = ({ isVisible, onClose }) => {
-  return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={isVisible}
-      onRequestClose={onClose}
-    >
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <Text style={styles.modalText}>Comments will go here...</Text>
-          <TouchableOpacity
-            style={{ ...styles.openButton, backgroundColor: "#2196F3" }}
-            onPress={onClose}
-          >
-            <Text style={styles.textStyle}>Hide Comments</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  );
-};
-
 
 const CommunityPage: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [isLargeView, setIsLargeView] = useState<boolean>(false);
-  const [commentsModalVisible, setCommentsModalVisible] = useState(false);
   const handleLikePress = () => {
     // You would have some logic to handle the like action here
     console.log('Like button pressed!');
@@ -76,12 +52,6 @@ const CommunityPage: React.FC = () => {
         <Image source={{ uri: item.imageUrl }} style={imageStyle} />
         {isLargeView && 
         <View style={styles.actionsContainer}>
-          <TouchableOpacity 
-            onPress={() => setCommentsModalVisible(true)} 
-            style={styles.actionButton}
-          >
-            <FontAwesomeIcon icon={faComment} size={24} color={"#555"} />
-          </TouchableOpacity>
           <TouchableOpacity 
             onPress={handleLikePress} 
             style={styles.actionButton}
@@ -129,19 +99,16 @@ const CommunityPage: React.FC = () => {
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
     {renderHeader()}
-    <FlatList
-      style= {{marginTop: 20, borderRadius: 25, overflow: 'hidden'}}
-      key={selectedPostId ? 'single-column' : 'multi-column'} // Unique key based on layout
-      data={postData}
-      renderItem={renderPost}
-      keyExtractor={item => item.id}
-      numColumns={selectedPostId ? 1 : 2}
-      columnWrapperStyle={!isLargeView ? styles.row : null}
-      />
-      <CommentModal 
-        isVisible={commentsModalVisible} 
-        onClose={() => setCommentsModalVisible(false)} 
-      />
+      <FlatList
+        style= {{marginTop: 20, borderRadius: 25, overflow: 'hidden'}}
+        key={selectedPostId ? 'single-column' : 'multi-column'} // Unique key based on layout
+        data={postData}
+        renderItem={renderPost}
+        keyExtractor={item => item.id}
+        numColumns={selectedPostId ? 1 : 2}
+        columnWrapperStyle={!isLargeView ? styles.row : null}
+        />
+
     </Animated.View>
   );
 };

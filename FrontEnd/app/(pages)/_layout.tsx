@@ -5,6 +5,7 @@
   const PagesLayout = () => {
     return (
       <Stack>
+
         <Stack.Screen name="CommunitiesPage" options={
           {headerShown: false ,presentation: "modal"}
         }
@@ -15,8 +16,11 @@
         }/>
         <Stack.Screen name="EditPost" options={
           {headerShown: false}
-
         }/> 
+        <Stack.Screen name="Videopreview" options={
+          {headerShown: false}
+        }/>
+
       </Stack>
     );
   }

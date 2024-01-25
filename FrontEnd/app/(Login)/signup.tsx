@@ -36,6 +36,7 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const url = 'http://10.14.140.52:8000'
 
   const validateInput = () => {
     if (!email || !username || !password || !confirmPassword) {
@@ -58,7 +59,7 @@ export default function SignupScreen() {
     }
     setIsLoading(true);
     try {
-      const response = await axios.post('http://10.13.85.26:8000/user', {
+      const response = await axios.post(`${url}/user`, {
         username,
         password,
         email,
@@ -96,15 +97,6 @@ export default function SignupScreen() {
       setIsLoading(false);
     }
   };
-  const getRequest = async () => {
-    try {
-      const response = await axios.get('http://10.13.85.26:8000/user');
-      console.log(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   return (
     <View style={styles.container}>
       {isLoading? (

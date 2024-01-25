@@ -29,6 +29,7 @@ export default function CameraPage() {
   const cameraRef = useRef<Camera>(null);
   const [type, setType] = useState(CameraType.back);
   const [flashMode, setFlashMode] = useState(FlashMode.off);
+  const [isRecording, setIsRecording] = useState(false); // Add state for video recording
 
 
 
@@ -63,7 +64,36 @@ export default function CameraPage() {
         : FlashMode.off
     );
   };
+  const startRecording = async () => {
+    if (cameraRef.current) {
+      setIsRecording(true);
+      const videoRecordPromise = cameraRef.current.recordAsync();
+      videoRecordPromise.then((data) => {
+        setIsRecording(false);
+        // Handle the recorded video data (e.g., save or upload)
+        console.log(data.uri);
+        router.push({
+          pathname: '/(pages)/Videopreview',
+          params: { videoUri: data.uri }, // Parameters as an object
+        });
+      });
+    }
+  };
 
+  const stopRecording = () => {
+    if (cameraRef.current && isRecording) {
+      cameraRef.current.stopRecording();
+      setIsRecording(false);
+    }
+  };
+
+  const captureOrRecord = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      takePicture();
+    }
+  };
   // Capture Photo
   const takePicture = async () => {
     if (cameraRef.current) {
@@ -98,11 +128,19 @@ export default function CameraPage() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <Camera style={[styles.camera, { height: cameraHeight }]} type={type} flashMode={flashMode} ref={cameraRef}>
+      <Camera style={[styles.camera, { height: cameraHeight }]} type={type} ratio='4:3' flashMode={flashMode} ref={cameraRef} >
         <View style={styles.buttonContainer}>
           {/* Capture Button */}
-          <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-            <FontAwesome name="camera" size={24} color="black" />
+          <TouchableOpacity
+            style={styles.captureButton}
+            onPress={captureOrRecord}
+            onLongPress={startRecording} // Start recording on long press
+          >
+            <FontAwesome
+              name={isRecording ? 'stop-circle' : 'camera'}
+              size={isRecording ? 50 : 24}
+              color={isRecording ? 'red' : 'black'}
+            />
           </TouchableOpacity>
 
           {/* Toggle Camera Type */}

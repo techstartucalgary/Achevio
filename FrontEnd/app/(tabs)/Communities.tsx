@@ -4,11 +4,12 @@ import { getDayOfYear, getISODay } from 'date-fns';
 import { router } from 'expo-router';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faComment, faHeart } from '@fortawesome/free-solid-svg-icons';
-
+import axios from 'axios';
 import uuid from 'react-native-uuid';
 // Constants
 const windowWidth = Dimensions.get('window').width;
 const DATE_ITEM_WIDTH = (windowWidth / 6); // Display 5 items at a time
+const url = 'http://10.14.140.52:8000';
 
 // Generate dates data with dynamic range
 const generateDatesData = () => {
@@ -153,6 +154,47 @@ const Communities = () => {
     );
   };
   const id = uuid.v4();
+  async function handlecreateCommunityPress() {
+    try{
+      const configurationObject = {
+        method: 'post',
+        url : `${url}/user/community`,
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        data : {
+          "name": "TestCommunity",
+          "description": "Community for testing",
+          "postdays": [
+            {
+              "day": "Monday"
+            }
+          ],
+          "tags": [
+            {
+              "name": "Tag1"
+            }
+          ]
+        }
+    }
+    const response = await axios(configurationObject);
+    if (response.status === 201) {
+      console.log("Community created successfully");
+      console.log(response.data);
+    } else {
+      console.log("Unexpected response status: " + response.status);
+    }
+    } catch (error) {
+      console.log("Error details:", error);
+    }
+
+
+    
+
+  };
+
+
   // Component for rendering community items
   const renderCommunityItem = ({ item }) => (
     
@@ -211,6 +253,17 @@ const Communities = () => {
       keyExtractor={(item) => item.key}
       style={styles.container}
     />
+    {
+      //create communities button
+      <TouchableOpacity 
+        onPress={
+          handlecreateCommunityPress
+        }
+        style={styles.createCommunityButton}
+      >
+        <Text style={styles.communityTitle}>Create Community</Text>
+      </TouchableOpacity>
+    }
     {selectedPost && (
         <PostDetailsModal
           post={selectedPost}
@@ -315,6 +368,14 @@ const styles = StyleSheet.create({
   communityStreak: {
     color: '#fff',
     marginTop: 4,
+  },
+  createCommunityButton: {
+    backgroundColor: '#1e1e1e',
+    padding: 15,
+    height: 80,  
+    marginVertical: 8,
+    marginHorizontal: 10,
+    borderRadius: 10, // if you want rounded corners
   },
   modalOverlay: {
     flex: 1,

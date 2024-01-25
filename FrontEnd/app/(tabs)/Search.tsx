@@ -2,6 +2,7 @@ import React from 'react'
 import {StyleSheet, Text, View, TextInput, Pressable, ActivityIndicator, FlatList} from 'react-native'
 import {useState, useEffect} from "react";
 import {Feather, Entypo} from "@expo/vector-icons"
+import {Overlay} from "react-native-elements";
 
 type Community = {
   communityTitle: string,
@@ -26,8 +27,8 @@ const communityItem = (title: string, tag: string[]) => {
   }
 
   return (
-    <View style={{borderStyle:"solid", borderColor:"black"}}>
-      <Text style={{fontSize:20}}>
+    <View style={{borderStyle: "solid", borderColor: "black"}}>
+      <Text style={{fontSize: 20}}>
         {title}
       </Text>
       <FlatList
@@ -70,18 +71,27 @@ const Search = () => {
     setShowCommunityList(false)
     if (searchPhrase !== "") {
       setShowLoading(true)
+      setResponse(testResponse)
     } else {
+      // send the GET request to back end
       setShowLoading(false)
+      setResponse(null)
     }
     console.log(searchPhrase)
-    setTimeout(()=>{}, 1000)
-    setResponse(testResponse)
+
   }, [searchPhrase])
 
   // update community list based on the response
   useEffect(() => {
-    setShowLoading(false)
-    setShowCommunityList(true)
+    console.log(response)
+    if (response !== null) {
+      setShowLoading(false)
+      setShowCommunityList(true)
+    } else {
+      setShowLoading(false)
+      setShowCommunityList(false)
+    }
+
   }, [response])
 
   return (
@@ -110,7 +120,6 @@ const Search = () => {
             inputClicked && (
               <Pressable onPress={() => {
                 setSearchPhrase("")
-                setResponse(null)
               }}>
                 <Entypo name="cross" size={20} color="black" style={{padding: 1}}/>
               </Pressable>
@@ -118,25 +127,20 @@ const Search = () => {
 
         </View>
         {/*tag menu control button*/}
-        {
-          tagMenuOpened && (
-            <Pressable onPress={() => {
-              setTagMenuOpened(false)
-            }}>
-              <Entypo name="chevron-down" size={30} color="black"/>
-            </Pressable>
-          )
-        }
 
-        {
-          !tagMenuOpened && (
-            <Pressable onPress={() => {
-              setTagMenuOpened(true)
-            }}>
-              <Entypo name="chevron-up" size={30} color="black"/>
-            </Pressable>
-          )
-        }
+        <Pressable onPress={() => {
+          setTagMenuOpened(!tagMenuOpened)
+        }}>
+          <Entypo name={tagMenuOpened ? "chevron-down" : "chevron-up"} size={30} color="black"/>
+        </Pressable>
+
+        {/*tag menu*/}
+        {/*<Overlay isVisible={tagMenuOpened}>*/}
+        {/*  <Text>*/}
+        {/*    tag menu*/}
+        {/*  </Text>*/}
+
+        {/*</Overlay>*/}
 
 
         {/*Cancel button*/}

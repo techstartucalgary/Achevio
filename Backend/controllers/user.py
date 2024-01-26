@@ -19,7 +19,7 @@ import aiofiles
 
 from schemas.users import CreateUserDTO, UserSchema, UserOutDTO
 from schemas.community import CommunitySchema, CreateCommunityDTO, ViewCommunityDTO
-from schemas.post import PostSchema, CreatePostSchema, PostDTO, CreatePostDTO
+from schemas.post import PostSchema, CreatePostSchema, PostDTO, CreatePostDTO, CreateMultiplePostDTO, CreateMultiplePostSchema
 from models.user import User
 from models.community import Community
 from models.post import Post
@@ -247,14 +247,35 @@ class UserController(Controller):
     
 
 
+    # This endpoint is deprecated, please use the new create_post
+    # @post('/post', media_type=MediaType.TEXT)
+    # async def create_post(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[CreatePostSchema, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
+    #     user = await get_user_by_id(session, request.user)
+    #     image = await data.file.read()
+
+    #     post = Post(id=uuid7(), title=data.title, caption=data.caption, user_id=user.id, community_id=data.community_id)
+    #     session.add(post)
+
+        
+    #     image_dir = "static/images/posts"
+    #     os.makedirs(image_dir, exist_ok=True)
+    #     filename = f'{post.id}.jpg'
+
+    #     file_path = os.path.join(image_dir, filename)
+    #     async with aiofiles.open(file_path, 'wb') as outfile:
+    #         await outfile.write(image)
+    #     return f"File created at {file_path}"
+    
+
 
     @post('/post', media_type=MediaType.TEXT)
-    async def create_post(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[CreatePostSchema, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
+    async def create_post(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[CreateMultiplePostSchema, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
         user = await get_user_by_id(session, request.user)
         image = await data.file.read()
 
-        post = Post(id=uuid7(), title=data.title, caption=data.caption, user_id=user.id, community_id=data.community_id)
-        session.add(post)
+        for community_id in (data.communities_id):
+            post = Post(id=uuid7(), title=data.title, caption=data.caption, user_id=user.id, community_id=community_id)
+            session.add(post)
 
         
         image_dir = "static/images/posts"
@@ -265,7 +286,7 @@ class UserController(Controller):
         async with aiofiles.open(file_path, 'wb') as outfile:
             await outfile.write(image)
         return f"File created at {file_path}"
-
+    
 
     
     @post('/TransferOwnership/{id:str}/{newUser:str}')

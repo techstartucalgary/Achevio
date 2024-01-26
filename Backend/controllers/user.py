@@ -18,15 +18,18 @@ from uuid_extensions import uuid7
 import aiofiles
 
 from schemas.users import CreateUserDTO, UserSchema, UserOutDTO
-from schemas.community import CommunitySchema, CreateCommunityDTO
+from schemas.community import CommunitySchema, CreateCommunityDTO, ViewCommunityDTO
 from schemas.post import PostSchema, CreatePostSchema, PostDTO, CreatePostDTO
 from models.user import User
 from models.community import Community
 from models.post import Post
-from crud.users import get_user_by_username, get_user_by_id,get_user_list, user_join_community, user_leave_community, transfer_community_ownership
+from crud.users import get_user_by_username, get_user_by_id,get_user_list, user_join_community, user_leave_community, transfer_community_ownership, get_user_communities
 from crud.postday import get_postday_by_name
 from crud.tag import get_tag_by_name
 from .auth import oauth2_auth
+
+
+from crud.community import get_community_list
 
 
 
@@ -84,6 +87,23 @@ class UserController(Controller):
             UserSchema: The user's information in UserSchema format.
         '''
         return UserSchema.model_validate(await get_user_by_id(session, request.user))
+
+    
+
+    @get('/myCommunities', return_dto=ViewCommunityDTO)
+    async def get_my_communities(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> list[CommunitySchema]:
+        '''
+        Retrieves the communities associated with the current user. 
+
+        Args:
+            request (Request[User, Token, Any]): The request object containing user and token information.
+            session (AsyncSession): The database session for asynchronous operations.
+
+        Returns:
+            list[CommunitySchema]: A list of communities in CommunitySchema format that the user belongs to.
+        '''
+        return [CommunitySchema.model_validate(community) for community in await get_user_communities(session, request.user)]
+
 
     # DEPRECATED
     # @post('/', dto=CreateUserDTO, exclude_from_auth=True)
@@ -168,14 +188,19 @@ class UserController(Controller):
         try:
             community = Community(**validated_community_data.__dict__)
             session.add(community)
+            
+            # Adds postdays to community
             postdays = data.as_builtins()['postdays']
             for i in range(len(postdays)):
                 postday = await get_postday_by_name(session, postdays[i].__dict__['day'])
                 community.postdays.append(postday)
+            
+            # Adds tags to community
             tags = data.as_builtins()['tags']
             for i in range(len(tags)):
                 tag = await get_tag_by_name(session, tags[i].__dict__['name'])
                 community.tags.append(tag)
+            
             validated_community_data = CommunitySchema.model_validate(commiunity_data)
             await user_join_community(session, validated_community_data.id, request.user, 'owner')
             await session.commit()
@@ -263,5 +288,8 @@ class UserController(Controller):
         await redis.set('foo', 'bar')
         return await redis.get('foo')
     
+
+
+
 
 

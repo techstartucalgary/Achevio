@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, Image, Dimensions, TouchableOpacity, Modal } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Image, Dimensions, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import { getDayOfYear, getISODay } from 'date-fns';
 import { router } from 'expo-router';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -9,7 +9,7 @@ import uuid from 'react-native-uuid';
 // Constants
 const windowWidth = Dimensions.get('window').width;
 const DATE_ITEM_WIDTH = (windowWidth / 6); // Display 5 items at a time
-const url = 'http://10.14.140.52:8000';
+const url = 'http://10.13.148.155:8000';
 
 // Generate dates data with dynamic range
 const generateDatesData = () => {
@@ -109,18 +109,41 @@ const postData = Array.from({ length: 10 }, (_, index) => ({
   ],
 }));
 
-const communitiesData = Array.from({ length: 10 }, (_, index) => ({
-  key: String(index),
-  title: `Community ${index + 1}`,
-  streak: `${index + 4} day streak!`
-}));
+// const communitiesData = Array.from({ length: 10 }, (_, index) => ({
+//   key: String(index),
+//   title: `Community ${index + 1}`,
+//   streak: `${index + 4} day streak!`
+  
+// }));
 
 const Communities = () => {
   const flatListRef = useRef(null);
   const [selectedPost, setSelectedPost] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [commentsModalVisible, setCommentsModalVisible] = useState(false);
+  const [communities, setCommunities] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
+  const fetchCommunities = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get(`${url}/user/me`);
+      console.log(response.data.communities);
+      if (response.status === 200) {
+        setCommunities(response.data.communities);
+      } else {
+        console.error("Failed to fetch communities:", response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching communities:", error);
+    } finally{
+      setIsLoading(false);
+    }
+
+  };
+  useEffect(() => {
+    fetchCommunities();
+  }, []); // Empty dependency array to run only once on mount
 
   // Function to handle post item press
   const handlePostPress = (post) => {
@@ -188,10 +211,6 @@ const Communities = () => {
     } catch (error) {
       console.log("Error details:", error);
     }
-
-
-    
-
   };
 
 
@@ -246,13 +265,16 @@ const Communities = () => {
 
   return (
     <>
+    { isLoading ? <ActivityIndicator/> : (
+      <>
     <FlatList
       ListHeaderComponent={ListHeader}
-      data={communitiesData}
+      data={communities}
       renderItem={renderCommunityItem}
       keyExtractor={(item) => item.key}
       style={styles.container}
     />
+
     {
       //create communities button
       <TouchableOpacity 
@@ -273,10 +295,11 @@ const Communities = () => {
         />
       )}
         <CommentModal 
-
         isVisible={commentsModalVisible} 
         onClose={() => setCommentsModalVisible(false)} 
       />
+      </>
+    )}
     </>
     
   );

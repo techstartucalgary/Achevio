@@ -7,7 +7,7 @@ declare module "expo-router" {
   export * from 'expo-router/build';
 
   // prettier-ignore
-  type StaticRoutes = `/` | `/(Login)/..swp` | `/..swp` | `/(Login)/Landing` | `/Landing` | `/(Login)/_layout` | `/_layout` | `/(Login)/` | `/(Login)` | `/(Login)/login` | `/login` | `/(Login)/signup` | `/signup` | `/(pages)/CommunitiesPage` | `/CommunitiesPage` | `/(pages)/EditPost` | `/EditPost` | `/(pages)/Photopreview` | `/Photopreview` | `/(pages)/Videopreview` | `/Videopreview` | `/(pages)/_layout` | `/(tabs)/Camera` | `/Camera` | `/(tabs)/Collage` | `/Collage` | `/(tabs)/Communities` | `/Communities` | `/(tabs)/Profile` | `/Profile` | `/(tabs)/Search` | `/Search` | `/(tabs)/_layout` | `/+html` | `/modal`;
+  type StaticRoutes = `/` | `/(Login)/..swp` | `/..swp` | `/(Login)/Landing` | `/Landing` | `/(Login)/_layout` | `/_layout` | `/(Login)/` | `/(Login)` | `/(Login)/login` | `/login` | `/(Login)/signup` | `/signup` | `/(pages)/CommunitiesPage` | `/CommunitiesPage` | `/(pages)/EditPost` | `/EditPost` | `/(pages)/Photopreview` | `/Photopreview` | `/(pages)/Videopreview` | `/Videopreview` | `/(pages)/_layout` | `/(tabs)/Camera` | `/Camera` | `/(tabs)/Collage` | `/Collage` | `/(tabs)/Communities` | `/Communities` | `/(tabs)/Profile` | `/Profile` | `/(tabs)/Search` | `/Search` | `/(tabs)/_layout` | `/+html` | `/modal` | `/(pages)/PickCommunity` | `/PickCommunity`;
   // prettier-ignore
   type DynamicRoutes<T extends string> = `/${CatchAllRoutePart<T>}`;
   // prettier-ignore

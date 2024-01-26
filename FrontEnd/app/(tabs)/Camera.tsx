@@ -31,8 +31,6 @@ export default function CameraPage() {
   const [flashMode, setFlashMode] = useState(FlashMode.off);
   const [isRecording, setIsRecording] = useState(false); // Add state for video recording
 
-
-
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
@@ -133,7 +131,7 @@ export default function CameraPage() {
           {/* Capture Button */}
           <TouchableOpacity
             style={styles.captureButton}
-            onPress={captureOrRecord}
+            onPress={captureOrRecord} // Take photo on press
             onLongPress={startRecording} // Start recording on long press
           >
             <FontAwesome

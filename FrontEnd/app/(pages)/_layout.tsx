@@ -20,6 +20,9 @@
         <Stack.Screen name="Videopreview" options={
           {headerShown: false}
         }/>
+        <Stack.Screen name="PickCommunity" options={
+          {headerShown: false}
+        }/>
 
       </Stack>
     );

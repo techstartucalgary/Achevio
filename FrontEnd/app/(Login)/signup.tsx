@@ -36,7 +36,7 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const url = 'http://10.14.140.52:8000'
+  const url = 'http://10.13.148.155:8000'
 
   const validateInput = () => {
     if (!email || !username || !password || !confirmPassword) {

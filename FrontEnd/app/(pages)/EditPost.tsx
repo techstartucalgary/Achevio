@@ -1,21 +1,30 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
-import { View, Image, StyleSheet, Text, TouchableOpacity, TextInput, ActivityIndicator, Keyboard,TouchableWithoutFeedback } from 'react-native';
+import { View, Image, StyleSheet, Text, TouchableOpacity, TextInput, ActivityIndicator, Keyboard,TouchableWithoutFeedback, Alert } from 'react-native';
 import axios from 'axios';
 import RNFS from 'react-native-fs';
 const EditPost = () => {
 const [caption, setCaption] = useState('');
   const [title, setTitle] = useState('');
-  const [communityid, setCommunityid] = useState('065a9e87-290d-7747-8000-91b7092726c3');
   const params = useLocalSearchParams();
   const photoUri = params.photoUri;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const url = 'http://10.9.124.36:8000'
 
-  const handleSubmit = async () => {
-    console.log('Caption:', caption);
-
+  const handleSubmit = () =>{
+    if (!title || !caption) {
+      Alert.alert('Error', 'Please fill in all fields.');
+      return;
+    }
+    router.push({
+      pathname: '/PickCommunity',
+      params: {
+        photoUri: photoUri,
+        caption: caption,
+        title: title,
+      },
+    })
   };
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}  accessible={false}>
@@ -47,7 +56,7 @@ const [caption, setCaption] = useState('');
         {isSubmitting ? (
           <ActivityIndicator size="small" color="#fff" />
         ) : (
-          <Text style={styles.buttonText}>Update Post</Text>
+          <Text style={styles.buttonText}>Continue</Text>
         )}
       </TouchableOpacity>
     </View>

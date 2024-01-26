@@ -270,13 +270,24 @@ class UserController(Controller):
 
     @post('/post', media_type=MediaType.TEXT)
     async def create_post(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[CreateMultiplePostSchema, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
+        '''
+        Creates one or multiple posts with images associated with communities.
+
+        Args:
+            request (Request): The request object containing user and token information.
+            session (AsyncSession): The database session for performing database transactions.
+            data (CreateMultiplePostSchema): The data received in the request payload, expected to be in multipart form-data format.
+
+        Returns:
+            str: A message indicating the path where the image file associated with the posts has been saved.
+
+        '''
         user = await get_user_by_id(session, request.user)
         image = await data.file.read()
 
         for community_id in (data.communities_id):
             post = Post(id=uuid7(), title=data.title, caption=data.caption, user_id=user.id, community_id=community_id)
             session.add(post)
-
         
         image_dir = "static/images/posts"
         os.makedirs(image_dir, exist_ok=True)

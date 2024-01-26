@@ -34,6 +34,13 @@ class CreatePostSchema(Schema):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
+class CreateMultiplePostSchema(Schema):
+    file: UploadFile    
+    title: str
+    caption: str
+    communities_id: list[str]
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 class PostDTO(PydanticDTO[PostSchema]):
     config = DTOConfig(
@@ -46,6 +53,11 @@ class CreatePostDTO(PydanticDTO[PostSchema]):
     config = DTOConfig(include=['file'])
     
     # config = DTOConfig(include=['title', 'caption', 'file', 'community_id'])
+
+class CreateMultiplePostDTO(PostDTO):
+    config = DTOConfig(
+        include=['file', 'title', 'caption']
+    )
 
 
 

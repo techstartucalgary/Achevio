@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import {
+  Image,
   Alert,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
-  Image,
+  Pressable,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { Link } from "expo-router";
@@ -66,7 +68,7 @@ export default function SignupScreen() {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        "http://10.13.103.218:8000/user",
+        "http://10.13.85.26:8000/user",
         {
           username,
           first_name,
@@ -109,22 +111,7 @@ export default function SignupScreen() {
   };
   const getRequest = async () => {
     try {
-      const response = await axios.post(
-        "http://10.13.103.218:8000/user",
-        {
-          username: "magdy",
-          password: "magdy",
-          email: "siyfg",
-          first_name: "Magdy",
-          last_name: "Hafez",
-        },
-        {
-          headers: {
-            accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.get("http://10.13.85.26:8000/user");
       console.log(response.data);
     } catch (error) {
       console.error(error);
@@ -137,11 +124,9 @@ export default function SignupScreen() {
         <Text>Loading...</Text>
       ) : (
         <>
+          <Text style={styles.title}>Signup</Text>
           <Image source={require("../../assets/images/temp_rocket.png")} style={styles.image} />
-          <Text style={styles.title}>Glad to have you on board !</Text>
-          <Text style={styles.subheading}>
-            But first we would like to get to know a little bit more about you{" "}
-          </Text>
+
           <TextInput
             style={styles.input}
             onChangeText={setUsername}
@@ -190,14 +175,14 @@ export default function SignupScreen() {
             placeholderTextColor="#343a40"
             secureTextEntry
           />
-          <TouchableOpacity style={styles.signupBtn} onPress={getRequest} disabled={isLoading}>
+          <TouchableOpacity style={styles.signupBtn} onPress={postSignupInfo} disabled={isLoading}>
             <Text style={styles.signupText}>Signup</Text>
           </TouchableOpacity>
-          <Text style={styles.navText}>---------------- OR ----------------</Text>
-          <Link href="/" style={styles.linkstyle}>
-            <Text style={styles.loginText}>Go back to Login</Text>
+          <Link href="/login" asChild>
+            <Pressable>
+              <Text style={styles.navText}>Go back to Login</Text>
+            </Pressable>
           </Link>
-
           <StatusBar backgroundColor="#000000" barStyle="light-content" />
         </>
       )}
@@ -217,54 +202,48 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    color: "#fffeeb",
-  },
-  subheading: {
-    fontSize: 16,
-    fontWeight: "500",
-    marginBottom: 20,
-    color: "#fffeeb",
-    textAlign: "center",
+    color: "#fff",
   },
   input: {
-    width: "100%",
-    height: 40,
+    height: 50,
     borderColor: "gray",
     backgroundColor: "#fffeeb",
-
     borderWidth: 1,
-    marginBottom: 10,
-    paddingLeft: 10,
+    marginBottom: 20,
+    width: "100%",
+    paddingHorizontal: 10,
     borderRadius: 20,
+    color: "#333",
   },
   signupBtn: {
     width: "100%",
-    height: 40,
     backgroundColor: "#a2d2ff",
-    justifyContent: "center",
+    padding: 15,
     alignItems: "center",
     borderRadius: 20,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   signupText: {
     fontSize: 18,
-    color: "#fffeeb",
+    color: "#FFFFFF",
     fontWeight: "bold",
   },
-  loginText: {
-    fontSize: 16,
-    color: "#fffeeb",
-    fontWeight: "500",
-  },
+
   navText: {
     color: "#fffeeb",
     fontSize: 16,
     fontWeight: "bold",
     marginTop: 15,
   },
+  loginText: {
+    fontSize: 16,
+    color: "#6200EE",
+    fontWeight: "500",
+  },
+
   linkStyle: {
     fontSize: 16,
-    color: "#fffeeb",
+    color: "#6200EE",
     fontWeight: "500",
   },
   errorStyle: {
@@ -277,6 +256,7 @@ const styles = StyleSheet.create({
   linkstyle: {
     marginTop: 20,
   },
+
   image: {
     width: 300,
     height: 300,

@@ -18,12 +18,8 @@ class User(UUIDAuditBase):
     is_active: Mapped[bool] = mapped_column(Boolean)
     last_login: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True))
     password: Mapped[str] = mapped_column(String(255))
-    permium: Mapped[bool] = mapped_column(Boolean)
-    permium_expiry: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), nullable=True)
-    permium_type: Mapped[str] = mapped_column(String(100), nullable=True)
-    
-    communities = relationship('UserCommunityAssociation', back_populates='user')
 
+    communities = relationship('UserCommunityAssociation', back_populates='user')
 
     posts: Mapped[list['Post']] = relationship(lazy='selectin')
 

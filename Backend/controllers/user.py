@@ -90,7 +90,7 @@ class UserController(Controller):
 
     
 
-    @get('/myCommunities', return_dto=ViewCommunityDTO)
+    @get('/myCommunities')
     async def get_my_communities(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> list[CommunitySchema]:
         '''
         Retrieves the communities associated with the current user. 

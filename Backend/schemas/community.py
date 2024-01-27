@@ -46,6 +46,13 @@ class CommunityOutDTO(PydanticDTO[CommunitySchema]):
     )
 
 
+class ViewCommunityDTO(PydanticDTO[CommunitySchema]):
+    config = DTOConfig(
+        include={'id', 'name', 'description', 'postday', 'tags'},
+        max_nested_depth=2,
+    )
+
+
 # from .postday import PostdaySchema
 from .tag import TagSchema
 from .postday import PostdaySchema

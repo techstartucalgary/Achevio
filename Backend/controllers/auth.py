@@ -31,7 +31,7 @@ async def retrieve_user_handler(token: Token, session: AsyncSession) -> User:
     '''
     try:
         # Check if the user is cached in Redis, return username if found.
-        if await redis.hget(f'session:{token.sub}', 'username'):
+        if await redis.hget(f'session:{token.sub}', 'user_id'):
             return token.sub
     except Exception as e:
         print(f'Error retrieving user: {e}')
@@ -64,14 +64,14 @@ async def login_handler(request: Request, data: DTOData[UserSchema], session: As
         HTTPException: If the login credentials are incorrect.
     '''
     input_data = data.as_builtins()
-    user = UserSchema.model_validate(await get_user(session, input_data['username']))
+    user = UserSchema.model_validate(await get_user_by_username(session, input_data['username']))
     if user and user.check_password(input_data['password']):
         # Generate and store an OAuth2 token.
-        token = oauth2_auth.login(identifier=str(user.username))
+        token = oauth2_auth.login(identifier=str(user.id))
 
         # Store user session data in Redis.
-        session_key = f'session:{user.username}'
-        await redis.hmset(session_key, {'userId': str(user.id), 'username': user.username, 'token': str(token.cookies)})
+        session_key = f'session:{user.id}'
+        await redis.hmset(session_key, {'user_id': str(user.id), 'username': user.username, 'token': str(token.cookies)})
         
         return token
 
@@ -92,5 +92,5 @@ async def logout_handler(request: Request, session: AsyncSession) -> str:
         str: A success message indicating successful logout.
     '''
     # Remove the user's session data from Redis.
-    await redis.hdel(f'session:{request.user}', 'username')
+    await redis.hdel(f'session:{request.id}', 'id')
     return 'Successfully logged out'

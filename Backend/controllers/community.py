@@ -14,6 +14,9 @@ from uuid_extensions import uuid7
 from uuid import UUID
 from crud.postday import *
 
+from litestar.contrib.jwt import OAuth2Login, Token
+from models.user import User
+
 class CommunityController(Controller):
     path = '/community'
     return_dto = CommunityOutDTO
@@ -25,6 +28,9 @@ class CommunityController(Controller):
     @get('/{id:str}', exclude_from_auth=True)
     async def get_community(self, session: AsyncSession, id: str) -> CommunitySchema:
         return await get_community_by_id(session, id)
+    
+    
+
     
 
 

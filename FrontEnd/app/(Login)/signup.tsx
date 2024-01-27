@@ -106,13 +106,13 @@ export default function SignupScreen() {
 
           <Link href="/login" asChild>
             <Pressable style={styles.signupBtn}>
-              <Text>Continue</Text>
+              <Text style={styles.signupText}>Continue</Text>
             </Pressable>
           </Link>
           <Pressable
             onPress={() =>
               router.push({
-                pathname: "/login",
+                pathname: "/index",
                 params: { slide: 1 },
               })
             }>
@@ -160,8 +160,7 @@ const styles = StyleSheet.create({
   },
   signupText: {
     fontSize: 18,
-    color: "#FFFFFF",
-    fontWeight: "bold",
+    color: "#000",
   },
 
   navText: {

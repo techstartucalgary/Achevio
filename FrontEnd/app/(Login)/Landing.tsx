@@ -1,11 +1,9 @@
 import React from "react";
 import { View, Text } from "../../components/Themed";
 import { Image, StyleSheet, Pressable } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { router } from "expo-router";
 
 const Landing = () => {
-  const navigation = useNavigation();
-
   return (
     <View style={styles.container}>
       <Image source={require("../../assets/images/temp_icon_full.png")} style={styles.image} />
@@ -14,21 +12,22 @@ const Landing = () => {
       <Text style={styles.subheading}>Reach for the stars</Text>
       <Pressable
         style={styles.navText}
-        // onPress={() =>
-        //   navigation.push("/login", { slide: 1 })}
-      >
-        <Text>Login</Text>
+        onPress={() =>
+          router.push({
+            pathname: "/login",
+            params: { slide: 1 },
+          })
+        }>
+        <Text style={styles.navTextsize}>Login</Text>
       </Pressable>
       <Pressable
         style={styles.navText}
-        // onPress={() =>
-        //   navigation.push({
-        //     pathname: "/signup",
-        //     params: { slide: 1 },
-        //   })
-        // }
-      >
-        <Text>Signup</Text>
+        onPress={() =>
+          router.push({
+            pathname: "/signup",
+          })
+        }>
+        <Text style={styles.navTextsize}>Signup</Text>
       </Pressable>
     </View>
   );
@@ -57,11 +56,16 @@ const styles = StyleSheet.create({
   },
   navText: {
     width: "100%",
+    fontSize: 18,
     backgroundColor: "#a2d2ff",
     padding: 15,
     alignItems: "center",
     borderRadius: 20,
     marginBottom: 10,
+  },
+  navTextsize: {
+    fontSize: 18,
+    color: "#000",
   },
   image: {
     width: 400,

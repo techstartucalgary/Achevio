@@ -1,12 +1,14 @@
 import React, { useEffect } from "react";
 import { useColorScheme, View, Text, StyleSheet } from "react-native";
 import Swiper from "react-native-swiper";
-import { useLocalSearchParams, useRouter, useSearchParams } from "expo-router";
+import { useLocalSearchParams, router } from "expo-router";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Colors from "../../constants/Colors";
 import LoginScreen from "./login";
 import SignupScreen from "./signup";
+import Signup2Screen from "./signup2";
 import Landing from "./Landing";
+import { Int32 } from "react-native/Libraries/Types/CodegenTypes";
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -17,8 +19,8 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const router = useRouter();
-  const slider = 0;
+  const params = useLocalSearchParams();
+  const slider = params.slide || 0;
 
   useEffect(() => {
     console.log("home");
@@ -29,7 +31,7 @@ export default function TabLayout() {
       showsPagination={true}
       dotColor="gray"
       activeDotColor={Colors.light.tint}
-      index={slider}>
+      index={slider as Int32}>
       <View style={styles.slide}>
         <Landing />
       </View>
@@ -39,6 +41,9 @@ export default function TabLayout() {
 
       <View style={styles.slide}>
         <SignupScreen />
+      </View>
+      <View style={styles.slide}>
+        <Signup2Screen />
       </View>
     </Swiper>
   );

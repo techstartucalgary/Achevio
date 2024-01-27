@@ -37,7 +37,7 @@ type signupData = {
   password: string;
   detail: string;
 };
-export default function SignupScreen() {
+export default function Signup2Screen() {
   const [username, setUsername] = useState("");
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
@@ -129,30 +129,6 @@ export default function SignupScreen() {
 
           <TextInput
             style={styles.input}
-            onChangeText={setUsername}
-            value={username}
-            placeholder="Username"
-            placeholderTextColor="#343a40"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            onChangeText={setFirstName}
-            value={first_name}
-            placeholder="First Name"
-            placeholderTextColor="#343a40"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            onChangeText={setLastName}
-            value={last_name}
-            placeholder="Last Name"
-            placeholderTextColor="#343a40"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
             onChangeText={setEmail}
             value={email}
             placeholder="Email"
@@ -225,8 +201,7 @@ const styles = StyleSheet.create({
   },
   signupText: {
     fontSize: 18,
-    color: "#FFFFFF",
-    fontWeight: "bold",
+    color: "#000",
   },
 
   navText: {

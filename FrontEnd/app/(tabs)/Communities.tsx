@@ -6,10 +6,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faComment, faHeart } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import uuid from 'react-native-uuid';
+import { useSelector, useDispatch } from "react-redux";
+import { setUsername,setUrl } from "../redux/actions";
+
 // Constants
 const windowWidth = Dimensions.get('window').width;
 const DATE_ITEM_WIDTH = (windowWidth / 6); // Display 5 items at a time
-const url = 'http://10.13.148.155:8000';
 
 // Generate dates data with dynamic range
 const generateDatesData = () => {
@@ -18,7 +20,7 @@ const generateDatesData = () => {
   const currentDayOfYear = getDayOfYear(today);
   const daysInWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  return Array.from({ length: 30 }, (_, i) => {
+  return Array.from({ length: 12 }, (_, i) => {
     const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i - 3);
     return {
       key: String(currentDayOfYear + i - 3),
@@ -123,14 +125,20 @@ const Communities = () => {
   const [commentsModalVisible, setCommentsModalVisible] = useState(false);
   const [communities, setCommunities] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { url } = useSelector((state: any) => state.user);
+  const dispatch = useDispatch();
 
   const fetchCommunities = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${url}/user/me`);
-      console.log(response.data.communities);
+      const response = await axios.get(`${url}/user/myCommunities`);
+      console.log(response.data);
+      dispatch({ type: 'SET_USERID', payload: response.data.id });
+
       if (response.status === 200) {
-        setCommunities(response.data.communities);
+        setCommunities(response.data);
+        console.log("Communities fetched successfully");
+        console.log(communities);
       } else {
         console.error("Failed to fetch communities:", response.status);
       }
@@ -224,13 +232,23 @@ const Communities = () => {
 
         router.push({
           pathname: '/(pages)/CommunitiesPage', // The route name
-          params: { communityId: id }, // Parameters as an object
+          params: { 
+            communityId: item.id,
+            communityName: item.name,
+            communityStreak: item.streak,
+            communityTags: item.tags,
+           }, // Parameters as an object
         });
       }
     }
     >
-      <Text style={styles.communityTitle}>{item.title}</Text>
+      <Text style={styles.communityTitle}>{item.name}</Text>
       <Text style={styles.communityStreak}>{item.streak}</Text>
+      <Text style={styles.communityTags}>{
+        item.tags.map((tag) => {
+          return tag.name + " ";
+        })
+      }</Text>
     </TouchableOpacity>
   );
   // Header component to be rendered above the communities list
@@ -313,6 +331,10 @@ const styles = StyleSheet.create({
   },
   datesList: {
     flexGrow: 0, // Ensure the FlatList does not expand
+  },
+  communityTags: {
+    color: '#fff',
+    marginTop: 4,
   },
   dateItem: {
     width: DATE_ITEM_WIDTH,

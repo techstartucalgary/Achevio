@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import {
   Keyboard,
   Pressable,
@@ -10,12 +10,12 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Text, View } from "../../components/Themed";
-import { Link, router} from "expo-router";
+import {router} from "expo-router";
 import GoogleLoginButton from "../../components/googleLoginButton";
 import { StackNavigationProp } from "@react-navigation/stack";
 import axios from "axios";
-
-
+import { useSelector, useDispatch } from "react-redux";
+import { setUsername,setUrl } from "../redux/actions";
 type RootStackParamList = {
   Signup: undefined;
   Login: undefined;
@@ -32,25 +32,28 @@ type Props = {
   navigation: SignupScreenNavigationProp;
 };
 export default function LoginScreen() {
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("")
   const [errorMessageVisible, setErrorMessageVisible] = useState(false)
-  const url = 'http://10.13.148.155:8000'
+  const { url, username} = useSelector((state: any) => state.user);
+  const usernameInputRef = useRef(null);
+  const passwordInputRef = useRef(null);
+  const [inputUsername, setInputUsername] = useState(username || "");
 
-type LoginResponse = {
-  status: number
-  data: LoginData,
-}
-
-type LoginData = {
-  access_token: string,
-  token_type: string,
-  refresh_token: string
-  expires_in: number,
-  detail: string
+  const dispatch = useDispatch();
+  type LoginResponse = {
+    status: number
+    data: LoginData,
   }
+
+  type LoginData = {
+    access_token: string,
+    token_type: string,
+    refresh_token: string
+    expires_in: number,
+    detail: string
+    }
 
 
   async function postLoginInfo(username: string, password: string): Promise<LoginResponse | null> {
@@ -93,6 +96,7 @@ type LoginData = {
       }
       return null;
     }
+
   }
   function responseCheck(response: LoginResponse): boolean {
     let checkResult: boolean = true
@@ -107,29 +111,45 @@ type LoginData = {
     Keyboard.dismiss();
   };
 
-  async function onPressLoginButton (username: string, password: string) {
-    setLoading(true)
-    const res = await postLoginInfo(username, password)
-    if (responseCheck(res)) {
-      console.log("success login")
-      setErrorMessageVisible(false)
-      router.push('/(tabs)/Camera')
+  const resetInputsAndFocus = () => {
+    setInputUsername('');
+    setPassword('');
+    usernameInputRef.current?.focus(); // Focus on the username input after reset
+  };
+
+  async function onPressLoginButton() {
+    setLoading(true);
+    dismissKeyboard(); // Ensure keyboard is dismissed to prevent focus issues
+    const res = await postLoginInfo(inputUsername, password);
+    setLoading(false);
+    if (res && responseCheck(res)) {
+      console.log("Success login");
+      setErrorMessageVisible(false);
+      dispatch({ type: 'SET_USERNAME', payload: inputUsername });
+      const response = await axios.get(`${url}/user/me`);
+      console.log(response.data);
+      dispatch({ type: 'SET_USERID', payload: response.data.id });
+      router.push('/(tabs)/Camera');
+    } else {
+      resetInputsAndFocus(); // Reset inputs and focus if login fails
     }
-    setLoading(false)
-    // router.push('/(tabs)/Camera')
   }
+  
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <View style={styles.container}>
         <Text style={styles.title}>Login</Text>
         <TextInput
+          ref={usernameInputRef}
           style={styles.input}
-          onChangeText={setUsername}
-          value={username}
+          onChangeText={setInputUsername}
+          value={inputUsername}
           placeholder="Username"
           autoCapitalize="none"
         />
+
         <TextInput
+          ref={passwordInputRef}
           style={styles.input}
           onChangeText={setPassword}
           value={password}
@@ -146,22 +166,11 @@ type LoginData = {
         }
         <TouchableOpacity
           style={styles.button}
-          // onPress={async () => {
-          //   /* handle signup */
-          //   const res = await postLoginInfo()
-          //   if (responseCheck(res)) {
-          //     //navigate to main page
-          //     console.log("success login")
-          //     setErrorMessageVisible(false)
-          //   }
-          // }}
-          onPress={() => 
-            onPressLoginButton(username, password)
-         
-          }
+          onPress={onPressLoginButton}
         >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
+
         {loading ? (
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (

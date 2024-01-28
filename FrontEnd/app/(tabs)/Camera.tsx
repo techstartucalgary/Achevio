@@ -21,9 +21,6 @@ type NavigationProp = StackNavigationProp<RootStackParamList>;
 function useTypedNavigation() {
   return useNavigation<NavigationProp>();
 }
-const screenWidth = Dimensions.get('window').width;
-const cameraHeight = (screenWidth / 4) * 3;
-
 export default function CameraPage() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const cameraRef = useRef<Camera>(null);
@@ -84,14 +81,6 @@ export default function CameraPage() {
       setIsRecording(false);
     }
   };
-
-  const captureOrRecord = () => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      takePicture();
-    }
-  };
   // Capture Photo
   const takePicture = async () => {
     if (cameraRef.current) {
@@ -126,20 +115,18 @@ export default function CameraPage() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <Camera style={[styles.camera, { height: cameraHeight }]} type={type} ratio='4:3' flashMode={flashMode} ref={cameraRef} >
-        <View style={styles.buttonContainer}>
+      <Camera style={styles.camera} type={type} ratio='4:3' flashMode={flashMode} ref={cameraRef} >
+      </Camera>
+      <View style={styles.buttonContainer}>
           {/* Capture Button */}
           <TouchableOpacity
-            style={styles.captureButton}
-            onPress={captureOrRecord} // Take photo on press
-            onLongPress={startRecording} // Start recording on long press
-          >
-            <FontAwesome
-              name={isRecording ? 'stop-circle' : 'camera'}
-              size={isRecording ? 50 : 24}
-              color={isRecording ? 'red' : 'black'}
-            />
-          </TouchableOpacity>
+          style={styles.captureButton}
+          onPress={takePicture}  // Changed to onPress for capturing photo
+          onLongPress={startRecording}
+          onPressOut={stopRecording}
+        >
+          <FontAwesome name={isRecording ? 'stop-circle' : 'circle'} size={isRecording ? 50 : 24} color={isRecording ? 'red' : 'black'} />
+        </TouchableOpacity>
 
           {/* Toggle Camera Type */}
           <TouchableOpacity style={styles.toggleButton} onPress={toggleCameraType}>
@@ -151,26 +138,31 @@ export default function CameraPage() {
             <MaterialIcons name={flashMode === 'off' ? 'flash-off' : 'flash-on'} size={24} color="white" />
           </TouchableOpacity>
         </View>
-      </Camera>
 
     </View>
   );
 }
+const screenWidth = Dimensions.get('window').width;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'black',
   },
   camera: {
-    flex: 1,
     width: screenWidth,
-    height: cameraHeight,
+    height: 600,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 100,
+    borderRadius: 12,
   },
   buttonContainer: {
     backgroundColor: 'transparent',
     justifyContent: 'center',
     position: 'absolute',
-    bottom: 50,
+    bottom: 15,
     width: '100%',
     alignItems: 'center',
   },
@@ -178,17 +170,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
   },
-  circleButton: {
-    borderWidth: 2,
-    borderColor: 'white',
-    height: 70,
-    width: 70,
-    borderRadius: 35,
-    backgroundColor: 'white',
-    marginBottom: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+
   captureButton: {
     borderWidth: 2,
     borderColor: 'white',
@@ -196,7 +178,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 70,
     height: 70,
-    backgroundColor: '#fff',
     borderRadius: 50,
     alignSelf: 'center',
   },

@@ -3,7 +3,8 @@ import {Alert, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View,} 
 import {StackNavigationProp} from "@react-navigation/stack";
 import {Link} from "expo-router";
 import axios from "axios";
-
+import { useSelector, useDispatch } from "react-redux";
+import { setUsername,setUrl } from "../redux/actions";
 type RootStackParamList = {
   Signup: undefined;
   Login: undefined;
@@ -31,25 +32,28 @@ type signupData = {
   detail:string
 }
 export default function SignupScreen() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [localUsername, setLocalUsername] = useState("");
+  const [localEmail, setLocalEmail] = useState("");
+  const [localPassword, setLocalPassword] = useState("");
+  const [localConfirmPassword, setLocalConfirmPassword] = useState("");
+  
   const [isLoading, setIsLoading] = useState(false);
-  const url = 'http://10.13.148.155:8000'
+  const dispatch = useDispatch();
+  const { url, username } = useSelector((state: any) => state.user);
 
   const validateInput = () => {
-    if (!email || !username || !password || !confirmPassword) {
+    if (!localEmail || !localUsername || !localPassword || !localConfirmPassword) {
       Alert.alert("Error", "Please fill in all fields.");
       return false;
     }
-    if (password !== confirmPassword) {
+    if (localPassword !== localConfirmPassword) {
       Alert.alert("Error", "Passwords do not match.");
       return false;
     }
-    // Add any additional validation here (e.g., email format, password strength)
+    // Add any additional validation here
     return true;
   };
+  
 
   const postSignupInfo = async () => {
     console.log("signup has been pressed"); // for debugging
@@ -60,9 +64,9 @@ export default function SignupScreen() {
     setIsLoading(true);
     try {
       const response = await axios.post(`${url}/user`, {
-        username,
-        password,
-        email,
+        username: localUsername,
+        password: localPassword,
+        email: localEmail,
         first_name: "Magdy",
         last_name: "Hafez",
       }, {
@@ -71,11 +75,13 @@ export default function SignupScreen() {
           'Content-Type': 'application/json',
         },
       });
+      
 
       if (response.status === 201) {
         Alert.alert("Success", "Signup successful!");
-        // handle successful signup, like navigation or clearing the form
-      } else {
+        dispatch<any>(setUsername(localUsername));
+      }
+       else {
         Alert.alert("Error", response.data.detail || "An unexpected error occurred.");
       }
     } catch (error) {
@@ -104,34 +110,36 @@ export default function SignupScreen() {
       ) : (
         <>
         <Text style={styles.title}>Signup</Text>
+
         <TextInput
           style={styles.input}
-          onChangeText={setUsername}
-          value={username}
+          onChangeText={setLocalUsername}
+          value={localUsername}
           placeholder="Username"
           autoCapitalize="none"
         />
         <TextInput
           style={styles.input}
-          onChangeText={setEmail}
-          value={email}
+          onChangeText={setLocalEmail}
+          value={localEmail}
           placeholder="Email"
           autoCapitalize="none"
         />
         <TextInput
           style={styles.input}
-          onChangeText={setPassword}
-          value={password}
+          onChangeText={setLocalPassword}
+          value={localPassword}
           placeholder="Password"
           secureTextEntry
         />
         <TextInput
           style={styles.input}
-          onChangeText={setConfirmPassword}
-          value={confirmPassword}
+          onChangeText={setLocalConfirmPassword}
+          value={localConfirmPassword}
           placeholder="Confirm Password"
           secureTextEntry
         />
+
         <TouchableOpacity
         style={styles.signupBtn}
         onPress={postSignupInfo}

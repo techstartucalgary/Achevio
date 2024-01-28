@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Image, StyleSheet, Text, TouchableOpacity, TextInput, ActivityIndicator, Keyboard,TouchableWithoutFeedback, Alert } from 'react-native';
 import axios from 'axios';
 import RNFS from 'react-native-fs';
@@ -8,9 +8,7 @@ const [caption, setCaption] = useState('');
   const [title, setTitle] = useState('');
   const params = useLocalSearchParams();
   const photoUri = params.photoUri;
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const url = 'http://10.9.124.36:8000'
+  const isSubmitting = React.useMemo(() => false, []);
 
   const handleSubmit = () =>{
     if (!title || !caption) {
@@ -29,8 +27,6 @@ const [caption, setCaption] = useState('');
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}  accessible={false}>
     <View style={styles.container}>
-      <Text style={styles.headerText}>Edit Your Post</Text>
-
       {photoUri && (
         <Image source={{ uri: photoUri.toString() }} style={styles.imagePreview} />
       )}
@@ -70,12 +66,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     alignItems: 'center',
     padding: 20,
-  },
-  headerText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    marginTop: 20,
+    paddingTop: 50,
   },
   input: {
     width: '90%',
@@ -104,29 +95,11 @@ const styles = StyleSheet.create({
   },
   imagePreview: {
     width: '90%',
-    height: 200,
+    height: 400,
     borderRadius: 8,
     marginBottom: 20,
+
   },
 });
 
 export default EditPost;
-
-    // const formData = new FormData();
-    // formData.append('image', {
-    //   uri: image,
-    //   name: 'image.jpg',
-    //   type: 'image/jpg',
-    // } as any);
-  
-    // axios.post('http://<your-computer-ip>:3000/api/posts', formData, {
-    //   headers: {
-    //     'Content-Type': 'multipart/form-data',
-    //   },
-    // })
-    // .then(response => {
-    //   console.log('Response:', response.data);
-    // })
-    // .catch(error => {
-    //   console.error('Error uploading image:', error);
-    // });

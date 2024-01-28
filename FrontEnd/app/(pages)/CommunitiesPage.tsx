@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import { Animated, View, Text, Image, StyleSheet, FlatList, Dimensions, TouchableOpacity, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import {router} from 'expo-router';
+import {router, useLocalSearchParams} from 'expo-router';
 import { set } from 'date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faComment, faHeart } from '@fortawesome/free-solid-svg-icons';
@@ -28,6 +28,8 @@ const postData: Post[] = [
 const CommunityPage: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [isLargeView, setIsLargeView] = useState<boolean>(false);
+  const params = useLocalSearchParams();
+  const {communityId, communityName, communityStreak, communityTags} = params;
   const handleLikePress = () => {
     // You would have some logic to handle the like action here
     console.log('Like button pressed!');
@@ -40,6 +42,7 @@ const CommunityPage: React.FC = () => {
   const renderPost = ({ item }: { item: Post }) => {
     const isSelected = item.id === selectedPostId;
     const postStyle = isLargeView ? styles.largePost : styles.post;
+
     const imageStyle = isLargeView ? styles.largePostImage : styles.postImage;
     return (
       <TouchableOpacity onPress={() => handlePress()} style={postStyle}>
@@ -72,6 +75,7 @@ const CommunityPage: React.FC = () => {
     }).start();
   }, [fadeAnim]);
   const renderHeader = () => (
+    
     <Animated.View style={{...styles.headerContainer, opacity: fadeAnim}}>
       <LinearGradient
         colors={['#FFB6C1', '#FA8072']}
@@ -79,10 +83,10 @@ const CommunityPage: React.FC = () => {
         start={{ x: 0.0, y: 0.0 }}
         end={{ x: 0.0, y: 1.0 }}
       >
-        <Text style={styles.headerTitle}>Paint Pals</Text>
+        <Text style={styles.headerTitle}>{communityName}</Text>
       </LinearGradient>
       <View style={styles.overlayContent}>
-        <Text style={styles.streakText}>42 Day Streak 🔥</Text>
+        <Text style={styles.streakText}>{communityStreak}</Text>
         <View style={styles.tagContainer}>
           <View style={styles.tag}><Text style={styles.tagText}>Art</Text></View>
           <View style={styles.tag}><Text style={styles.tagText}>Creativity</Text></View>

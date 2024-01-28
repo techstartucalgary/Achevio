@@ -59,7 +59,13 @@ class UserOutDTO(UserDTO):
         max_nested_depth=2,
     )
 
+class UpdateUserDTO(UserDTO):
+    config = DTOConfig(
+        include={'username', 'first_name', 'last_name', 'email'}
+    )
+
 
 from .post import PostSchema
 from .user_community_association import UserCommunityAssociationSchema
 UserSchema.model_rebuild()
+

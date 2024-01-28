@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TouchableOpacity, StyleSheet, Text, StatusBar, Image } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Text, StatusBar, Image, Dimensions } from 'react-native';
 import { Camera, CameraType, FlashMode } from 'expo-camera';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons'; // Make sure to install @expo/vector-icons
@@ -21,12 +21,12 @@ type NavigationProp = StackNavigationProp<RootStackParamList>;
 function useTypedNavigation() {
   return useNavigation<NavigationProp>();
 }
-
 export default function CameraPage() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const cameraRef = useRef<Camera>(null);
   const [type, setType] = useState(CameraType.back);
   const [flashMode, setFlashMode] = useState(FlashMode.off);
+  const [isRecording, setIsRecording] = useState(false); // Add state for video recording
 
   useEffect(() => {
     (async () => {
@@ -59,7 +59,28 @@ export default function CameraPage() {
         : FlashMode.off
     );
   };
+  const startRecording = async () => {
+    if (cameraRef.current) {
+      setIsRecording(true);
+      const videoRecordPromise = cameraRef.current.recordAsync();
+      videoRecordPromise.then((data) => {
+        setIsRecording(false);
+        // Handle the recorded video data (e.g., save or upload)
+        console.log(data.uri);
+        router.push({
+          pathname: '/(pages)/Videopreview',
+          params: { videoUri: data.uri }, // Parameters as an object
+        });
+      });
+    }
+  };
 
+  const stopRecording = () => {
+    if (cameraRef.current && isRecording) {
+      cameraRef.current.stopRecording();
+      setIsRecording(false);
+    }
+  };
   // Capture Photo
   const takePicture = async () => {
     if (cameraRef.current) {
@@ -94,12 +115,18 @@ export default function CameraPage() {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <Camera style={styles.camera} type={type} flashMode={flashMode} ref={cameraRef}>
-        <View style={styles.buttonContainer}>
+      <Camera style={styles.camera} type={type} ratio='4:3' flashMode={flashMode} ref={cameraRef} >
+      </Camera>
+      <View style={styles.buttonContainer}>
           {/* Capture Button */}
-          <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-            <FontAwesome name="camera" size={24} color="black" />
-          </TouchableOpacity>
+          <TouchableOpacity
+          style={styles.captureButton}
+          onPress={takePicture}  // Changed to onPress for capturing photo
+          onLongPress={startRecording}
+          onPressOut={stopRecording}
+        >
+          <FontAwesome name={isRecording ? 'stop-circle' : 'circle'} size={isRecording ? 50 : 24} color={isRecording ? 'red' : 'black'} />
+        </TouchableOpacity>
 
           {/* Toggle Camera Type */}
           <TouchableOpacity style={styles.toggleButton} onPress={toggleCameraType}>
@@ -111,24 +138,31 @@ export default function CameraPage() {
             <MaterialIcons name={flashMode === 'off' ? 'flash-off' : 'flash-on'} size={24} color="white" />
           </TouchableOpacity>
         </View>
-      </Camera>
 
     </View>
   );
 }
+const screenWidth = Dimensions.get('window').width;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'black',
   },
   camera: {
-    flex: 1,
+    width: screenWidth,
+    height: 600,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 100,
+    borderRadius: 12,
   },
   buttonContainer: {
     backgroundColor: 'transparent',
     justifyContent: 'center',
     position: 'absolute',
-    bottom: 50,
+    bottom: 15,
     width: '100%',
     alignItems: 'center',
   },
@@ -136,17 +170,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
   },
-  circleButton: {
-    borderWidth: 2,
-    borderColor: 'white',
-    height: 70,
-    width: 70,
-    borderRadius: 35,
-    backgroundColor: 'white',
-    marginBottom: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+
   captureButton: {
     borderWidth: 2,
     borderColor: 'white',
@@ -154,7 +178,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 70,
     height: 70,
-    backgroundColor: '#fff',
     borderRadius: 50,
     alignSelf: 'center',
   },

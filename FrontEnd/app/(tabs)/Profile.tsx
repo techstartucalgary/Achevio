@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Image, ScrollView, Switch, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, View, Text, Image, ScrollView, Switch, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import axios from 'axios';
@@ -38,7 +38,9 @@ const ProfilePage: React.FC = () => {
   const [profileData, setProfileData] = useState(fallbackData);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [avatarUri] = useState(`${url}/user/image/${userId}.jpg`);
+  const [avatarUri, setAvatarUri] = useState(`${url}/user/image/${userId}.jpg?cacheBust=${new Date().getTime()}`);
+  const [refreshing, setRefreshing] = useState(false);
+  const dispatch = useDispatch();
   const handleDarkModeToggle = () => {
     setIsDarkMode(previousState => !previousState);
     console.log(`Dark mode is now ${isDarkMode ? 'enabled' : 'disabled'}`);
@@ -52,42 +54,61 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try{
-        const configurationObject = {
-          method: 'get',
-          url : `${url}/user/me`,
-          headers: {
-            'accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-
-      }
+  const fetchData = async () => {
+    try {
+      const configurationObject = {
+        method: 'get',
+        url: `${url}/user/me`,
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      };
       const response = await axios(configurationObject);
       const data = response.data;
 
-        // Update state with fetched data, or keep dummy data if the API returns incomplete data
-        setProfileData(prevState => ({
-          ...prevState,
-          username: data.username || prevState.username,
-          avatarUri: data.avatarUri || prevState.avatarUri,
-          settings: data.settings || prevState.settings,
-          preferences: data.preferences || prevState.preferences,
-          More: data.More || prevState.More,
-        }));
-      } catch (error) {
-        console.error('API call failed:', error);
-        // If the API call fails, fallbackData will already be in place
-      }
-    };
+  
+      // Update state with fetched data
+      setProfileData(prevState => ({
+        ...prevState,
+        username: data.username || prevState.username,
+        settings: data.settings || prevState.settings,
+        preferences: data.preferences || prevState.preferences,
+        More: data.More || prevState.More,
+      }));
+      dispatch({ type: 'SET_USERNAME', payload: response.data.username });
 
-    fetchData();
+    } catch (error) {
+      console.error('API call failed:', error);
+    }
+  };
+  
+
+  useEffect(() => {
+    fetchData();  
   }, []);
+  
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    
+    try {
+      await fetchData(); // This will now also update the avatarUri state
+      setAvatarUri(`${url}/user/image/${userId}.jpg?cacheBust=${new Date().getTime()}`);
 
+    } catch (error) {
+      console.error('Failed to refresh profile data:', error);
+    }
+  
+    setRefreshing(false);
+  }, []);
+  
   return (
-<ScrollView style={styles.container}>
+<ScrollView style={styles.container}  refreshControl={
+    <RefreshControl
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+    />
+  }>
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Profile</Text>
         <Text style={styles.username}>{username}</Text>

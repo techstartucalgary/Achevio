@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from uuid_extensions import uuid7
 import aiofiles
 
-from schemas.users import CreateUserDTO, UserSchema, UserOutDTO
+from schemas.users import CreateUserDTO, UserSchema, UserOutDTO, UpdateUserDTO
 from schemas.community import CommunitySchema, CreateCommunityDTO, ViewCommunityDTO
 from schemas.post import PostSchema, CreatePostSchema, PostDTO, CreatePostDTO, CreateMultiplePostDTO, CreateMultiplePostSchema
 from models.user import User
@@ -36,6 +36,12 @@ from crud.community import get_community_list
 class UserController(Controller):
     path = '/user'
     return_dto = UserOutDTO
+
+    @patch('/', dto=UpdateUserDTO)
+    async def update_user(self, session: AsyncSession, request: 'Request[User, Token, Any]', data: DTOData[UserSchema]) -> str:
+        user = await get_user_by_id(session, request.user)
+        data.update_instance(user)
+        return "chill"
 
     @put('/join/{communityID:str}')
     async def join_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, communityID: str) -> UserSchema:

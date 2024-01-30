@@ -1,5 +1,6 @@
 import React, {useRef, useState} from "react";
 import {
+  Image,
   Keyboard,
   Pressable,
   StatusBar,
@@ -9,8 +10,10 @@ import {
   TouchableWithoutFeedback,
   ActivityIndicator,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+
+import { Link, router } from "expo-router";
 import { Text, View } from "../../components/Themed";
-import {router} from "expo-router";
 import GoogleLoginButton from "../../components/googleLoginButton";
 import { StackNavigationProp } from "@react-navigation/stack";
 import axios from "axios";
@@ -110,13 +113,11 @@ export default function LoginScreen() {
   const dismissKeyboard = () => {
     Keyboard.dismiss();
   };
-
   const resetInputsAndFocus = () => {
     setInputUsername('');
     setPassword('');
     usernameInputRef.current?.focus(); // Focus on the username input after reset
   };
-
   async function onPressLoginButton() {
     setLoading(true);
     dismissKeyboard(); // Ensure keyboard is dismissed to prevent focus issues
@@ -134,49 +135,44 @@ export default function LoginScreen() {
       resetInputsAndFocus(); // Reset inputs and focus if login fails
     }
   }
-  
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <View style={styles.container}>
-        <Text style={styles.title}>Login</Text>
+        <Image source={require("../../assets/images/temp_rocket.png")} style={styles.image} />
+        <Text style={styles.title}>Welcome Back!</Text>
         <TextInput
           ref={usernameInputRef}
           style={styles.input}
           onChangeText={setInputUsername}
           value={inputUsername}
-          placeholder="Username"
+          placeholderTextColor="#343a40"
           autoCapitalize="none"
         />
-
         <TextInput
-          ref={passwordInputRef}
           style={styles.input}
           onChangeText={setPassword}
           value={password}
           placeholder="Password"
+          placeholderTextColor="#343a40"
           secureTextEntry
           autoCapitalize="none"
         />
-        {
-          errorMessageVisible ?
-            <Text style={styles.errorStyle}>
-              {errorMessage}
-            </Text>
-            : null
-        }
+        {errorMessageVisible ? <Text style={styles.errorStyle}>{errorMessage}</Text> : null}
         <TouchableOpacity
           style={styles.button}
           onPress={onPressLoginButton}
         >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
+        {loading ? <ActivityIndicator size="large" color="#0000ff" /> : <GoogleLoginButton />}
+        <Text style={styles.navText}>---------------- OR ----------------</Text>
+        <Link href="/signup" asChild>
+          <Pressable>
+            <Text style={styles.navText}>Go to Signup</Text>
+          </Pressable>
+        </Link>
 
-        {loading ? (
-          <ActivityIndicator size="large" color="#0000ff" />
-        ) : (
-          <GoogleLoginButton />
-        )}
-        <StatusBar backgroundColor="#000000" barStyle="light-content"/>
+        <StatusBar backgroundColor="#000000" barStyle="light-content" />
       </View>
     </TouchableWithoutFeedback>
   );
@@ -188,46 +184,53 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "#fff",
+    backgroundColor: "#03214a",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    color: "#333",
+    color: "#fff",
   },
   input: {
     height: 50,
     borderColor: "gray",
+    backgroundColor: "#fffeeb",
     borderWidth: 1,
     marginBottom: 20,
     width: "100%",
     paddingHorizontal: 10,
-    borderRadius: 5,
+    borderRadius: 20,
     color: "#333",
   },
   button: {
     width: "100%",
-    backgroundColor: "#6200EE",
+    backgroundColor: "#a2d2ff",
     padding: 15,
     alignItems: "center",
-    borderRadius: 5,
+    borderRadius: 20,
+    marginBottom: 10,
   },
   buttonText: {
-    color: "#ffffff",
-    fontWeight: "bold",
+    fontSize: 18,
+    color: "#000",
   },
   navText: {
-    color: "#6200EE",
+    color: "#fffeeb",
     fontSize: 16,
     fontWeight: "bold",
     marginTop: 15,
   },
-  errorStyle:{
+  errorStyle: {
     fontSize: 14,
     color: "#ee0008",
     fontWeight: "500",
     marginBottom: 6,
     marginTop: -4,
-  }
+  },
+  image: {
+    width: 300,
+    height: 300,
+    marginBottom: 20,
+  },
 });

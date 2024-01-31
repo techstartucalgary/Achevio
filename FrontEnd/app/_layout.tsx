@@ -4,7 +4,8 @@ import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
-
+import {Provider} from 'react-redux'
+import { store } from '../app/redux/store'
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -45,10 +46,14 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
+    <Provider store={store}>
+
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      
       <Stack>
         <Stack.Screen name="(Login)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        <Stack.Screen name="(Settings)" options={{ headerShown: false }} />
         <Stack.Screen
           name="(tabs)"
           options={{
@@ -60,10 +65,12 @@ function RootLayoutNav() {
           name="(pages)"
           options={{
             headerShown: false,
-            gestureDirection: "horizontal",
+            gestureDirection: "horizontal"
           }}
         />
       </Stack>
     </ThemeProvider>
+    </Provider>
+
   );
 }

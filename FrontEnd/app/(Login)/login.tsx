@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useRef, useState} from "react";
 import {
   Image,
   Keyboard,
@@ -12,12 +12,13 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
-import { Text, View } from "../../components/Themed";
 import { Link, router } from "expo-router";
+import { Text, View } from "../../components/Themed";
 import GoogleLoginButton from "../../components/googleLoginButton";
 import { StackNavigationProp } from "@react-navigation/stack";
 import axios from "axios";
-
+import { useSelector, useDispatch } from "react-redux";
+import { setUsername,setUrl } from "../redux/actions";
 type RootStackParamList = {
   Signup: undefined;
   Login: undefined;
@@ -25,41 +26,49 @@ type RootStackParamList = {
   Camera: undefined;
 };
 
-type SignupScreenNavigationProp = StackNavigationProp<RootStackParamList, "Signup">;
+type SignupScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "Signup"
+>;
 
 type Props = {
   navigation: SignupScreenNavigationProp;
 };
-export default function LoginScreen({ navigation }: Props) {
-  const [username, setUsername] = useState("");
+export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [errorMessageVisible, setErrorMessageVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("")
+  const [errorMessageVisible, setErrorMessageVisible] = useState(false)
+  const { url, username} = useSelector((state: any) => state.user);
+  const usernameInputRef = useRef(null);
+  const passwordInputRef = useRef(null);
+  const [inputUsername, setInputUsername] = useState(username || "");
 
+  const dispatch = useDispatch();
   type LoginResponse = {
-    status: number;
-    data: LoginData;
-  };
+    status: number
+    data: LoginData,
+  }
 
   type LoginData = {
-    access_token: string;
-    token_type: string;
-    refresh_token: string;
-    expires_in: number;
-    detail: string;
-  };
+    access_token: string,
+    token_type: string,
+    refresh_token: string
+    expires_in: number,
+    detail: string
+    }
+
 
   async function postLoginInfo(username: string, password: string): Promise<LoginResponse | null> {
     try {
       const configurationObject = {
-        method: "post",
-        url: `http:/10.13.103.218:8000/login`,
+        method: 'post',
+        url: `${url}/login`,
         headers: {
-          accept: "application/json",
-          "Content-Type": "application/json",
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
         },
-        data: { username, password },
+        data: { username, password }
       };
 
       const response = await axios(configurationObject);
@@ -90,12 +99,13 @@ export default function LoginScreen({ navigation }: Props) {
       }
       return null;
     }
+
   }
   function responseCheck(response: LoginResponse): boolean {
-    let checkResult: boolean = true;
-    if (response.status !== 201) {
-      checkResult = false;
-      setErrorMessage(response.data.detail);
+    let checkResult: boolean = true
+    if (response.status !== 201 ) {
+      checkResult = false
+      setErrorMessage(response.data.detail)
     }
     return checkResult;
   }
@@ -103,30 +113,38 @@ export default function LoginScreen({ navigation }: Props) {
   const dismissKeyboard = () => {
     Keyboard.dismiss();
   };
-
-  async function onPressLoginButton(username: string, password: string) {
+  const resetInputsAndFocus = () => {
+    setInputUsername('');
+    setPassword('');
+    usernameInputRef.current?.focus(); // Focus on the username input after reset
+  };
+  async function onPressLoginButton() {
     setLoading(true);
-    // const res = await postLoginInfo(username, password)
-    // if (responseCheck(res)) {
-    //   //navigate to main page
-    //   console.log("success login")
-    //   setErrorMessageVisible(false)
-    //   router.push('/(tabs)/Camera')
-    // }
+    dismissKeyboard(); // Ensure keyboard is dismissed to prevent focus issues
+    const res = await postLoginInfo(inputUsername, password);
     setLoading(false);
-    router.push("/(tabs)/Camera");
+    if (res && responseCheck(res)) {
+      console.log("Success login");
+      setErrorMessageVisible(false);
+      dispatch({ type: 'SET_USERNAME', payload: inputUsername });
+      const response = await axios.get(`${url}/user/me`);
+      console.log(response.data);
+      dispatch({ type: 'SET_USERID', payload: response.data.id });
+      router.push('/(tabs)/Camera');
+    } else {
+      resetInputsAndFocus(); // Reset inputs and focus if login fails
+    }
   }
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <View style={styles.container}>
         <Image source={require("../../assets/images/temp_rocket.png")} style={styles.image} />
-
         <Text style={styles.title}>Welcome Back!</Text>
         <TextInput
+          ref={usernameInputRef}
           style={styles.input}
-          onChangeText={setUsername}
-          value={username}
-          placeholder="Username"
+          onChangeText={setInputUsername}
+          value={inputUsername}
           placeholderTextColor="#343a40"
           autoCapitalize="none"
         />
@@ -142,16 +160,8 @@ export default function LoginScreen({ navigation }: Props) {
         {errorMessageVisible ? <Text style={styles.errorStyle}>{errorMessage}</Text> : null}
         <TouchableOpacity
           style={styles.button}
-          // onPress={async () => {
-          //   /* handle signup */
-          //   const res = await postLoginInfo()
-          //   if (responseCheck(res)) {
-          //     //navigate to main page
-          //     console.log("success login")
-          //     setErrorMessageVisible(false)
-          //   }
-          // }}
-          onPress={() => onPressLoginButton(username, password)}>
+          onPress={onPressLoginButton}
+        >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
         {loading ? <ActivityIndicator size="large" color="#0000ff" /> : <GoogleLoginButton />}

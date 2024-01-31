@@ -1,70 +1,167 @@
-import React from 'react';
-import { StyleSheet, View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons'; // Make sure to install @expo/vector-icons
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, View, Text, Image, ScrollView, Switch, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import axios from 'axios';
+import { useSelector, useDispatch } from "react-redux";
+import { setUsername,setUrl } from "../redux/actions";
 
-type UserProfile = {
-  name: string;
-  avatar: string;
-  bio: string;
-  location?: string;
-  followers?: number;
-  following?: number;
-  posts?: number;
+// Dummy fallback data
+const fallbackData = {
+  username: 'John Doe',
+  avatarUri: 'https://i.pravatar.cc/150?img=68',
+  settings: [
+    { title: 'Edit profile', icon: 'chevron-right', navigateTo: 'EditProfile' },
+    { title: 'Change password', icon: 'chevron-right', navigateTo: 'ChangePassword' },
+    { title: 'Dark mode', icon: null, isSwitch: true, navigateTo: 'DarkMode'},
+    { title: 'Push notifications', icon: null, isSwitch: true },
+  ],
+  preferences: [
+    { title: 'Security and privacy', icon: 'chevron-right',navigateTo: 'SecurityAndPrivacy' },
+    { title: 'Invite friends', icon: 'chevron-right',navigateTo: 'InviteFriends' },
+    { title: 'Add a payment method', icon: 'chevron-right',navigateTo: 'AddPaymentMethod' },
+  ],
+  More : [
+    { title: 'About us', icon: 'chevron-right',navigateTo: 'AboutUs' },
+    { title: 'Privacy policy', icon: 'chevron-right',navigateTo: 'PrivacyPolicy' },
+  ],
 };
-
+// Simulate API calls
+const updateNotificationSettings = async (isEnabled) => {
+  // Here you'd replace with your actual API call
+  console.log(`API call to update notifications: ${isEnabled}`);
+  // Simulate API response delay
+  return new Promise(resolve => setTimeout(() => resolve(isEnabled), 500));
+};
 const ProfilePage: React.FC = () => {
-  const user: UserProfile = {
-    name: 'Magdy',
-    avatar: 'https://avatars.githubusercontent.com/u/17571969?v=4',
-    bio: 'Enthusiastic developer and designer',
-    location: 'Egypt, Cairo',
-    followers: 1200,
-    following: 300,
-    posts: 28,
+  const { url, userId, username} = useSelector((state: any) => state.user);
+  const [profileData, setProfileData] = useState(fallbackData);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [avatarUri, setAvatarUri] = useState(`${url}/user/image/${userId}.jpg?cacheBust=${new Date().getTime()}`);
+  const [refreshing, setRefreshing] = useState(false);
+  const dispatch = useDispatch();
+  const handleDarkModeToggle = () => {
+    setIsDarkMode(previousState => !previousState);
+    console.log(`Dark mode is now ${isDarkMode ? 'enabled' : 'disabled'}`);
+  };
+  const handleNotificationsToggle = async () => {
+    try {
+      const response = await updateNotificationSettings(!notificationsEnabled);
+      setNotificationsEnabled(response as boolean);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update notification settings.');
+    }
   };
 
-  // Function to handle Edit Profile action
-  const handleEditProfile = () => {
-    console.log('Edit Profile Clicked');
-    // Implement navigation or state update
-  };
+  const fetchData = async () => {
+    try {
+      const configurationObject = {
+        method: 'get',
+        url: `${url}/user/me`,
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      };
+      const response = await axios(configurationObject);
+      const data = response.data;
 
+  
+      // Update state with fetched data
+      setProfileData(prevState => ({
+        ...prevState,
+        username: data.username || prevState.username,
+        settings: data.settings || prevState.settings,
+        preferences: data.preferences || prevState.preferences,
+        More: data.More || prevState.More,
+      }));
+      dispatch({ type: 'SET_USERNAME', payload: response.data.username });
+
+    } catch (error) {
+      console.error('API call failed:', error);
+    }
+  };
+  
+
+  useEffect(() => {
+    fetchData();  
+  }, []);
+  
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    
+    try {
+      await fetchData(); // This will now also update the avatarUri state
+      setAvatarUri(`${url}/user/image/${userId}.jpg?cacheBust=${new Date().getTime()}`);
+
+    } catch (error) {
+      console.error('Failed to refresh profile data:', error);
+    }
+  
+    setRefreshing(false);
+  }, []);
+  
   return (
-    <ScrollView style={styles.container}>
+<ScrollView style={styles.container}  refreshControl={
+    <RefreshControl
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+    />
+  }>
       <View style={styles.headerContainer}>
-        <Image source={{ uri: user.avatar }} style={styles.avatar} />
-        <Text style={styles.name}>{user.name}</Text>
-        <Text style={styles.bio}>{user.bio}</Text>
-        <View style={styles.locationContainer}>
-          <MaterialIcons name="location-on" size={16} color="gray" />
-          <Text style={styles.location}>{user.location}</Text>
+        <Text style={styles.title}>Profile</Text>
+        <Text style={styles.username}>{username}</Text>
+        <Image source={{ uri: avatarUri }} style={styles.avatar} />
+      </View>
+
+      <View style={styles.sectionContainerTop}>
+        <Text style={styles.sectionTitle}>Account settings</Text>
+        {profileData.settings?.map((setting, index) => (
+          <TouchableOpacity key={index} style={styles.option} onPress={
+            () => router.push(`/(Settings)/${setting.navigateTo}` as any)
+          }>
+            <Text style={styles.optionText}>{setting.title}</Text>
+            <MaterialIcons name={setting.icon } size={24} color="black" />
+          </TouchableOpacity>
+        ))}
+        <View style={styles.option}>
+          <Text style={styles.optionText}>Dark mode</Text>
+          <Switch value={isDarkMode} onValueChange={handleDarkModeToggle} />
         </View>
-        <TouchableOpacity style={styles.editProfileButton} onPress={handleEditProfile}>
-          <Text style={styles.editProfileText}>Edit Profile</Text>
+        <View style={styles.option}>
+          <Text style={styles.optionText}>Push notifications</Text>
+          <Switch value={notificationsEnabled} onValueChange={handleNotificationsToggle} />
+        </View>
+      </View>
+
+      <View style={styles.sectionContainer}>
+        <Text style={styles.sectionTitle}>Preferences</Text>
+        {profileData.preferences?.map((preference, index) => (
+          <TouchableOpacity key={index} style={styles.option} onPress={
+            () => router.push(`/(Settings)/${preference.navigateTo}` as any)
+          }>
+            <Text style={styles.optionText}>{preference.title}</Text>
+            
+            <MaterialIcons name={preference.icon as any} size={24} color="black" />
+          </TouchableOpacity>
+        ))}
+      </View>
+      <View style = {styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>More</Text>
+      {profileData.More?.map((More, index) => (
+          <TouchableOpacity key={index} style={styles.option} onPress={
+            () => router.push(`/(Settings)/${More.navigateTo}` as any)
+          }>
+          <Text style={styles.optionText}>{More.title}</Text>
+          <MaterialIcons name={More.icon as any } size={24} color="black" />
+          </TouchableOpacity>
+        ))}
+      </View>
+      <View style = {styles.sectionContainer}>
+        <TouchableOpacity style={styles.option} onPress={() => router.push('/(Login)/home')}>
+          <Text style={styles.optionText}>Logout</Text>
         </TouchableOpacity>
-      </View>
-
-      <View style={styles.statsContainer}>
-        {/* You can further break down each stat into a separate component */}
-        <View style={styles.stat}>
-          <Text style={styles.statNumber}>{user.posts}</Text>
-          <Text style={styles.statLabel}>Posts</Text>
-        </View>
-        <View style={styles.stat}>
-          <Text style={styles.statNumber}>{user.followers}</Text>
-          <Text style={styles.statLabel}>Followers</Text>
-        </View>
-        <View style={styles.stat}>
-          <Text style={styles.statNumber}>{user.following}</Text>
-          <Text style={styles.statLabel}>Following</Text>
-        </View>
-      </View>
-
-      {/* Gallery or Posts Section */}
-      <View style={styles.galleryContainer}>
-        {/* Here you would map through an array of images/posts */}
-        <Image style={styles.postImage} source={{ uri: 'link-to-image' }} />
-        {/* Repeat for multiple images */}
       </View>
     </ScrollView>
   );
@@ -77,81 +174,50 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     alignItems: 'center',
+    backgroundColor: '#ADD8E6',
+    height: 220,
+    paddingTop: 30,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: 'black',
     paddingVertical: 20,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 150,
+    height: 150,
+    borderRadius: 80,
     marginBottom: 10,
+    top: 15,
+    borderColor: 'white',
+    borderWidth: 4,
   },
-  name: {
+  username: {
     fontSize: 22,
     fontWeight: 'bold',
   },
-  bio: {
-    fontSize: 16,
-    color: 'grey',
-    marginTop: 4,
-    textAlign: 'center',
-    paddingHorizontal: 40, // To ensure text is centered and doesn't overflow
+  sectionContainerTop: {
+    paddingTop: 70,
   },
-  locationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
+  sectionContainer: {
   },
-  location: {
-    marginLeft: 2,
-    fontSize: 14,
-    color: 'grey',
-  },
-  editProfileButton: {
-    marginTop: 12,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#333',
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-  },
-  editProfileText: {
-    color: '#333',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 20,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  stat: {
-    alignItems: 'center',
-  },
-  statNumber: {
+  sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    padding: 10,
   },
-  statLabel: {
-    fontSize: 14,
-    color: 'grey',
-    marginTop: 4,
+  option: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
-  galleryContainer: {
-    flexDirection: 'row', // or 'column' depending on your design
-    flexWrap: 'wrap', // if you want multiple rows
-    justifyContent: 'center',
-    paddingVertical: 20,
+  optionText: {
+    fontSize: 16,
   },
-  postImage: {
-    width: 100,
-    height: 100,
-    margin: 5,
-    borderRadius: 10,
-  },
-  // ... Add more styles for other elements
 });
 
 export default ProfilePage;

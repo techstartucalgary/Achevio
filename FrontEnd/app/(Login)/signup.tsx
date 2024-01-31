@@ -1,22 +1,19 @@
 import React, { useState } from "react";
 import {
-  Image,
   Alert,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
-  Pressable,
+  Image,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { useNavigation } from "@react-navigation/native";
-
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 import axios from "axios";
-
+import { useSelector, useDispatch } from "react-redux";
+import { setUsername,setUrl } from "../redux/actions";
 type RootStackParamList = {
   Signup: undefined;
   Login: undefined;
@@ -40,53 +37,99 @@ type signupData = {
   detail: string;
 };
 export default function SignupScreen() {
-  const [username, setUsername] = useState("");
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [localUsername, setLocalUsername] = useState("");
+  const [localEmail, setLocalEmail] = useState("");
+  const [localPassword, setLocalPassword] = useState("");
+  const [localConfirmPassword, setLocalConfirmPassword] = useState("");
+  
   const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { url, username } = useSelector((state: any) => state.user);
 
   const validateInput = () => {
-    if (!email || !username || !password || !confirmPassword) {
+    if (!localEmail || !localUsername || !localPassword || !localConfirmPassword) {
       Alert.alert("Error", "Please fill in all fields.");
       return false;
     }
-    if (password !== confirmPassword) {
+    if (localPassword !== localConfirmPassword) {
       Alert.alert("Error", "Passwords do not match.");
       return false;
     }
-    // Add any additional validation here (e.g., email format, password strength)
+    // Add any additional validation here
     return true;
   };
+  
 
-  const getRequest = async () => {
+  const postSignupInfo = async () => {
+    console.log("signup has been pressed"); // for debugging
+    if (!validateInput()) {
+      console.log("validateInput failed"); // for debugging
+      return;
+    }
+    setIsLoading(true);
     try {
-      const response = await axios.get("http://10.13.85.26:8000/user");
-      console.log(response.data);
+      const response = await axios.post(`${url}/user`, {
+        username: localUsername,
+        password: localPassword,
+        email: localEmail,
+        first_name: "Magdy",
+        last_name: "Hafez",
+      }, {
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.status === 201) {
+        Alert.alert("Success", "Signup successful!");
+        dispatch<any>(setUsername(localUsername));
+      }
+       else {
+        Alert.alert("Error", response.data.detail || "An unexpected error occurred.");
+      }
     } catch (error) {
-      console.error(error);
+      console.log("Error details:", error);
+      // Check for additional details
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log(error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log("Error", error.message);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
-
   return (
     <View style={styles.container}>
       {isLoading ? (
         <Text>Loading...</Text>
       ) : (
         <>
-          <Text style={styles.title}>Signup</Text>
           <Image source={require("../../assets/images/temp_rocket.png")} style={styles.image} />
-
+          <Text style={styles.title}>Glad to have you on board !</Text>
+          <Text style={styles.subheading}>
+            But first we would like to get to know a little bit more about you{" "}
+          </Text>
           <TextInput
-            style={styles.input}
-            onChangeText={setUsername}
-            value={username}
-            placeholder="Username"
-            placeholderTextColor="#343a40"
-            autoCapitalize="none"
-          />
+          style={styles.input}
+          onChangeText={setLocalUsername}
+          value={localUsername}
+          placeholderTextColor="#343a40"
+          placeholder="Username"
+          autoCapitalize="none"
+        />
           <TextInput
             style={styles.input}
             onChangeText={setFirstName}
@@ -103,21 +146,39 @@ export default function SignupScreen() {
             placeholderTextColor="#343a40"
             autoCapitalize="none"
           />
+        <TextInput
+          style={styles.input}
+          onChangeText={setLocalEmail}
+          value={localEmail}
+          placeholder="Email"
+          autoCapitalize="none"
+          placeholderTextColor="#343a40"
 
-          <Link href="/login" asChild>
-            <Pressable style={styles.signupBtn}>
-              <Text style={styles.signupText}>Continue</Text>
-            </Pressable>
+        />
+        <TextInput
+          style={styles.input}
+          onChangeText={setLocalPassword}
+          value={localPassword}
+          placeholder="Password"
+          placeholderTextColor="#343a40"
+          secureTextEntry
+        />
+        <TextInput
+          style={styles.input}
+          onChangeText={setLocalConfirmPassword}
+          value={localConfirmPassword}
+          placeholder="Confirm Password"
+          placeholderTextColor="#343a40"
+          secureTextEntry
+        />
+          <TouchableOpacity style={styles.signupBtn} onPress={postSignupInfo} disabled={isLoading}>
+            <Text style={styles.signupText}>Signup</Text>
+          </TouchableOpacity>
+          <Text style={styles.navText}>---------------- OR ----------------</Text>
+          <Link href="/" style={styles.linkstyle}>
+            <Text style={styles.loginText}>Go back to Login</Text>
           </Link>
-          <Pressable
-            onPress={() =>
-              router.push({
-                pathname: "/index",
-                params: { slide: 1 },
-              })
-            }>
-            <Text style={styles.navText}>Go back to Login</Text>
-          </Pressable>
+
           <StatusBar backgroundColor="#000000" barStyle="light-content" />
         </>
       )}
@@ -160,21 +221,27 @@ const styles = StyleSheet.create({
   },
   signupText: {
     fontSize: 18,
-    color: "#000",
+    color: "#fffeeb",
+  },
+  subheading: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 20,
+    color: "#fffeeb",
+    textAlign: "center",
   },
 
+  loginText: {
+    fontSize: 16,
+    color: "#fffeeb",
+    fontWeight: "500",
+  },
   navText: {
     color: "#fffeeb",
     fontSize: 16,
     fontWeight: "bold",
     marginTop: 15,
   },
-  loginText: {
-    fontSize: 16,
-    color: "#6200EE",
-    fontWeight: "500",
-  },
-
   linkStyle: {
     fontSize: 16,
     color: "#6200EE",
@@ -190,7 +257,6 @@ const styles = StyleSheet.create({
   linkstyle: {
     marginTop: 20,
   },
-
   image: {
     width: 300,
     height: 300,

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Optional
 
 from uuid import UUID
 
@@ -6,17 +7,24 @@ from litestar.dto import DTOConfig
 from litestar.contrib.pydantic import PydanticDTO
 from .schema import Schema
 
-
+from datetime import datetime
+    
 class CommunitySchema(Schema):
     id: UUID    
     # owner_id: UUID
     name: str
     description: str
+    image: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    
     users: list[UserCommunityAssociationSchema] = None
 
     postdays: list[PostdaySchema]
 
     tags: list[TagSchema]
+
+
 
 
 class BaseCommunitySchema(Schema):

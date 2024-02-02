@@ -191,11 +191,9 @@ class UserController(Controller):
         '''
         current_time = datetime.datetime.now(pytz.utc)
 
-        commiunity_data = data.create_instance(id=uuid7(), users=[
-        ], created_at=current_time, updated_at=current_time, postdays=[], tags=[])
+        commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time, postdays=[], tags=[])
+        validated_community_data = CommunitySchema.model_validate(commiunity_data)
 
-        validated_community_data = CommunitySchema.model_validate(
-            commiunity_data)
         try:
             community = Community(**validated_community_data.__dict__)
             session.add(community)
@@ -212,16 +210,15 @@ class UserController(Controller):
                 tag = await get_tag_by_name(session, tags[i].__dict__['name'])
                 community.tags.append(tag)
 
-            
             validated_community_data = CommunitySchema.model_validate(commiunity_data)
-
             await user_join_community(session, validated_community_data.id, request.user, 'owner')
+            
             await session.commit()
-
             return validated_community_data
         except Exception as e:
             raise HTTPException(
                 status_code=409, detail=f'Error creating community: {e}')
+
 
     @post('/{communityID:str}/leave')
     async def leave_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, communityID: str) -> str:
@@ -237,6 +234,7 @@ class UserController(Controller):
             str: A message indicating success.
         '''
         return await user_leave_community(session, communityID, request.user)
+
 
     @patch('/profile_image', media_type=MediaType.TEXT)
     async def update_profile_picture(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[UploadFile, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
@@ -313,7 +311,7 @@ class UserController(Controller):
             file_path = os.path.join(image_dir, filename)
             async with aiofiles.open(file_path, 'wb') as outfile:
                 await outfile.write(image)
-        return f"File(s) created"
+        return f"File created"
 
     
 
@@ -321,7 +319,7 @@ class UserController(Controller):
     @post('/TransferOwnership/{id:str}/{newUser:str}')
     async def transfer_ownership(self, request: 'Request[User, Token, Any]', session: AsyncSession, communityID: str, newUserID: str) -> str:
         user = await get_user_by_id(session, request.user)
-        await transfer_community_ownership(session, id, user, newUserID)
+        await transfer_community_ownership(session, communityID, user, newUserID)
         return f"Ownership Transfered to {newUserID}"
 
 

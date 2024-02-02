@@ -6,6 +6,17 @@ from litestar.exceptions import HTTPException
 from models.post import Post
 
 async def get_posts_list(session: AsyncSession, limit: int, offset: int) -> list[Post]:
+    """
+    Fetches a paginated list of Posts.
+
+    Args:
+        session: Database session for query execution.
+        limit: Maximum number of Posts to return.
+        offset: Number of Posts to skip before returning the results.
+
+    Returns:
+        A list of Post instances within specified limit and offset.
+    """
     query = select(Post).limit(limit).offset(offset)
     result = await session.execute(query)
     
@@ -13,6 +24,19 @@ async def get_posts_list(session: AsyncSession, limit: int, offset: int) -> list
 
 
 async def get_posts_by_id(session: AsyncSession, post_id: UUID) -> Post:
+    """
+    Fetches a single Post by its ID.
+
+    Args:
+        session: Database session for query execution.
+        post_id: UUID of the Post to fetch.
+
+    Returns:
+        The Post object if found, None otherwise.
+
+    Raises:
+        HTTPException: If there's an issue retrieving the Post.
+    """
     query = select(Post).where(Post.id == post_id)
     result = await session.execute(query)
     try:
@@ -21,7 +45,20 @@ async def get_posts_by_id(session: AsyncSession, post_id: UUID) -> Post:
         raise HTTPException(status_code=401, detail="Error retrieving post")
     
 
-async def get_posts_by_user_id(session: AsyncSession, user_id: UUID) -> list[Post]: # WIP
+async def get_posts_by_user_id(session: AsyncSession, user_id: UUID) -> list[Post]:
+    """
+    Fetches all Posts made by a specific user.
+
+    Args:
+        session: Database session for query execution.
+        user_id: UUID of the user whose Posts are to be retrieved.
+
+    Returns:
+        A list of Post instances made by the specified user.
+
+    Raises:
+        HTTPException: If there's an issue retrieving the Posts.
+    """
     query = select(Post).where(Post.user_id == user_id)
     result = await session.execute(query)
     try:
@@ -30,7 +67,22 @@ async def get_posts_by_user_id(session: AsyncSession, user_id: UUID) -> list[Pos
         raise HTTPException(status_code=401, detail="Error retrieving user posts")
     
 
-async def get_posts_by_community_id(session: AsyncSession, community_id: UUID, limit: int=100, offset: int=0) -> list[Post]: # WIP
+async def get_posts_by_community_id(session: AsyncSession, community_id: UUID, limit: int=100, offset: int=0) -> list[Post]:
+    """
+    Fetches a paginated list of Posts belonging to a specific community.
+
+    Args:
+        session: Database session for query execution.
+        community_id: UUID of the community whose Posts are to be retrieved.
+        limit: Maximum number of Posts to return (default 100).
+        offset: Number of Posts to skip before returning the results (default 0).
+
+    Returns:
+        A paginated list of Post instances belonging to the specified community.
+
+    Raises:
+        HTTPException: If there's an issue retrieving the Posts.
+    """
     query = select(Post).where(Post.community_id == community_id).limit(limit).offset(offset)
     result = await session.execute(query)
     try:

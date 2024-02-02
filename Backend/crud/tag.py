@@ -7,6 +7,19 @@ from models.tag import Tag
 
 
 async def get_tag_by_name(session: AsyncSession, name: str) -> Tag:
+    """
+    Fetches a Tag by its name.
+
+    Args:
+        session: Database session for query execution.
+        name: Name of the Tag to fetch.
+
+    Returns:
+        The Tag object if found, None otherwise.
+
+    Raises:
+        HTTPException: If no Tag is found or multiple Tags are found.
+    """
     query = select(Tag).where(Tag.name == name)
     result = await session.execute(query)
     try:
@@ -16,6 +29,16 @@ async def get_tag_by_name(session: AsyncSession, name: str) -> Tag:
 
 
 async def create_postday(session: AsyncSession, name: str) -> Tag:
+    """
+    Creates a new Tag with a given name.
+
+    Args:
+        session: Database session for committing new Tag.
+        name: Name for the new Tag.
+
+    Returns:
+        The newly created Tag object.
+    """
     tag = Tag(id=uuid7(), name=name)
     session.add(tag)
     await session.commit()

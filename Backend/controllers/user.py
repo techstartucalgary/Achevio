@@ -19,7 +19,7 @@ import aiofiles
 
 from schemas.users import CreateUserDTO, UserSchema, UserOutDTO, UpdateUserDTO
 from schemas.community import CommunitySchema, CreateCommunityDTO, ViewCommunityDTO
-from schemas.post import PostSchema, CreatePostSchema, PostDTO, CreatePostDTO, CreateMultiplePostDTO, CreateMultiplePostSchema, CreateMultiplePostSchemaTest
+from schemas.post import PostSchema, CreatePostSchema, PostDTO, CreatePostDTO, CreateMultiplePostDTO, CreateMultiplePostSchema
 from models.user import User
 from models.community import Community
 from models.post import Post
@@ -280,7 +280,7 @@ class UserController(Controller):
 
 
     @post('/post', media_type=MediaType.TEXT)
-    async def create_post(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[CreateMultiplePostSchemaTest, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
+    async def create_post(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[CreateMultiplePostSchema, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
         '''
         Creates one or multiple posts with images associated with communities.
 

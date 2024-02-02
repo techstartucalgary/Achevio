@@ -34,16 +34,9 @@ class CreatePostSchema(Schema):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
+
+
 class CreateMultiplePostSchema(Schema):
-    file: UploadFile    
-    title: str
-    caption: str
-    communities_id: list[str]
-
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-
-class CreateMultiplePostSchemaTest(Schema):
     file: UploadFile    
     title: str
     caption: str

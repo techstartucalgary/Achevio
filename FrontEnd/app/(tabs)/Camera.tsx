@@ -23,18 +23,25 @@ function useTypedNavigation() {
 }
 export default function CameraPage() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const cameraRef = useRef<Camera>(null);
   const [type, setType] = useState(CameraType.back);
   const [flashMode, setFlashMode] = useState(FlashMode.off);
   const [isRecording, setIsRecording] = useState(false); // Add state for video recording
+  const cameraRef = useRef<Camera>(null);
 
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === 'granted');
+      // if camera is not on then turn it on
+      
     })();
   }, []);
-
+  useEffect(() => {
+    if (hasPermission) {
+      setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
+    }
+  }, [hasPermission]);
+  
   if (hasPermission === null) {
     return <View />;
   }
@@ -156,7 +163,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 100,
-    borderRadius: 12,
+    borderRadius: 12, 
   },
   buttonContainer: {
     backgroundColor: 'transparent',

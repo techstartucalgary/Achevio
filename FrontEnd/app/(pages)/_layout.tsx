@@ -23,6 +23,9 @@
         <Stack.Screen name="PickCommunity" options={
           {headerShown: false}
         }/>
+        <Stack.Screen name="CreateCommunities" options={
+          {headerShown: false, presentation: "modal"}
+        }/>
 
       </Stack>
     );

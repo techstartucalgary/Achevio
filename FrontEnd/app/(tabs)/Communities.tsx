@@ -184,44 +184,6 @@ const Communities = () => {
       </View>
     );
   };
-  const id = uuid.v4();
-  async function handlecreateCommunityPress() {
-    try{
-      const configurationObject = {
-        method: 'post',
-        url : `${url}/user/community`,
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        data : {
-          "name": "TestCommunity",
-          "description": "Community for testing",
-          "postdays": [
-            {
-              "day": "Monday"
-            }
-          ],
-          "tags": [
-            {
-              "name": "Tag1"
-            }
-          ]
-        }
-    }
-    const response = await axios(configurationObject);
-    if (response.status === 201) {
-      console.log("Community created successfully");
-      console.log(response.data);
-    } else {
-      console.log("Unexpected response status: " + response.status);
-    }
-    } catch (error) {
-      console.log("Error details:", error);
-    }
-  };
-
-
   // Component for rendering community items
   const renderCommunityItem = ({ item }) => (
     
@@ -251,6 +213,11 @@ const Communities = () => {
       }</Text>
     </TouchableOpacity>
   );
+  const handleCreateCommunity = () => {
+    router.push({
+      pathname: '/(pages)/CreateCommunities', // The route name
+    })
+  }
   // Header component to be rendered above the communities list
   const ListHeader = () => (
     <>
@@ -285,6 +252,7 @@ const Communities = () => {
     <>
     { isLoading ? <ActivityIndicator/> : (
       <>
+      
     <FlatList
       ListHeaderComponent={ListHeader}
       data={communities}
@@ -292,18 +260,15 @@ const Communities = () => {
       keyExtractor={(item) => item.key}
       style={styles.container}
     />
-
-    {
-      //create communities button
       <TouchableOpacity 
         onPress={
-          handlecreateCommunityPress
+          handleCreateCommunity
+
         }
-        style={styles.createCommunityButton}
+        style={styles.communityItem}
       >
         <Text style={styles.communityTitle}>Create Community</Text>
       </TouchableOpacity>
-    }
     {selectedPost && (
         <PostDetailsModal
           post={selectedPost}
@@ -326,7 +291,7 @@ const Communities = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 40,
+    marginTop: 50,
     backgroundColor: '#000', // Set your background color
   },
   datesList: {

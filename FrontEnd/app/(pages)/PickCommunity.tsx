@@ -4,13 +4,13 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator }
 import { FontAwesome } from '@expo/vector-icons';
 import {router, useLocalSearchParams} from "expo-router";
 import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
 
 interface Community {
   id: string;
   name: string;
 }
 
-const url = 'http://10.9.124.36:8000'
 
 const SelectCommunities = () => {
   const [communities, setCommunities] = useState<Community[]>([]);
@@ -20,11 +20,19 @@ const SelectCommunities = () => {
   const photoUri = params.photoUri;
   const caption = params.caption;
   const title = params.title;
+  const { url, username} = useSelector((state: any) => state.user);
+  const dispatch = useDispatch();
+
 
   useEffect(() => {
-    axios.get(`${url}/myCommunities`)
-      .then(response => setCommunities(response.data))
-      .catch(error => console.error('Error fetching communities:', error));
+    const res = axios.get(`${url}/user/myCommunities`)
+    .then(response => {
+      setCommunities(response.data);
+    })
+    .catch(error => console.error('Error fetching communities:', error));
+    console.log(res);
+    
+      
   }, []);
 
   const handleSelectCommunity = (id: string) => {
@@ -40,14 +48,14 @@ const SelectCommunities = () => {
   const handleSubmit = () => {
     setIsSubmitting(true);
     const formData = new FormData();
-    formData.append('image', {
+    formData.append('file', {
         uri: photoUri,
         name: 'image.jpg',
         type: 'image/jpg',
       } as any);
     formData.append('title', title as string);
     formData.append('caption', caption as string);
-    formData.append('communityid', JSON.stringify(selectedCommunities));
+    formData.append('communities_id', selectedCommunities.join(',') as string);
 
     axios.post(`${url}/user/post`, formData, {
       headers: {
@@ -88,13 +96,16 @@ const styles = StyleSheet.create({
   item: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 50,
     padding: 10,
+    height: 60,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
   text: {
     flex: 1,
     fontSize: 18,
+    color: 'white',
   },
   submitButton: {
     backgroundColor: '#007bff',
@@ -108,6 +119,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
   },
+
 });
 
 export default SelectCommunities;

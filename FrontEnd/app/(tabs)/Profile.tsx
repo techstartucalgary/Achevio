@@ -38,7 +38,7 @@ const ProfilePage: React.FC = () => {
   const [profileData, setProfileData] = useState(fallbackData);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [avatarUri, setAvatarUri] = useState(`${url}/user/image/${userId}.jpg?cacheBust=${new Date().getTime()}`);
+  const [avatarUri, setAvatarUri] = useState(`${url}/user/image/${userId}.jpg?cacheBust=${new Date().getTime()}` || "https://templates.joomla-monster.com/joomla30/jm-news-portal/components/com_djclassifieds/assets/images/default_profile.png");
   const [refreshing, setRefreshing] = useState(false);
   const dispatch = useDispatch();
   const handleDarkModeToggle = () => {

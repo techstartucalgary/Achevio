@@ -19,7 +19,7 @@ import aiofiles
 
 from schemas.users import CreateUserDTO, UserSchema, UserOutDTO, UpdateUserDTO
 from schemas.community import CommunitySchema, CreateCommunityDTO, ViewCommunityDTO
-from schemas.post import PostSchema, CreatePostSchema, PostDTO, CreatePostDTO, CreateMultiplePostDTO, CreateMultiplePostSchema
+from schemas.post import PostSchema, CreatePostSchema, PostDTO, CreatePostDTO, CreateMultiplePostDTO, CreateMultiplePostSchema, CreateMultiplePostSchemaTest
 from models.user import User
 from models.community import Community
 from models.post import Post
@@ -280,7 +280,7 @@ class UserController(Controller):
 
 
     @post('/post', media_type=MediaType.TEXT)
-    async def create_post(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[CreateMultiplePostSchema, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
+    async def create_post(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[CreateMultiplePostSchemaTest, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
         '''
         Creates one or multiple posts with images associated with communities.
 
@@ -296,19 +296,24 @@ class UserController(Controller):
         '''
         user = await get_user_by_id(session, request.user)
         image = await data.file.read()
+        
 
-        for community_id in (data.communities_id):
-            post = Post(id=uuid7(), title=data.title, caption=data.caption, user_id=user.id, community_id=community_id)
+        communities = data.communities_id.split(',')
+
+
+
+        for community_id in communities:
+            post = Post(id=uuid7(), title=data.title, caption=data.caption, user_id=user.id, community_id=UUID(community_id))
             session.add(post)
 
-        image_dir = "static/images/posts"
-        os.makedirs(image_dir, exist_ok=True)
-        filename = f'{post.id}.jpg'
+            image_dir = "static/images/posts"
+            os.makedirs(image_dir, exist_ok=True)
+            filename = f'{post.id}.jpg'
 
-        file_path = os.path.join(image_dir, filename)
-        async with aiofiles.open(file_path, 'wb') as outfile:
-            await outfile.write(image)
-        return f"File created at {file_path}"
+            file_path = os.path.join(image_dir, filename)
+            async with aiofiles.open(file_path, 'wb') as outfile:
+                await outfile.write(image)
+        return f"File(s) created"
 
     
 

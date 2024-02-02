@@ -42,6 +42,17 @@ class CreateMultiplePostSchema(Schema):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
+
+class CreateMultiplePostSchemaTest(Schema):
+    file: UploadFile    
+    title: str
+    caption: str
+    communities_id: str
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+
+
 class PostDTO(PydanticDTO[PostSchema]):
     config = DTOConfig(
         max_nested_depth=2,

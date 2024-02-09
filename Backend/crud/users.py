@@ -7,7 +7,6 @@ from crud.community import get_community_by_id
 from models.user_community_association import UserCommunityAssociation
 from schemas.users import UserSchema
 from models.community import Community
-from schemas.community import CommunitySchema
 
 async def user_join_community(session: AsyncSession, communityID: UUID, user_id: User, role: str = "member") -> UserSchema:
     """
@@ -120,7 +119,7 @@ async def get_user_by_id(session: AsyncSession, id: UUID) -> User:
         raise HTTPException(status_code=401, detail="Error retrieving user")
 
 
-async def transfer_community_ownership(session: AsyncSession, id: UUID, user: User, new_owner: str) -> Community:
+async def transfer_community_ownership(session: AsyncSession, id: UUID, user: User, new_owner: str) -> str:
     """
     Transfer ownership of a community to a new user.
 
@@ -135,13 +134,12 @@ async def transfer_community_ownership(session: AsyncSession, id: UUID, user: Us
     Raises:
         HTTPException: If there's an error retrieving the community or if the community doesn't exist.
     """
-    
     community = await get_community_by_id(session, id)
+    
     if community is None:
         raise HTTPException(status_code=401, detail="Community not found")
-    
-    new_owner = await get_user_by_id(session, new_owner)
 
+    new_owner = await get_user_by_id(session, new_owner)
     query = select(UserCommunityAssociation).where(UserCommunityAssociation.community_id == id, UserCommunityAssociation.user_id == user.id)
     result = await session.execute(query)
     user_association = result.scalar_one_or_none()

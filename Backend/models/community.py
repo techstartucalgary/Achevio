@@ -27,3 +27,5 @@ class Community(UUIDAuditBase):
         secondary=community_tag_association,
         # lazy='selectin'
     )
+
+    image: Mapped[str] = mapped_column(String(100), nullable=True)

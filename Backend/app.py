@@ -83,7 +83,7 @@ app = Litestar(
     [UserController, CommunityController, PostdayController, InitializeController, TagController, login_handler, logout_handler],  # List of endpoint functions
     dependencies={"session": provide_transaction},  # Dependency to inject session into endpoints
     plugins=[SQLAlchemyPlugin(db_config)],  # Plugin for SQLAlchemy support
-    stores=StoreRegistry(default_factory=cache.redis_store_factory),
+    stores=StoreRegistry(default_factory=cache.redis_store_factory), # Redis setup
     openapi_config=openapi.config, # OpenAPI configuration for Swagger UI
     on_startup=[on_startup],  # Startup event handler to initialize DB tables
     on_app_init=[oauth2_auth.on_app_init],  # Startup event handler to initialize OAuth2
@@ -91,6 +91,6 @@ app = Litestar(
     static_files_config=[   # Static files configuration for user and post images
         StaticFilesConfig(directories=['static/images/users'], path='/user/image'),
         StaticFilesConfig(directories=['static/images/posts'], path='/post/image'),
-
+        StaticFilesConfig(directories=['static/images/communities'], path='/community/image'), # Images provided by Freepik
     ]
 )

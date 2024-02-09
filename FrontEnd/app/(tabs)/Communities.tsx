@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, Image, Dimensions, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { StyleSheet, Text, View, FlatList, Image, Dimensions, TouchableOpacity, Modal, ActivityIndicator, RefreshControl } from 'react-native';
 import { getDayOfYear, getISODay } from 'date-fns';
 import { router } from 'expo-router';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -8,6 +8,7 @@ import axios from 'axios';
 import uuid from 'react-native-uuid';
 import { useSelector, useDispatch } from "react-redux";
 import { setUsername,setUrl } from "../redux/actions";
+
 
 // Constants
 const windowWidth = Dimensions.get('window').width;
@@ -124,6 +125,7 @@ const Communities = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [commentsModalVisible, setCommentsModalVisible] = useState(false);
   const [communities, setCommunities] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { url } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
@@ -153,6 +155,18 @@ const Communities = () => {
     fetchCommunities();
   }, []); // Empty dependency array to run only once on mount
 
+
+  
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await fetchCommunities();
+
+    } catch (error) {
+      console.error('Failed to refresh profile data:', error);
+    }
+    setRefreshing(false);
+  }, []);
   // Function to handle post item press
   const handlePostPress = (post) => {
     setSelectedPost(post);
@@ -184,44 +198,6 @@ const Communities = () => {
       </View>
     );
   };
-  const id = uuid.v4();
-  async function handlecreateCommunityPress() {
-    try{
-      const configurationObject = {
-        method: 'post',
-        url : `${url}/user/community`,
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        data : {
-          "name": "TestCommunity",
-          "description": "Community for testing",
-          "postdays": [
-            {
-              "day": "Monday"
-            }
-          ],
-          "tags": [
-            {
-              "name": "Tag1"
-            }
-          ]
-        }
-    }
-    const response = await axios(configurationObject);
-    if (response.status === 201) {
-      console.log("Community created successfully");
-      console.log(response.data);
-    } else {
-      console.log("Unexpected response status: " + response.status);
-    }
-    } catch (error) {
-      console.log("Error details:", error);
-    }
-  };
-
-
   // Component for rendering community items
   const renderCommunityItem = ({ item }) => (
     
@@ -251,6 +227,11 @@ const Communities = () => {
       }</Text>
     </TouchableOpacity>
   );
+  const handleCreateCommunity = () => {
+    router.push({
+      pathname: '/(pages)/CreateCommunities', // The route name
+    })
+  }
   // Header component to be rendered above the communities list
   const ListHeader = () => (
     <>
@@ -285,25 +266,29 @@ const Communities = () => {
     <>
     { isLoading ? <ActivityIndicator/> : (
       <>
+      
     <FlatList
       ListHeaderComponent={ListHeader}
       data={communities}
       renderItem={renderCommunityItem}
       keyExtractor={(item) => item.key}
       style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+        />
+      }
     />
-
-    {
-      //create communities button
       <TouchableOpacity 
         onPress={
-          handlecreateCommunityPress
+          handleCreateCommunity
+
         }
-        style={styles.createCommunityButton}
+        style={styles.communityItem}
       >
         <Text style={styles.communityTitle}>Create Community</Text>
       </TouchableOpacity>
-    }
     {selectedPost && (
         <PostDetailsModal
           post={selectedPost}
@@ -326,8 +311,9 @@ const Communities = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 40,
+    marginTop: 50,
     backgroundColor: '#000', // Set your background color
+
   },
   datesList: {
     flexGrow: 0, // Ensure the FlatList does not expand

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, TextInput, Text, TouchableOpacity, SafeAreaView, StatusBar, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
+import {router} from "expo-router";
 
 // Dummy data for tags and days
 const availableTags = ['Sports', 'Music', 'Technology', 'Gaming', 'News', 'Health'];
@@ -15,24 +16,34 @@ const CreateCommunity: React.FC = () => {
   const [postDays, setPostDays] = useState<string[]>([]);
   const { url } = useSelector((state: any) => state.user);
 
-
-   const  handleCreateCommunity = async () => {
+  const handleCreateCommunity = async () => {
     console.log('Community Name:', communityName);
     console.log('Description:', description);
     console.log('Selected Tags:', selectedTags);
     console.log('Post Days:', postDays);
-    const res = axios.post(`${url}/user/community`, {
-      name: communityName,
-      description,
-      tags: selectedTags,
-      day: postDays,
-    });
-    console.log('Response:', res);
-    if ((await res).status === 200) {
-      console.log('Community created successfully:', res);
+  
+    // Transform postDays and selectedTags into arrays of objects
+    const postDaysPayload = postDays.map(day => ({ day }));
+    const tagsPayload = selectedTags.map(name => ({ name }));
+  
+    try {
+      const res = await axios.post(`${url}/user/community`, {
+        name: communityName,
+        description,
+        postdays: postDaysPayload, // Send as an array of objects
+        tags: tagsPayload, // Send as an array of objects
+      });
+      console.log('Response:', res);
+  
+      if (res.status === 201) {
+        console.log('Community created successfully:', res.data);
+        router.push("/(tabs)/Communities");
+      }
+    } catch (error) {
+      console.error('Error creating community:', error);
     }
   };
-
+  
   const toggleTagSelection = (tag: string) => {
     setSelectedTags(prevTags =>
       prevTags.includes(tag) ? prevTags.filter(t => t !== tag) : [...prevTags, tag],
@@ -129,12 +140,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    width: '100%',
+    width: '90%',
     borderWidth: 1,
     borderColor: '#ddd',
     padding: 10,
     borderRadius: 8,
-    marginBottom: 15,
+    margin: 5,
   },
   label: {
     alignSelf: 'flex-start',
@@ -185,16 +196,14 @@ const styles = StyleSheet.create({
       alignSelf: 'flex-start',
       fontSize: 18,
       fontWeight: 'bold',
-      marginLeft: 20,
-      marginTop: 10,
       marginBottom: 5,
     },
     daysContainer: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      justifyContent: 'center',
       flexWrap: 'wrap',
       marginBottom: 15,
-      marginLeft: 20,
+      paddingHorizontal: 20,
     },
     dayButton: {
       borderWidth: 1,

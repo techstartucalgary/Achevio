@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, Image, Dimensions, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { StyleSheet, Text, View, FlatList, Image, Dimensions, TouchableOpacity, Modal, ActivityIndicator, RefreshControl } from 'react-native';
 import { getDayOfYear, getISODay } from 'date-fns';
 import { router } from 'expo-router';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -8,6 +8,7 @@ import axios from 'axios';
 import uuid from 'react-native-uuid';
 import { useSelector, useDispatch } from "react-redux";
 import { setUsername,setUrl } from "../redux/actions";
+
 
 // Constants
 const windowWidth = Dimensions.get('window').width;
@@ -124,6 +125,7 @@ const Communities = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [commentsModalVisible, setCommentsModalVisible] = useState(false);
   const [communities, setCommunities] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { url } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
@@ -153,6 +155,18 @@ const Communities = () => {
     fetchCommunities();
   }, []); // Empty dependency array to run only once on mount
 
+
+  
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await fetchCommunities();
+
+    } catch (error) {
+      console.error('Failed to refresh profile data:', error);
+    }
+    setRefreshing(false);
+  }, []);
   // Function to handle post item press
   const handlePostPress = (post) => {
     setSelectedPost(post);
@@ -259,6 +273,12 @@ const Communities = () => {
       renderItem={renderCommunityItem}
       keyExtractor={(item) => item.key}
       style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+        />
+      }
     />
       <TouchableOpacity 
         onPress={
@@ -293,6 +313,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 50,
     backgroundColor: '#000', // Set your background color
+
   },
   datesList: {
     flexGrow: 0, // Ensure the FlatList does not expand

@@ -1,9 +1,11 @@
 
 import React from 'react'
 import Home from './home'
-import {Provider} from 'react-redux'
-import { store } from '../redux/store'
 import { StatusBar } from 'react-native'
+import * as WebBrowser from 'expo-web-browser';
+
+
+WebBrowser.maybeCompleteAuthSession();
 
 const index = () => {
   return (

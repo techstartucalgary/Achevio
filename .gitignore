@@ -1,2 +1,4 @@
 node_modules
-/Backend/ 
+Backend/
+myenv/
+node_modules/

@@ -5,6 +5,10 @@ import { router } from 'expo-router';
 import axios from 'axios';
 import { useSelector, useDispatch } from "react-redux";
 import { setUsername,setUrl } from "../redux/actions";
+import * as ImagePicker from 'expo-image-picker';
+import { Icon } from 'react-native-elements';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+
 
 // Dummy fallback data
 const fallbackData = {
@@ -13,8 +17,6 @@ const fallbackData = {
   settings: [
     { title: 'Edit profile', icon: 'chevron-right', navigateTo: 'EditProfile' },
     { title: 'Change password', icon: 'chevron-right', navigateTo: 'ChangePassword' },
-    { title: 'Dark mode', icon: null, isSwitch: true, navigateTo: 'DarkMode'},
-    { title: 'Push notifications', icon: null, isSwitch: true },
   ],
   preferences: [
     { title: 'Security and privacy', icon: 'chevron-right',navigateTo: 'SecurityAndPrivacy' },
@@ -30,16 +32,15 @@ const fallbackData = {
 const updateNotificationSettings = async (isEnabled) => {
   // Here you'd replace with your actual API call
   console.log(`API call to update notifications: ${isEnabled}`);
-  // Simulate API response delay
-  return new Promise(resolve => setTimeout(() => resolve(isEnabled), 500));
 };
 const ProfilePage: React.FC = () => {
   const { url, userId, username} = useSelector((state: any) => state.user);
   const [profileData, setProfileData] = useState(fallbackData);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [avatarUri, setAvatarUri] = useState(`${url}/user/image/${userId}.jpg?cacheBust=${new Date().getTime()}` || "https://templates.joomla-monster.com/joomla30/jm-news-portal/components/com_djclassifieds/assets/images/default_profile.png");
+  const [avatarUri, setAvatarUri] = useState('https://i.pravatar.cc/150?img=68');
   const [refreshing, setRefreshing] = useState(false);
+
   const dispatch = useDispatch();
   const handleDarkModeToggle = () => {
     setIsDarkMode(previousState => !previousState);
@@ -48,7 +49,7 @@ const ProfilePage: React.FC = () => {
   const handleNotificationsToggle = async () => {
     try {
       const response = await updateNotificationSettings(!notificationsEnabled);
-      setNotificationsEnabled(response as boolean);
+      setNotificationsEnabled(previousState => !previousState);
     } catch (error) {
       Alert.alert('Error', 'Failed to update notification settings.');
     }
@@ -77,13 +78,16 @@ const ProfilePage: React.FC = () => {
         More: data.More || prevState.More,
       }));
       dispatch({ type: 'SET_USERNAME', payload: response.data.username });
-
+      if (userId) {
+        setAvatarUri(`${url}/user/image/${userId}.jpg?cacheBust=${new Date().getTime()}`);
+        console.log(`${url}/user/image/${userId}.jpg?cacheBust=${new Date().getTime()}`);
+      } else {
+        setAvatarUri("https://templates.joomla-monster.com/joomla30/jm-news-portal/components/com_djclassifieds/assets/images/default_profile.png");
+      }
     } catch (error) {
       console.error('API call failed:', error);
     }
   };
-  
-
   useEffect(() => {
     fetchData();  
   }, []);
@@ -101,7 +105,53 @@ const ProfilePage: React.FC = () => {
   
     setRefreshing(false);
   }, []);
+  const uploadImage = async (uri: string) => {
+    const url = "http://10.14.155.119:8000/user/profile_image";
+    const formData = new FormData();
+    formData.append('file', {
+      uri,
+      name: 'image.jpg',
+      type: 'image/jpg',
+    } as any);
   
+    try {
+      const response = await axios.patch(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('Image uploaded successfully:', response);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
+  };
+  
+  const pickImage = async () => {
+    console.log('Requesting media library permissions'); // debug
+    // Request media library permissions
+    let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  
+    if (permissionResult.granted === false) {
+      alert("Permission to access camera roll is required!");
+      return;
+    }
+  
+    // Launch image picker
+    let pickerResult = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (pickerResult.canceled) {
+      console.log('Image picker canceled');
+      return;
+    }
+    // Handle the selected image
+    // You can set the image uri to state and show a preview or directly upload
+    console.log('Image selected:', pickerResult);
+    uploadImage(pickerResult.assets[0].uri as string);
+  };
   return (
 <ScrollView style={styles.container}  refreshControl={
     <RefreshControl
@@ -114,15 +164,17 @@ const ProfilePage: React.FC = () => {
         <Text style={styles.username}>{username}</Text>
         <Image source={{ uri: avatarUri }} style={styles.avatar} />
       </View>
+      <MaterialIcons name="edit" size={24} onPress={pickImage} style={styles.edit} />
 
       <View style={styles.sectionContainerTop}>
+        
         <Text style={styles.sectionTitle}>Account settings</Text>
         {profileData.settings?.map((setting, index) => (
           <TouchableOpacity key={index} style={styles.option} onPress={
             () => router.push(`/(Settings)/${setting.navigateTo}` as any)
           }>
             <Text style={styles.optionText}>{setting.title}</Text>
-            <MaterialIcons name={setting.icon } size={24} color="black" />
+            <MaterialIcons name={setting.icon as any} size={24} color="black" />
           </TouchableOpacity>
         ))}
         <View style={styles.option}>
@@ -198,7 +250,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   sectionContainerTop: {
-    paddingTop: 70,
+    paddingTop: 40,
   },
   sectionContainer: {
   },
@@ -217,6 +269,27 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 16,
+  },
+  button: {
+    backgroundColor: 'black',
+    padding: 5,
+    borderRadius: 20,
+    marginTop: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+  },
+  edit: {
+    position: 'relative',
+    top: 70,
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    left: 190,
+    zIndex: 100,
   },
 });
 

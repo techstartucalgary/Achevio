@@ -154,6 +154,7 @@ export default function Signup2Screen() {
           <TouchableOpacity style={styles.signupBtn} onPress={postSignupInfo} disabled={isLoading}>
             <Text style={styles.signupText}>Signup</Text>
           </TouchableOpacity>
+          <Text style={styles.navText}>---------------- OR ----------------</Text>
           <Link href="/login" asChild>
             <Pressable>
               <Text style={styles.navText}>Go back to Login</Text>

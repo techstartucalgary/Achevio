@@ -262,7 +262,7 @@ const Communities = () => {
         horizontal
         data={datesData}
         renderItem={renderDateItem}
-        keyExtractor={(item) => item.key}
+        keyExtractor={(item) => item.communityId}
         showsHorizontalScrollIndicator={false}
         style={styles.datesList}
         initialScrollIndex={todayIndex}
@@ -378,6 +378,7 @@ const styles = StyleSheet.create({
     flexGrow: 0, // Ensure the FlatList does not expand
     paddingLeft: 10,
   },
+  
   postImage: {
     width: 120, // Set your desired size
     height: 120,

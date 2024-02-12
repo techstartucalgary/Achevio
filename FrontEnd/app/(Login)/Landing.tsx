@@ -6,7 +6,10 @@ import { router } from "expo-router";
 const Landing = () => {
   return (
     <View style={styles.container}>
-      <Image source={require("../../assets/images/temp_icon_full.png")} style={styles.image} />
+      <Image
+        source={require("../../assets/images/temp_icon_full.png")}
+        style={styles.image}
+      />
 
       <Text style={styles.title}>Acheivio</Text>
       <Text style={styles.subheading}>Reach for the stars</Text>
@@ -17,7 +20,8 @@ const Landing = () => {
             pathname: "/login",
             params: { slide: 1 },
           })
-        }>
+        }
+      >
         <Text style={styles.navTextsize}>Login</Text>
       </Pressable>
       <Pressable
@@ -26,7 +30,8 @@ const Landing = () => {
           router.push({
             pathname: "/signup",
           })
-        }>
+        }
+      >
         <Text style={styles.navTextsize}>Signup</Text>
       </Pressable>
     </View>

@@ -157,7 +157,6 @@ const Communities = () => {
         setCommunities(response.data);
         console.log("Communities fetched successfully");
         console.log(communities);
-        console.log("data: " + communities[0].tags[0].name);
       } else {
         console.error("Failed to fetch communities:", response.status);
       }

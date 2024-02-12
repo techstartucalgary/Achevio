@@ -113,7 +113,7 @@ const ProfilePage: React.FC = () => {
       console.log("user_id:", userId);
       if (response.data.id) {
         setAvatarUri(
-          `${url}/user/image/${userId}.jpg?cacheBust=${new Date().getTime()}`
+          `${url}/user/image/${response.data.id}.jpg?cacheBust=${new Date().getTime()}`
         );
         console.log(
           `${url}/user/image/${userId}.jpg?cacheBust=${new Date().getTime()}`

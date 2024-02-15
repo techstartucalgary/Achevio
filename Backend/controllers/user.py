@@ -323,6 +323,20 @@ class UserController(Controller):
         return f"Ownership Transfered to {newUserID}"
 
 
+    @get('/GetNameByID/{id:str}')
+    async def get_name_by_id(self, session: AsyncSession, id: str) -> str:
+        user = await get_user_by_id(session, id)
+        return user.first_name + " " + user.last_name
+        
+
+    @get('/GetNames')
+    async def get_names_by_id(self, session: AsyncSession, parameters: list[UUID]) -> list[str]:
+
+        users = []
+        for id in parameters:
+            user = await get_user_by_id(session, id)
+            users.append(user.first_name + " " + user.last_name)
+        return users
 
     # Define a GET route for testing, excluding it from authentication Delete later on!
 
@@ -336,3 +350,7 @@ class UserController(Controller):
         '''
         await redis.set('foo', 'bar')
         return await redis.get('foo')
+    
+
+    
+

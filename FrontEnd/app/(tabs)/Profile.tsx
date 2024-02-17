@@ -17,6 +17,7 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 import { AreYouSure } from "../../components/PopUpMessages";
+import { setUserId } from "../redux/actions";
 // Dummy fallback data
 const fallbackData = {
   username: "John Doe",
@@ -110,13 +111,15 @@ const ProfilePage: React.FC = () => {
       dispatch({ type: "SET_USERNAME", payload: response.data.username });
       dispatch({ type: "SET_USERID", payload: response.data.id });
       console.log("UserID:", response.data.id);
+      setUserId(response.data.id);
       console.log("user_id:", userId);
+
       if (response.data.id) {
         setAvatarUri(
           `${url}/user/image/${response.data.id}.jpg?cacheBust=${new Date().getTime()}`
         );
         console.log(
-          `${url}/user/image/${userId}.jpg?cacheBust=${new Date().getTime()}`
+          `${url}/user/image/${response.data.id}.jpg?cacheBust=${new Date().getTime()}`
         );
       } else {
         setAvatarUri(

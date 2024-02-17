@@ -1,6 +1,6 @@
 import { SET_URL, SET_USERNAME, SET_THEME, SET_USERID } from "./actions";
 const initialState = {
-    url: "http://10.0.0.215:8000",
+    url: "http://10.0.0.215:8001",
     username: "",
     theme: "dark",
     userId: "",

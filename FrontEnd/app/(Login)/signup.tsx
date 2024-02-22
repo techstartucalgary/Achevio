@@ -13,7 +13,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { Link } from "expo-router";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { setUsername,setUrl } from "../redux/actions";
+import { setUsername, setUrl } from "../redux/actions";
 type RootStackParamList = {
   Signup: undefined;
   Login: undefined;
@@ -46,7 +46,7 @@ export default function SignupScreen() {
   const [localEmail, setLocalEmail] = useState("");
   const [localPassword, setLocalPassword] = useState("");
   const [localConfirmPassword, setLocalConfirmPassword] = useState("");
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const { url, username } = useSelector((state: any) => state.user);
@@ -63,7 +63,6 @@ export default function SignupScreen() {
     // Add any additional validation here
     return true;
   };
-  
 
   const postSignupInfo = async () => {
     console.log("signup has been pressed"); // for debugging
@@ -73,23 +72,26 @@ export default function SignupScreen() {
     }
     setIsLoading(true);
     try {
-      const response = await axios.post(`${url}/user`, {
-        username: localUsername,
-        password: localPassword,
-        email: localEmail,
-        first_name: "Magdy",
-        last_name: "Hafez",
-      }, {
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
+      const response = await axios.post(
+        `${url}/user`,
+        {
+          username: localUsername,
+          password: localPassword,
+          email: localEmail,
+          first_name: "Magdy",
+          last_name: "Hafez",
         },
-      });
+        {
+          headers: {
+            accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (response.status === 201) {
         Alert.alert("Success", "Signup successful!");
         dispatch<any>(setUsername(localUsername));
-      }
-       else {
+      } else {
         Alert.alert("Error", response.data.detail || "An unexpected error occurred.");
       }
     } catch (error) {
@@ -123,13 +125,13 @@ export default function SignupScreen() {
             But first we would like to get to know a little bit more about you{" "}
           </Text>
           <TextInput
-          style={styles.input}
-          onChangeText={setLocalUsername}
-          value={localUsername}
-          placeholderTextColor="#343a40"
-          placeholder="Username"
-          autoCapitalize="none"
-        />
+            style={styles.input}
+            onChangeText={setLocalUsername}
+            value={localUsername}
+            placeholderTextColor="#343a40"
+            placeholder="Username"
+            autoCapitalize="none"
+          />
           <TextInput
             style={styles.input}
             onChangeText={setFirstName}
@@ -146,33 +148,8 @@ export default function SignupScreen() {
             placeholderTextColor="#343a40"
             autoCapitalize="none"
           />
-        <TextInput
-          style={styles.input}
-          onChangeText={setLocalEmail}
-          value={localEmail}
-          placeholder="Email"
-          autoCapitalize="none"
-          placeholderTextColor="#343a40"
-
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={setLocalPassword}
-          value={localPassword}
-          placeholder="Password"
-          placeholderTextColor="#343a40"
-          secureTextEntry
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={setLocalConfirmPassword}
-          value={localConfirmPassword}
-          placeholder="Confirm Password"
-          placeholderTextColor="#343a40"
-          secureTextEntry
-        />
           <TouchableOpacity style={styles.signupBtn} onPress={postSignupInfo} disabled={isLoading}>
-            <Text style={styles.signupText}>Signup</Text>
+            <Text style={styles.signupText}>Continue</Text>
           </TouchableOpacity>
           <Text style={styles.navText}>---------------- OR ----------------</Text>
           <Link href="/" style={styles.linkstyle}>

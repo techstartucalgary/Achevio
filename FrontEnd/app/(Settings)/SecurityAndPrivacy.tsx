@@ -1,5 +1,11 @@
-import React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import React from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 
 const SecurityAndPrivacy: React.FC = () => {
   return (
@@ -9,16 +15,18 @@ const SecurityAndPrivacy: React.FC = () => {
       <View style={styles.section}>
         <Text style={styles.heading}>Data Protection</Text>
         <Text style={styles.content}>
-          We use industry-standard encryption to protect your data at all times. Your information is
-          stored securely on our servers and is only accessible to authorized personnel.
+          We use industry-standard encryption to protect your data at all times.
+          Your information is stored securely on our servers and is only
+          accessible to authorized personnel.
         </Text>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.heading}>Privacy Policy</Text>
         <Text style={styles.content}>
-          Our privacy policy outlines how we collect, use, and protect your information. We are committed
-          to ensuring that your privacy is protected and respected.
+          Our privacy policy outlines how we collect, use, and protect your
+          information. We are committed to ensuring that your privacy is
+          protected and respected.
         </Text>
         {/* You can add a TouchableOpacity here if you want to provide a link to your full privacy policy */}
         <TouchableOpacity onPress={() => {}}>
@@ -29,8 +37,9 @@ const SecurityAndPrivacy: React.FC = () => {
       <View style={styles.section}>
         <Text style={styles.heading}>Account Security</Text>
         <Text style={styles.content}>
-          Your account security is our top priority. We recommend using a strong, unique password and enabling
-          two-factor authentication (2FA) for added security.
+          Your account security is our top priority. We recommend using a
+          strong, unique password and enabling two-factor authentication (2FA)
+          for added security.
         </Text>
       </View>
 
@@ -42,21 +51,21 @@ const SecurityAndPrivacy: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 20,
   },
   title: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
   section: {
     marginBottom: 20,
   },
   heading: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   content: {
@@ -66,8 +75,8 @@ const styles = StyleSheet.create({
   link: {
     marginTop: 10,
     fontSize: 16,
-    color: '#4A90E2',
-    textDecorationLine: 'underline',
+    color: "#4A90E2",
+    textDecorationLine: "underline",
   },
 });
 

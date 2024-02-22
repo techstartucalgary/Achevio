@@ -16,10 +16,11 @@ import pytz
 from uuid_extensions import uuid7
 from uuid import UUID
 from crud.postday import *
-
+import shutil
 from litestar.contrib.jwt import OAuth2Login, Token
 from models.user import User
 import aiofiles
+from pathlib import Path
 
 import os
 
@@ -47,9 +48,8 @@ class CommunityController(Controller):
 
     # @post('/')
     # async def search_community(self, request: Request, session: AsyncSession, session: AsyncSession, data: CommunitySearchSchema) -> CommunitySchema:
-
-    @patch('/{community_id:str}/image', media_type=MediaType.TEXT)
-    async def update_profile_picture(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[UploadFile, Body(media_type=RequestEncodingType.MULTI_PART)], community_id: str) -> str:
+    @put('/{community_id:str}/image', media_type=MediaType.TEXT)
+    async def upload_community_image(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[UploadFile, Body(media_type=RequestEncodingType.MULTI_PART)], community_id: str) -> str:
         user = await get_user_by_id(session, request.user)
         # community = await get_community_by_id(session, community_id)
 
@@ -66,8 +66,19 @@ class CommunityController(Controller):
         return f"Community image updated at: {file_path}"
     
 
+    @get('/images')
+    async def get_background_images(self) -> list[str]:
+        return [f.name for f in Path('static/images/backgrounds').iterdir() if f.is_file()]
 
 
+    @patch('/{community_id:str}/image/{image_id:str}')
+    async def set_community_image(self, request: 'Request[User, Token, Any]', session: AsyncSession, community_id: str, image_id: str) -> str:
+        community = await get_community_by_id(session, community_id)
+        community.image = image_id
+        source_path = f'static/images/backgrounds/{image_id}'
+        destination_path = f'static/images/communities/{community.id}.jpg'
+        shutil.copy(source_path, destination_path)
+        return f"Community image updated at: {destination_path}"
 
     ''' This endpoint has been deprecated, please use the user_create_community endpoint instead
     @post('/', dto=CreateCommunityDTO, exclude_from_auth=True)

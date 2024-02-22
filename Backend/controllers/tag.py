@@ -1,9 +1,11 @@
-from litestar import post, Controller
+from litestar import post, get, Controller
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid_extensions import uuid7
 
 from models.tag import Tag
 from schemas.tag import TagSchema, TagDTO
+
+from crud.tag import get_tags_list
 
 
 class TagController(Controller):
@@ -21,5 +23,11 @@ class TagController(Controller):
         await session.commit()
 
         return validated_tag
+
+    @get('/', exclude_from_auth=True)
+    async def get_tags(self, session: AsyncSession) -> str:
+        a= await get_tags_list(session)
+        return "CHILL"
+
 
 

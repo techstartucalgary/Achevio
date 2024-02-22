@@ -17,6 +17,10 @@ const PagesLayout = () => {
         name="CreateCommunities"
         options={{ headerShown: false, presentation: "modal" }}
       />
+      <Stack.Screen
+        name="UploadingImages"
+        options={{ headerShown: false}}
+      />
     </Stack>
   );
 };

@@ -67,6 +67,7 @@ const ProfilePage: React.FC = () => {
   );
   const [profileData, setProfileData] = useState(fallbackData);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [userIDAgain, setUserIDAgain] = useState("");
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [avatarUri, setAvatarUri] = useState(
     "https://i.pravatar.cc/150?img=68"
@@ -112,6 +113,7 @@ const ProfilePage: React.FC = () => {
       dispatch({ type: "SET_USERID", payload: response.data.id });
       console.log("UserID:", response.data.id);
       setUserId(response.data.id);
+      setUserIDAgain(response.data.id);
       console.log("user_id:", userId);
 
       if (response.data.id) {
@@ -138,9 +140,9 @@ const ProfilePage: React.FC = () => {
     setRefreshing(true);
 
     try {
-      await fetchData(); // This will now also update the avatarUri state
+      fetchData(); // This will now also update the avatarUri state
       setAvatarUri(
-        `${url}/user/image/${userId}.jpg?cacheBust=${new Date().getTime()}`
+        `${url}/user/image/${userIDAgain}.jpg?cacheBust=${new Date().getTime()}`
       );
     } catch (error) {
       console.error("Failed to refresh profile data:", error);

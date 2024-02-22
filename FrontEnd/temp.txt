@@ -1,3 +1,7 @@
+,
+      "eas": {
+        "projectId": "5ed3bbb1-c090-4233-991d-af62129fc5a5"
+      }
 {
   "cli": {
     "version": ">= 7.1.3"

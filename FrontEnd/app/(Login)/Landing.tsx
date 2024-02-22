@@ -17,7 +17,7 @@ const Landing = () => {
   const navigation = useNavigation();
 
   const stars = useRef(
-    Array.from({ length: 20 }, (_, index) => ({
+    Array.from({ length: 10 }, (_, index) => ({
       id: index,
       left: Math.random() * width,
       top: Math.random() * height,

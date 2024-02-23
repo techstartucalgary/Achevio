@@ -31,7 +31,7 @@ async def user_join_community(session: AsyncSession, communityID: UUID, user_id:
     return user
 
 
-async def user_leave_community(session: AsyncSession, communityID: UUID, user_id: UUID) -> str:
+async def user_leave_community(session: AsyncSession, communityID: UUID, user_id: UUID) -> None:
     """
     Remove a user from a community.
 
@@ -41,15 +41,11 @@ async def user_leave_community(session: AsyncSession, communityID: UUID, user_id
         username (User): The user object or identifier.
 
     Returns:
-        str: A message indicating the user has left the community.
+        None
     """
     # Retrieve the user and delete the association with the community.
-    user = await get_user_by_id(session, user_id)
-    query = delete(UserCommunityAssociation).where(UserCommunityAssociation.community_id == communityID).where(UserCommunityAssociation.user_id == user.id)
-    result = await session.execute(query)
-    if result.scalar_one_or_none():
-        return f"{user.username} has left the community with ID {communityID}"
-    return f"{user.username} is not a member of the community with ID {communityID}"
+    query = delete(UserCommunityAssociation).where(UserCommunityAssociation.community_id == communityID).where(UserCommunityAssociation.user_id == user_id)
+    await session.execute(query)
         
 
 async def get_user_list(session: AsyncSession, limit: int = 100, offset: int = 0) -> list[User]:

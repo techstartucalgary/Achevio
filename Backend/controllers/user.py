@@ -29,6 +29,8 @@ from crud.tag import get_tag_by_name
 from .auth import oauth2_auth
 
 
+from schemas.login import CustomLoginSchema, CustomLoginDTO
+
 from crud.community import get_community_list
 
 
@@ -43,23 +45,7 @@ class UserController(Controller):
         data.update_instance(user)
         return "chill"
 
-    @put('/join/{communityID:str}')
-    async def join_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, communityID: str) -> UserSchema:
-        '''
-        Join a community.
 
-        Args:
-            request (Request): The HTTP request object.
-            session (AsyncSession): The database session.
-            communityID (str): The ID of the community to join.
-
-        Returns:
-            str: A message indicating success.
-        '''
-
-        user = UserSchema.model_validate(await user_join_community(session, communityID, request.user))
-        await session.commit()
-        return user
 
     @get('/', exclude_from_auth=True)
     async def get_users(self, request: 'Request[User, Token, Any]', session: AsyncSession, limit: int = 100, offset: int = 0) -> list[UserSchema]:
@@ -173,67 +159,10 @@ class UserController(Controller):
             raise HTTPException(
                 status_code=409, detail=f'User with that username exists')
 
-    @post('/community', dto=CreateCommunityDTO)
-    async def create_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: DTOData[CommunitySchema]) -> CommunitySchema:
-        '''
-        Create a new community with the current user as the owner.
-
-        Args:
-            request (Request): The HTTP request object containing user and token information.
-            session (AsyncSession): The database session for committing the new community.
-            data (DTOData[CommunitySchema]): The data for creating the new community.
-
-        Returns:
-            CommunitySchema: The newly created community's information.
-
-        Raises:
-            HTTPException: If there's an error in creating the community.
-        '''
-        current_time = datetime.datetime.now(pytz.utc)
-
-        commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time, postdays=[], tags=[])
-        validated_community_data = CommunitySchema.model_validate(commiunity_data)
-
-        try:
-            community = Community(**validated_community_data.__dict__)
-            session.add(community)
-            
-            # Adds postdays to community
-            postdays = data.as_builtins()['postdays']
-            for i in range(len(postdays)):
-                postday = await get_postday_by_name(session, postdays[i].__dict__['day'])
-                community.postdays.append(postday)
-            
-            # Adds tags to community
-            tags = data.as_builtins()['tags']
-            for i in range(len(tags)):
-                tag = await get_tag_by_name(session, tags[i].__dict__['name'])
-                community.tags.append(tag)
-
-            validated_community_data = CommunitySchema.model_validate(commiunity_data)
-            await user_join_community(session, validated_community_data.id, request.user, 'owner')
-            
-            await session.commit()
-            return validated_community_data
-        except Exception as e:
-            raise HTTPException(
-                status_code=409, detail=f'Error creating community: {e}')
 
 
-    @post('/{communityID:str}/leave')
-    async def leave_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, communityID: str) -> str:
-        '''
-        Leave a community.
 
-        Args:
-            request (Request): The HTTP request object.
-            session (AsyncSession): The database session.
-            communityID (str): The ID of the community to leave.
 
-        Returns:
-            str: A message indicating success.
-        '''
-        return await user_leave_community(session, communityID, request.user)
 
 
     @patch('/profile_image', media_type=MediaType.TEXT)

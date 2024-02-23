@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   communityItem: {
     height: 120, // Set a fixed height for your community item
     marginVertical: 10,
-    marginHorizontal: 16,
+    marginHorizontal: 12,
     borderRadius: 10, // Rounded corners for the item
     overflow: "hidden", // This ensures the image respects the border radius
   },

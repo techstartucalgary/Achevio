@@ -41,11 +41,6 @@ const CreateCommunity: React.FC = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [postDays, setPostDays] = useState<string[]>([]);
   const { url } = useSelector((state: any) => state.user);
-
-  const handleCreateCommunity = async () => {
-
-  };
-
   const toggleTagSelection = (tag: string) => {
     setSelectedTags((prevTags) =>
       prevTags.includes(tag)

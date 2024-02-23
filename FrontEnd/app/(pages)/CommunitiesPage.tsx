@@ -9,12 +9,17 @@ import {
   Dimensions,
   TouchableOpacity,
   Modal,
+  ImageBackground,
+  Button,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { set } from "date-fns";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons";
+import { useSelector } from "react-redux";
+import axios from "axios";
 
 const screenWidth = Dimensions.get("window").width;
 type Post = {
@@ -76,9 +81,11 @@ const postData: Post[] = [
 
 const CommunityPage: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const { url } = useSelector((state: any) => state.user);
+  const [communityTagArray, setCommunityTagArray] = useState<string[]>([]);
   const [isLargeView, setIsLargeView] = useState<boolean>(false);
   const params = useLocalSearchParams();
-  const { communityId, communityName, communityStreak, communityTags } = params;
+  const { communityId, communityName, communityStreak, communityTags, communityImage } = params;
   const handleLikePress = () => {
     // You would have some logic to handle the like action here
     console.log("Like button pressed!");
@@ -95,10 +102,12 @@ const CommunityPage: React.FC = () => {
       communityStreak,
       communityTags
     );
+    const communityTagArray = Array.isArray(communityTags) ? communityTags : communityTags.split(",");
+    console.log("Community Tags:", communityTagArray);
+    setCommunityTagArray(communityTagArray);
   }, []);
 
   const renderPost = ({ item }: { item: Post }) => {
-    const isSelected = item.id === selectedPostId;
     const postStyle = isLargeView ? styles.largePost : styles.post;
 
     const imageStyle = isLargeView ? styles.largePostImage : styles.postImage;
@@ -132,27 +141,41 @@ const CommunityPage: React.FC = () => {
       useNativeDriver: true,
     }).start();
   }, [fadeAnim]);
+  const JoinCommunity = async() => {
+    console.log("Joining Community");
+    const res = await axios.put(`${url}/community/join/${communityId}`);
+    console.log(res.data);
+    if (res.status === 200) {
+      console.log("Community joined successfully:", res.data);
+      Alert.alert("Community joined successfully");
+    }
+  }
   const renderHeader = () => (
     <Animated.View style={{ ...styles.headerContainer, opacity: fadeAnim }}>
+      <ImageBackground
+        source={{ uri: communityImage as string }}
+        style={{ width: "100%", height: "100%", position: "absolute" }}
+      >
       <LinearGradient
-        colors={["#FFB6C1", "#FA8072"]}
+        colors={["transparent", "rgba(0,0,0,2.0)"]}
         style={styles.gradientHeader}
         start={{ x: 0.0, y: 0.0 }}
         end={{ x: 0.0, y: 1.0 }}
       >
         <Text style={styles.headerTitle}>{communityName}</Text>
       </LinearGradient>
+      </ImageBackground>
+
       <View style={styles.overlayContent}>
         <Text style={styles.streakText}>{communityStreak}</Text>
         <View style={styles.tagContainer}>
-          {Array.isArray(communityTags) &&
-            communityTags.map((tag, index) => (
-              <View style={styles.tag} key={index}>
-                <Text style={styles.tagText}>{tag}</Text>{" "}
-                {/* Directly use the tag string */}
-              </View>
-            ))}
+          {Array.isArray(communityTagArray) && communityTagArray.map((tag: string) => (
+            <View style={styles.tag} key={tag}>
+              <Text style={styles.tagText}>{tag}</Text>
+            </View>
+          ))}
         </View>
+        <Button title = "Join Community" onPress = {JoinCommunity}/>
         <View style={styles.statsContainer}>
           <Text style={styles.statText}>56 Followers</Text>
           <Text style={styles.statText}>198 Posts</Text>
@@ -162,12 +185,12 @@ const CommunityPage: React.FC = () => {
   );
 
   return (
-    <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-      {renderHeader()}
+    <Animated.View style={{ flex: 1, opacity: fadeAnim, marginTop:0, padding:0}}>
       <FlatList
-        style={{ marginTop: 20, borderRadius: 25, overflow: "hidden" }}
+        style={{borderRadius: 25, overflow: "hidden" }}
         key={selectedPostId ? "single-column" : "multi-column"} // Unique key based on layout
         data={postData}
+        ListHeaderComponent={renderHeader}
         renderItem={renderPost}
         keyExtractor={(item) => item.id}
         numColumns={selectedPostId ? 1 : 2}
@@ -198,6 +221,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     height: "100%",
+
   },
   headerTitle: {
     fontSize: 50,

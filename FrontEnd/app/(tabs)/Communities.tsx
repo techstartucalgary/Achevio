@@ -11,6 +11,7 @@ import {
   Modal,
   ActivityIndicator,
   RefreshControl,
+  StatusBar,
 } from "react-native";
 import { getDayOfYear, getISODay } from "date-fns";
 import { router } from "expo-router";
@@ -128,13 +129,6 @@ const postData = Array.from({ length: 10 }, (_, index) => ({
   comments: [{ id: uuid.v4(), text: "Comment 1 for post " + (index + 1) }],
 }));
 
-// const communitiesData = Array.from({ length: 10 }, (_, index) => ({
-//   key: String(index),
-//   title: `Community ${index + 1}`,
-//   streak: `${index + 4} day streak!`
-
-// }));
-
 const Communities = () => {
   const flatListRef = useRef(null);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -148,7 +142,6 @@ const Communities = () => {
 
   const fetchCommunities = async () => {
     try {
-      setIsLoading(true);
       const response = await axios.get(`${url}/user/myCommunities`);
       console.log(response.data);
       dispatch({ type: "SET_USERID", payload: response.data.id });
@@ -227,6 +220,7 @@ const Communities = () => {
             communityTags: item.tags.map((tag) => {
               return tag.name + " ";
             }),
+            communityImage: `${url}/community/image/${item.id}.jpg`,
           }, // Parameters as an object
         });
       }}
@@ -289,12 +283,14 @@ const Communities = () => {
         <ActivityIndicator />
       ) : (
         <>
+        <StatusBar barStyle="light-content" />
           <FlatList
             ListHeaderComponent={ListHeader}
             data={communities}
             renderItem={renderCommunityItem}
             keyExtractor={(item) => item.key}
             style={styles.container}
+            showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
@@ -326,7 +322,7 @@ const Communities = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 50,
+    marginTop: 40,
     backgroundColor: "#000", // Set your background color
   },
   datesList: {
@@ -343,7 +339,7 @@ const styles = StyleSheet.create({
   },
   textOverlay: {
     // Semi-transparent overlay for improved text readability
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.3)",
     padding: 20,
   },
   dateItem: {
@@ -368,7 +364,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: "#fff",
-    fontSize: 20,
+    fontSize: 31,
     fontWeight: "bold",
     padding: 10,
   },
@@ -380,18 +376,19 @@ const styles = StyleSheet.create({
   
   postImage: {
     width: 120, // Set your desired size
-    height: 120,
+    height: 164,
     borderRadius: 10, // if you want rounded corners
     marginRight: 10,
   },
   communityItem: {
     height: 120, // Set a fixed height for your community item
-    marginVertical: 8,
+    marginVertical: 10,
     marginHorizontal: 16,
     borderRadius: 10, // Rounded corners for the item
     overflow: "hidden", // This ensures the image respects the border radius
   },
   communityItemImageStyle: {
+    opacity: 0.5, // Semi-transparent overlay for improved text readability
     borderRadius: 10, // If you want the image itself to have rounded corners
   },
   communityItemBackground: {

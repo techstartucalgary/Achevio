@@ -29,10 +29,10 @@ const UploadingImages: React.FC = () => {
   const handleCreateCommunity = async (formData:any) => {
     // Transform postDays and selectedTags into arrays of objects
     const postDaysPayload = postDays.map((day) => ({ day }));
-    const tagsPayload = selectedTags.map((name) => ({ name }));
+    const tagsPayload = selectedTags.map((name) => ({ name, color:"" }));
 
     try {
-      const res = await axios.post(`${url}/user/community`, {
+      const res = await axios.post(`${url}/community`, {
         name: communityName,
         description,
         postdays: postDaysPayload, // Send as an array of objects

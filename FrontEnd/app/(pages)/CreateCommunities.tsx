@@ -41,35 +41,6 @@ const CreateCommunity: React.FC = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [postDays, setPostDays] = useState<string[]>([]);
   const { url } = useSelector((state: any) => state.user);
-
-  const handleCreateCommunity = async () => {
-    console.log("Community Name:", communityName);
-    console.log("Description:", description);
-    console.log("Selected Tags:", selectedTags);
-    console.log("Post Days:", postDays);
-
-    // Transform postDays and selectedTags into arrays of objects
-    const postDaysPayload = postDays.map((day) => ({ day }));
-    const tagsPayload = selectedTags.map((name) => ({ name }));
-
-    try {
-      const res = await axios.post(`${url}/user/community`, {
-        name: communityName,
-        description,
-        postdays: postDaysPayload, // Send as an array of objects
-        tags: tagsPayload, // Send as an array of objects
-      });
-      console.log("Response:", res);
-
-      if (res.status === 201) {
-        console.log("Community created successfully:", res.data);
-        router.push("/(tabs)/Communities");
-      }
-    } catch (error) {
-      console.error("Error creating community:", error);
-    }
-  };
-
   const toggleTagSelection = (tag: string) => {
     setSelectedTags((prevTags) =>
       prevTags.includes(tag)
@@ -170,7 +141,17 @@ const CreateCommunity: React.FC = () => {
 
             <TouchableOpacity
               style={styles.button}
-              onPress={handleCreateCommunity}
+              onPress={() =>
+                router.push({
+                  pathname: "/UploadingImages",
+                  params: {
+                    communityName,
+                    description,
+                    selectedTags,
+                    postDays,
+                  },
+                })
+              }
             >
               <Text style={styles.buttonText}>Create Community</Text>
             </TouchableOpacity>

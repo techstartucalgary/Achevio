@@ -1,7 +1,7 @@
 import { Stack, Tabs } from "expo-router";
 import React from "react";
 import Colors from "../../constants/Colors";
-import { Pressable, useColorScheme } from "react-native";
+import { Pressable, StatusBar, useColorScheme } from "react-native";
 import { FontAwesome as vectorIcon } from "@expo/vector-icons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import HomeIcon from "../../assets/icons/homeIcon";

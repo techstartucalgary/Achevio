@@ -1,4 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
+import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   View,
@@ -74,10 +75,22 @@ const Landing = () => {
       <Image source={require("../../assets/images/temp_icon_full.png")} style={styles.image} />
       <Text style={styles.title}>Achievio</Text>
       <Text style={styles.subheading}>Reach for the stars</Text>
-      <Pressable style={styles.navText} onPress={() => navigation.navigate("Login", { slide: 1 })}>
+      <Pressable style={styles.navText} onPress={() =>  router.push({
+                  pathname: "/(Login)/home",
+                  params: {
+                    slide: 1,
+                  },
+                }
+      )}>
         <Text style={styles.navTextsize}>Login</Text>
       </Pressable>
-      <Pressable style={styles.navText} onPress={() => navigation.navigate("Signup")}>
+      <Pressable style={styles.navText} onPress={() => router.push({
+                  pathname: "/(Login)/home",
+                  params: {
+                    slide: 2,
+                  },
+                }
+      )}>
         <Text style={styles.navTextsize}>Signup</Text>
       </Pressable>
     </View>

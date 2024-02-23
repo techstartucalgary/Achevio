@@ -47,7 +47,7 @@ class CommunityDTO(PydanticDTO[CommunitySchema]):
 class CreateCommunityDTO(PydanticDTO[CommunitySchema]):
     config = DTOConfig(
         # exclude={'id', 'users', 'owner_id', 'postdays.0.id'},
-        include={'name', 'description', 'image', 'postdays.0.day', 'tags'},
+        include={'name', 'description', 'postdays.0.day', 'tags'},
         max_nested_depth=2,
     )
 

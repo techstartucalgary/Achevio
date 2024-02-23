@@ -32,7 +32,7 @@ async def get_tags_list(session: AsyncSession,) -> list[TagSchema]:
     query = select(Tag)
     result = await session.execute(query)
     try:
-        return result.scalars.all()
+        return result.scalars().all()
     except:
         raise HTTPException(status_code=401, detail="Error retrieving tags")
 

@@ -24,7 +24,10 @@ class CommunitySchema(Schema):
 
     tags: list[TagSchema]
 
+class CommunitySearchSchema(Schema):
+    name: str
 
+    tags: list[TagSchema] = []
 
 
 class BaseCommunitySchema(Schema):
@@ -43,9 +46,16 @@ class CommunityDTO(PydanticDTO[CommunitySchema]):
 
 class CreateCommunityDTO(PydanticDTO[CommunitySchema]):
     config = DTOConfig(
-        exclude={'id', 'users', 'owner_id', 'postdays.0.id'},
+        # exclude={'id', 'users', 'owner_id', 'postdays.0.id'},
+        include={'name', 'description', 'postdays.0.day', 'tags'},
         max_nested_depth=2,
-        )
+    )
+
+class SearchCommunityDTO(PydanticDTO[CommunitySchema]):
+    config = DTOConfig(
+        include={'id', 'name', 'tags'},
+        max_nested_depth=1,
+    )
 
 
 class CommunityOutDTO(PydanticDTO[CommunitySchema]):

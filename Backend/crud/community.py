@@ -27,6 +27,20 @@ async def get_community_list(session: AsyncSession, limit: int = 100, offset: in
     return result.scalars().all()
 
 
+async def search_communities(session: AsyncSession, asc: bool = True) -> list[Community]:
+    query = select(Community).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.postdays)).options(orm.selectinload(Community.tags)).limit(limit).offset(offset)
+    result = await session.execute(query)
+
+    vals = result.scalars().all()
+
+    if asc:
+        sorted(vals)
+    else:
+        sorted(vals, reverse=True)
+    return vals
+
+
+
 async def get_community_by_id(session: AsyncSession, id: UUID) -> Community:
     """
     Retrieve a single community by its UUID.

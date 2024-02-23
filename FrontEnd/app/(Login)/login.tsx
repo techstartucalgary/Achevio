@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, { useRef, useState } from "react";
 import {
   Image,
   Keyboard,
@@ -18,7 +18,7 @@ import GoogleLoginButton from "../../components/googleLoginButton";
 import { StackNavigationProp } from "@react-navigation/stack";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { setUsername,setUrl } from "../redux/actions";
+import { setUsername, setUrl } from "../redux/actions";
 type RootStackParamList = {
   Signup: undefined;
   Login: undefined;
@@ -26,10 +26,7 @@ type RootStackParamList = {
   Camera: undefined;
 };
 
-type SignupScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "Signup"
->;
+type SignupScreenNavigationProp = StackNavigationProp<RootStackParamList, "Signup">;
 
 type Props = {
   navigation: SignupScreenNavigationProp;
@@ -37,38 +34,37 @@ type Props = {
 export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("")
-  const [errorMessageVisible, setErrorMessageVisible] = useState(false)
-  const { url, username} = useSelector((state: any) => state.user);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessageVisible, setErrorMessageVisible] = useState(false);
+  const { url, username } = useSelector((state: any) => state.user);
   const usernameInputRef = useRef(null);
   const passwordInputRef = useRef(null);
   const [inputUsername, setInputUsername] = useState(username || "");
 
   const dispatch = useDispatch();
   type LoginResponse = {
-    status: number
-    data: LoginData,
-  }
+    status: number;
+    data: LoginData;
+  };
 
   type LoginData = {
-    access_token: string,
-    token_type: string,
-    refresh_token: string
-    expires_in: number,
-    detail: string
-    }
-
+    access_token: string;
+    token_type: string;
+    refresh_token: string;
+    expires_in: number;
+    detail: string;
+  };
 
   async function postLoginInfo(username: string, password: string): Promise<LoginResponse | null> {
     try {
       const configurationObject = {
-        method: 'post',
+        method: "post",
         url: `${url}/login`,
         headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
+          accept: "application/json",
+          "Content-Type": "application/json",
         },
-        data: { username, password }
+        data: { username, password },
       };
 
       const response = await axios(configurationObject);
@@ -99,13 +95,12 @@ export default function LoginScreen() {
       }
       return null;
     }
-
   }
   function responseCheck(response: LoginResponse): boolean {
-    let checkResult: boolean = true
-    if (response.status !== 201 ) {
-      checkResult = false
-      setErrorMessage(response.data.detail)
+    let checkResult: boolean = true;
+    if (response.status !== 201) {
+      checkResult = false;
+      setErrorMessage(response.data.detail);
     }
     return checkResult;
   }
@@ -114,8 +109,8 @@ export default function LoginScreen() {
     Keyboard.dismiss();
   };
   const resetInputsAndFocus = () => {
-    setInputUsername('');
-    setPassword('');
+    setInputUsername("");
+    setPassword("");
     usernameInputRef.current?.focus(); // Focus on the username input after reset
   };
   async function onPressLoginButton() {
@@ -126,11 +121,11 @@ export default function LoginScreen() {
     if (res && responseCheck(res)) {
       console.log("Success login");
       setErrorMessageVisible(false);
-      dispatch({ type: 'SET_USERNAME', payload: inputUsername });
+      dispatch({ type: "SET_USERNAME", payload: inputUsername });
       const response = await axios.get(`${url}/user/me`);
       console.log(response.data);
-      dispatch({ type: 'SET_USERID', payload: response.data.id });
-      router.push('/(tabs)/Camera');
+      dispatch({ type: "SET_USERID", payload: response.data.id });
+      router.push("/(tabs)/Camera");
     } else {
       resetInputsAndFocus(); // Reset inputs and focus if login fails
     }
@@ -145,6 +140,7 @@ export default function LoginScreen() {
           style={styles.input}
           onChangeText={setInputUsername}
           value={inputUsername}
+          placeholder="Username"
           placeholderTextColor="#343a40"
           autoCapitalize="none"
         />
@@ -158,10 +154,7 @@ export default function LoginScreen() {
           autoCapitalize="none"
         />
         {errorMessageVisible ? <Text style={styles.errorStyle}>{errorMessage}</Text> : null}
-        <TouchableOpacity
-          style={styles.button}
-          onPress={onPressLoginButton}
-        >
+        <TouchableOpacity style={styles.button} onPress={onPressLoginButton}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
         {loading ? <ActivityIndicator size="large" color="#0000ff" /> : <GoogleLoginButton />}

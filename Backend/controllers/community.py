@@ -16,6 +16,7 @@ from crud.postday import *
 
 from litestar.contrib.jwt import OAuth2Login, Token
 from models.user import User
+from schemas.users import UserSchema
 
 class CommunityController(Controller):
     path = '/community'
@@ -29,8 +30,12 @@ class CommunityController(Controller):
     async def get_community(self, session: AsyncSession, id: str) -> CommunitySchema:
         return await get_community_by_id(session, id)
     
-    
 
+    @get("/{id:str}/getAllUsers", exclude_from_auth=True)
+    async def get_community_users(self, session: AsyncSession, id: str, limit: int = 100, offset: int = 0) -> list[UserSchema]:
+
+        users = await get_community_users(session, id, limit, offset)
+        return [UserSchema.model_validate(user) for user in users]
     
 
 

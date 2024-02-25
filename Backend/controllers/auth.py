@@ -43,7 +43,7 @@ oauth2_auth = OAuth2PasswordBearerAuth[User](
     token_secret = os.getenv('JWT_SECRET'),
     token_url = '/login',
     default_token_expiration = timedelta(seconds=6000),
-    exclude = ['/login', '/schema'],
+    exclude = ['/login', '/schema', '/community/image/*', '/user/image/*', '/post/image/*'],
 )
 
 

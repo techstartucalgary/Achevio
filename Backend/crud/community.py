@@ -1,3 +1,4 @@
+
 from typing import Any
 from uuid import UUID
 from sqlalchemy import select, orm
@@ -126,7 +127,7 @@ async def get_community_by_name(session: AsyncSession, name: str) -> Community:
         # Raise an HTTP exception if there's an issue retrieving the community.
         raise HTTPException(status_code=401, detail="Error retrieving community")
 
-from crud.users import get_user_by_id
+
 async def get_community_users(session: AsyncSession, id: UUID, limit: int = 100, offset: int = 0) -> list[User]:
     """
     Retrieve a list of all users with optional pagination.
@@ -155,8 +156,19 @@ async def get_community_users(session: AsyncSession, id: UUID, limit: int = 100,
     user_associations = result.scalars().all()
     user_ids = [association.user_id for association in user_associations]
     users = []
-    for user in user_ids:
-        user = await get_user_by_id(session, user)
+    for id in user_ids:
+        query = select(User).options(orm.selectinload(User.communities)).where(User.id == id)
+        result = await session.execute(query)
+        try:
+            user = result.scalar_one()
+        except:
+            # Raise an HTTP exception if there's an issue retrieving the user.
+            raise HTTPException(status_code=401, detail="Error retrieving user")
         users.append(user)
 
     return users
+
+
+
+
+

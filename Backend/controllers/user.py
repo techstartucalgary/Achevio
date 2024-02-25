@@ -255,7 +255,7 @@ class UserController(Controller):
     @get('/GetNameByID/{id:str}')
     async def get_name_by_id(self, session: AsyncSession, id: str) -> str:
         user = await get_user_by_id(session, id)
-        return user.first_name + " " + user.last_name
+        return user.username
         
 
     @get('/GetNames')
@@ -264,7 +264,7 @@ class UserController(Controller):
         users = []
         for id in parameters:
             user = await get_user_by_id(session, id)
-            users.append(user.first_name + " " + user.last_name)
+            users.append(user.username)
         return users
 
     # Define a GET route for testing, excluding it from authentication Delete later on!

@@ -8,7 +8,7 @@ WebBrowser.maybeCompleteAuthSession();
 const index = () => {
   return (
     <>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="light-content" />
       <Home />
     </>
   );

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
   View,
@@ -12,79 +12,90 @@ import {
   ImageBackground,
   Button,
   Alert,
+  Pressable,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { set } from "date-fns";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons";
+import { faComment, faEllipsisV, faHeart } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { setUsername } from "../redux/actions";
+
 
 const screenWidth = Dimensions.get("window").width;
 type Post = {
   id: string;
+  title : string;
+  caption: string;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  community_id: string;
   imageUrl: string;
-  description: string;
-  large?: boolean;
-  userImage?: string;
-  user?: string;
+  user: string;
+  userImage: string;
 };
-const postData: Post[] = [
-  {
-    id: "1",
-    imageUrl:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-    description: "Painting of a flower.",
-    user: "user1",
-    userImage:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-  },
-  {
-    id: "2",
-    imageUrl:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-    description: "Featured painting.",
-    user: "user2",
-    userImage:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-  },
-  {
-    id: "3",
-    imageUrl:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-    description: "Painting of a sunset.",
-    user: "user3",
-    userImage:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-  },
-  {
-    id: "4",
-    imageUrl:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-    description: "Painting of a flower.",
-    user: "user4",
-    userImage:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-  },
-  {
-    id: "5",
-    imageUrl:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-    description: "Painting of a flower.",
-    user: "user5",
-    userImage:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-  },
-  // ...more posts
-];
+// const postData: Post[] = [
+//   {
+//     id: "1",
+//     imageUrl:
+//       "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
+//     description: "Painting of a flower.",
+//     user: "user1",
+//     userImage:
+//       "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
+//   },
+//   {
+//     id: "2",
+//     imageUrl:
+//       "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
+//     description: "Featured painting.",
+//     user: "user2",
+//     userImage:
+//       "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
+//   },
+//   {
+//     id: "3",
+//     imageUrl:
+//       "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
+//     description: "Painting of a sunset.",
+//     user: "user3",
+//     userImage:
+//       "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
+//   },
+//   {
+//     id: "4",
+//     imageUrl:
+//       "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
+//     description: "Painting of a flower.",
+//     user: "user4",
+//     userImage:
+//       "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
+//   },
+//   {
+//     id: "5",
+//     imageUrl:
+//       "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
+//     description: "Painting of a flower.",
+//     user: "user5",
+//     userImage:
+//       "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
+//   },
+//   // ...more posts
+// ];
 
 const CommunityPage: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const { url } = useSelector((state: any) => state.user);
+  const [username, setUsername] = useState<string>("");
   const [communityTagArray, setCommunityTagArray] = useState<string[]>([]);
   const [isLargeView, setIsLargeView] = useState<boolean>(false);
   const params = useLocalSearchParams();
+  const [postData, setPostData] = useState<Post[]>([]);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
   const { communityId, communityName, communityStreak, communityTags, communityImage } = params;
   const handleLikePress = () => {
     // You would have some logic to handle the like action here
@@ -94,18 +105,53 @@ const CommunityPage: React.FC = () => {
   const handlePress = () => {
     setIsLargeView(!isLargeView);
   };
+  const getUserName = async (userId: string) => {
+    console.log("Fetching user info for user:", userId);
+    const res = await axios.get(`${url}/user/GetNameByID/${userId}`);
+    if (res.status === 200) {
+      console.log("User info fetched successfully:", res.data);
+      setUsername(res.data);
+    }
+  }
+  const fetchPosts = async () => {
+    console.log("Fetching posts for community:", communityId);
+    const res = await axios.get(`${url}/posts/community/${communityId}`);
+    console.log("Posts fetched successfully:", res.data);
+    if (res.status === 200) {
+      console.log("Posts fetched successfully:", res.data);
+
+      const updatedPosts = res.data.map((post) => {
+        getUserName(post.user_id);
+        return {
+            ...post, // Spread the existing fields
+            imageUrl: post.imageUrl || `${url}/post/image/${post.id}.jpg`, 
+            user: username,
+            userImage: post.userImage ||  `${url}/users/image/${post.user_id}.jpg` 
+        };
+    });
+
+    setPostData(updatedPosts);
+
+    }
+  }
+
   useEffect(() => {
-    console.log(
-      "Communities:",
-      communityId,
-      communityName,
-      communityStreak,
-      communityTags
-    );
-    const communityTagArray = Array.isArray(communityTags) ? communityTags : communityTags.split(",");
-    console.log("Community Tags:", communityTagArray);
-    setCommunityTagArray(communityTagArray);
-  }, []);
+    const fetchData = async () => {
+      console.log(
+        "Communities:",
+        communityId,
+        communityName,
+        communityStreak,
+        communityTags
+      );
+      const communityTagArray = Array.isArray(communityTags) ? communityTags : communityTags.split(",");
+      console.log("Community Tags:", communityTagArray);
+      setCommunityTagArray(communityTagArray);
+      await fetchPosts();
+    };
+
+    fetchData();
+  }, [communityId, communityName, communityStreak, communityTags]);
 
   const renderPost = ({ item }: { item: Post }) => {
     const postStyle = isLargeView ? styles.largePost : styles.post;
@@ -141,6 +187,30 @@ const CommunityPage: React.FC = () => {
       useNativeDriver: true,
     }).start();
   }, [fadeAnim]);
+
+  
+  const LeaveCommunity = async () => {
+    console.log("Leaving Community");
+    const res = await axios.delete(`${url}/community/${communityId}/leave`);
+    console.log(res.data);
+    if (res.status === 204) {
+      console.log("Community left successfully:", res.data);
+      Alert.alert("Community left successfully");
+      router.push({
+        pathname: '/(tabs)/Communities',
+        params:{
+          refresh: "true"
+        }
+      });
+    }
+  };
+  
+  const CheckCommunityStatus = () => {
+    console.log("Checking Community Status");
+    // Implement the logic to check the status of the community
+  };
+  
+
   const JoinCommunity = async() => {
     console.log("Joining Community");
     const res = await axios.put(`${url}/community/join/${communityId}`);
@@ -148,9 +218,15 @@ const CommunityPage: React.FC = () => {
     if (res.status === 200) {
       console.log("Community joined successfully:", res.data);
       Alert.alert("Community joined successfully");
+      router.push({
+        pathname: '/(tabs)/Communities',
+        params:{
+          refresh: "true"
+        }
+      });
     }
   }
-  const renderHeader = () => (
+  const renderHeader = useCallback(() => (
     <Animated.View style={{ ...styles.headerContainer, opacity: fadeAnim }}>
       <ImageBackground
         source={{ uri: communityImage as string }}
@@ -166,7 +242,12 @@ const CommunityPage: React.FC = () => {
       </LinearGradient>
       </ImageBackground>
 
+
+
       <View style={styles.overlayContent}>
+      <TouchableOpacity onPress={() => setIsMenuVisible(!isMenuVisible)} style={{ position: "absolute", top: 50, right: 30 }}>
+          <FontAwesomeIcon icon={faEllipsisV} size={24} color="white" />
+        </TouchableOpacity>
         <Text style={styles.streakText}>{communityStreak}</Text>
         <View style={styles.tagContainer}>
           {Array.isArray(communityTagArray) && communityTagArray.map((tag: string) => (
@@ -182,10 +263,12 @@ const CommunityPage: React.FC = () => {
         </View>
       </View>
     </Animated.View>
-  );
+  ), [communityName, communityStreak, communityTagArray, communityImage, fadeAnim]);
 
   return (
     <Animated.View style={{ flex: 1, opacity: fadeAnim, marginTop:0, padding:0}}>
+      <Pressable
+      onPress={() => setIsMenuVisible(false)}>
       <FlatList
         style={{borderRadius: 25, overflow: "hidden" }}
         key={selectedPostId ? "single-column" : "multi-column"} // Unique key based on layout
@@ -195,8 +278,26 @@ const CommunityPage: React.FC = () => {
         keyExtractor={(item) => item.id}
         numColumns={selectedPostId ? 1 : 2}
         columnWrapperStyle={!isLargeView ? styles.row : null}
+        showsVerticalScrollIndicator={false}
       />
+    </Pressable>
+
+    {isMenuVisible && (
+      <View style={styles.menuContainer}>
+          <TouchableOpacity onPress={JoinCommunity} style={styles.menuOption}>
+            <Text style={styles.menuText}>Join Community</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={LeaveCommunity} style={styles.menuOption}>
+            <Text style={styles.menuText}>Leave Community</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={CheckCommunityStatus} style={styles.menuOption}>
+            <Text style={styles.menuText}>Check Status</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
     </Animated.View>
+
   );
 };
 const styles = StyleSheet.create({
@@ -366,5 +467,26 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
   },
+  menuContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    padding: 10,
+    position: 'absolute',
+    top: 40, // Adjust based on the position of the three dots button
+    right: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  menuOption: {
+    paddingVertical: 10,
+  },
+  menuText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  
 });
 export default CommunityPage;

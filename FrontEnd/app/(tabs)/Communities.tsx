@@ -14,13 +14,14 @@ import {
   StatusBar,
 } from "react-native";
 import { getDayOfYear, getISODay } from "date-fns";
-import { router } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams, useSearchParams } from "expo-router";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import uuid from "react-native-uuid";
 import { useSelector, useDispatch } from "react-redux";
 import { setUsername, setUrl } from "../redux/actions";
+import { ref } from "yup";
 
 // Constants
 const windowWidth = Dimensions.get("window").width;
@@ -138,6 +139,8 @@ const Communities = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { url } = useSelector((state: any) => state.user);
+  const params = useLocalSearchParams();
+  const {refresh} = params;
   const dispatch = useDispatch();
 
   const fetchCommunities = async () => {
@@ -161,7 +164,14 @@ const Communities = () => {
   };
   useEffect(() => {
     fetchCommunities();
-  }, []); // Empty dependency array to run only once on mount
+  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchCommunities();
+
+    }, [])
+  );
+
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);

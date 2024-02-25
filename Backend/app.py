@@ -20,6 +20,7 @@ from controllers.user import UserController
 from controllers.postday import PostdayController
 from controllers.initialize import InitializeController
 from controllers.tag import TagController
+from controllers.post import PostController
 from controllers.auth import oauth2_auth, login_handler, logout_handler
 
 from models.base import Base
@@ -80,7 +81,7 @@ cors_config = CORSConfig(allow_origins=["*"]) # NOTE: Change it for production
 
 # Create the Litestar application instance
 app = Litestar(
-    [UserController, CommunityController, PostdayController, InitializeController, TagController, login_handler, logout_handler],  # List of endpoint functions
+    [UserController, CommunityController, PostdayController, InitializeController, TagController, PostController, login_handler, logout_handler],  # List of endpoint functions
     dependencies={"session": provide_transaction},  # Dependency to inject session into endpoints
     plugins=[SQLAlchemyPlugin(db_config)],  # Plugin for SQLAlchemy support
     stores=StoreRegistry(default_factory=cache.redis_store_factory), # Redis setup

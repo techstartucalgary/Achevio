@@ -4,3 +4,4 @@ myenv/
 Backend/static/images/posts/*
 Backend/static/images/users/*
 .env
+venv

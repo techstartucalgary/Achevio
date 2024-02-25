@@ -19,6 +19,7 @@ from crud.postday import *
 import shutil
 from litestar.contrib.jwt import OAuth2Login, Token
 from models.user import User
+from schemas.users import UserSchema
 from crud.tag import get_tag_by_name
 from crud.users import user_join_community, user_leave_community
 import aiofiles
@@ -109,6 +110,11 @@ class CommunityController(Controller):
     
 
 
+    @get("/{id:str}/getAllUsers", exclude_from_auth=True)
+    async def get_community_users(self, session: AsyncSession, id: str, limit: int = 100, offset: int = 0) -> list[UserSchema]:
+
+        users = await get_community_users(session, id, limit, offset)
+        return [UserSchema.model_validate(user) for user in users]
     # @post('/')
     # async def search_community(self, request: Request, session: AsyncSession, session: AsyncSession, data: CommunitySearchSchema) -> CommunitySchema:
     @put('/{community_id:str}/image', media_type=MediaType.TEXT)

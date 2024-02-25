@@ -139,8 +139,6 @@ const Communities = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { url } = useSelector((state: any) => state.user);
-  const params = useLocalSearchParams();
-  const {refresh} = params;
   const dispatch = useDispatch();
 
   const fetchCommunities = async () => {
@@ -162,9 +160,7 @@ const Communities = () => {
       setIsLoading(false);
     }
   };
-  useEffect(() => {
-    fetchCommunities();
-  }, []);
+
   useFocusEffect(
     useCallback(() => {
       fetchCommunities();

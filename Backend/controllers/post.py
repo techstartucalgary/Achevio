@@ -14,12 +14,6 @@ class PostController(Controller):
     async def get_all_posts(self, session: AsyncSession, limit: int=100, offset: int=0) -> PostSchema:
         return await get_posts_list(session, limit, offset)
 
-
-    # @post('/{user_id:str}', exclude_from_auth=True)
-    # async def get_user_posts(self, session: AsyncSession, limit: int=100, offset: int=0) -> PostSchema:
-    #     return await get_posts_list(session, limit, offset)
-    
-
     
     @get('/user/{user_id:str}', exclude_from_auth=True)
     async def get_user_posts(self, session: AsyncSession, user_id: str) -> list[PostSchema]:
@@ -31,3 +25,6 @@ class PostController(Controller):
         result = await get_posts_by_community_id(session,community_id, limit, offset )
         return result
     
+
+    # @get('/featured')
+    # async def get_featured_posts(self, session: AsyncSession) -> list[PostSchema:]

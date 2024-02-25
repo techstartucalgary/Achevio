@@ -53,9 +53,11 @@ class UserLoginDTO(UserDTO):
 class CreateUserDTO(UserDTO):
     config = DTOConfig(include={'username', 'first_name', 'last_name', 'email', 'password'})
 
-# Define a DTO for user data output
+
+
 class UserOutDTO(UserDTO):
     config = DTOConfig(
+        include={'id', 'username', 'first_name', 'last_name', 'email', 'created_at', 'updated_at', 'is_active', 'last_login', 'communities'},
         max_nested_depth=2,
     )
 

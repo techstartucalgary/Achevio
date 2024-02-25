@@ -90,6 +90,11 @@ async def get_user_by_username(session: AsyncSession, username: str) -> User:
         raise HTTPException(status_code=401, detail="Error retrieving user")
 
 
+async def get_user_friends(session: AsyncSession, id: UUID) -> list[User]:
+    query = select(User.friends).options(orm.selectinload(User.communities)).where(User.id == id)
+    result = await session.execute(query)
+    return result.scalars().all()
+
 
 async def get_user_by_id(session: AsyncSession, id: UUID) -> User:
     """

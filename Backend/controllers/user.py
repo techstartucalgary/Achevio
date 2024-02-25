@@ -142,7 +142,7 @@ class UserController(Controller):
         '''
         current_time = datetime.datetime.now(pytz.utc)
 
-        user_data = data.create_instance(id=uuid7(),communities=[], posts=[], created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
+        user_data = data.create_instance(id=uuid7(),communities=[], posts=[], friends=[],created_at=current_time, updated_at=current_time, is_active=True, last_login=current_time)
 
         validated_user_data = UserSchema.model_validate(user_data)
         validated_user_data.set_password(validated_user_data.password)
@@ -157,7 +157,7 @@ class UserController(Controller):
             return token
         except Exception as e:
             raise HTTPException(
-                status_code=409, detail=f'User with that username exists')
+                status_code=409, detail=f'Error: {e}')
 
 
 
@@ -282,4 +282,17 @@ class UserController(Controller):
     
 
     
+    # @get('/friends')
+    # async def get_friends(self) -> list[UserSchema]:
+    #     user = awa
+
+
+
+    @post('/friend/{friend_id:str}') # WIP
+    async def add_friend(self, request: 'Request[User, Token, Any]', session: AsyncSession, friend_id: str) -> str:
+        user = await get_user_by_id(session, request.user)
+        friend = await get_user_by_id(session, friend_id)
+        user.friends.append(friend)
+        return "Added friend!"
+
 

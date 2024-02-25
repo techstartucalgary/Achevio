@@ -4,7 +4,6 @@ import {
   Text,
   View,
   FlatList,
-  Image,
   ImageBackground,
   Dimensions,
   TouchableOpacity,
@@ -14,13 +13,16 @@ import {
   StatusBar,
 } from "react-native";
 import { getDayOfYear, getISODay } from "date-fns";
-import { router } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams, useSearchParams } from "expo-router";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import uuid from "react-native-uuid";
 import { useSelector, useDispatch } from "react-redux";
 import { setUsername, setUrl } from "../redux/actions";
+import { ref } from "yup";
+import { Image } from 'expo-image';
+
 
 // Constants
 const windowWidth = Dimensions.get("window").width;
@@ -159,9 +161,21 @@ const Communities = () => {
       setIsLoading(false);
     }
   };
-  useEffect(() => {
-    fetchCommunities();
-  }, []); // Empty dependency array to run only once on mount
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchCommunities();
+      // fetch posts from each community
+      // for (let i = 0; i < communities.length; i++) {
+      //   fetchPosts(communities[i].id).then((posts) => {
+      //     setPostData((prev) => [...prev, ...posts]);
+      //   });
+      // }
+      // console.log("postData", postData);
+     
+    }, [])
+  );
+
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -234,10 +248,11 @@ const Communities = () => {
         <View style={styles.textOverlay}>
           <Text style={styles.communityStreak}>{item.streak}</Text>
           <Text style={styles.communityTags}>
-            {item.tags.map((tag) => {
-              return tag.name + " ";
-            })}
-          </Text>
+          {item.tags.map((tag, index) => (
+            <Text key={`${tag.name}_${index}`}>{tag.name + " "}</Text> // Use a combination of name and index
+          ))}
+        </Text>
+
         </View>
       </ImageBackground>
     </TouchableOpacity>
@@ -276,6 +291,22 @@ const Communities = () => {
       />
     </>
   );
+
+  const fetchPosts = async (communityId) => {
+    try {
+      const response = await axios.get(`${url}/posts/community/${communityId}`);
+      if (response.status === 200) {
+        console.log(`Posts fetched successfully for community ${communityId}`);
+        return response.data; // Assuming the response data is the list of posts
+      } else {
+        console.error(`Failed to fetch posts for community ${communityId}:`, response.status);
+        return []; // Return an empty array in case of failure
+      }
+    } catch (error) {
+      console.error(`Error fetching posts for community ${communityId}:`, error);
+      return []; // Return an empty array in case of an error
+    }
+  };
 
   return (
     <>

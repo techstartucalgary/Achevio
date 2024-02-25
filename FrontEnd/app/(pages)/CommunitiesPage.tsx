@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
   View,
   Text,
-  Image,
   StyleSheet,
   FlatList,
   Dimensions,
@@ -12,72 +11,37 @@ import {
   ImageBackground,
   Button,
   Alert,
+  Pressable,
+  PanResponder,
 } from "react-native";
+import { Image } from 'expo-image';
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { set } from "date-fns";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons";
+import {
+  faComment,
+  faEllipsisV,
+  faHeart,
+} from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { setUsername } from "../redux/actions";
 
 const screenWidth = Dimensions.get("window").width;
 type Post = {
   id: string;
+  title: string;
+  caption: string;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  community_id: string;
   imageUrl: string;
-  description: string;
-  large?: boolean;
-  userImage?: string;
-  user?: string;
+  user: string;
+  userImage: string;
 };
-const postData: Post[] = [
-  {
-    id: "1",
-    imageUrl:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-    description: "Painting of a flower.",
-    user: "user1",
-    userImage:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-  },
-  {
-    id: "2",
-    imageUrl:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-    description: "Featured painting.",
-    user: "user2",
-    userImage:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-  },
-  {
-    id: "3",
-    imageUrl:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-    description: "Painting of a sunset.",
-    user: "user3",
-    userImage:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-  },
-  {
-    id: "4",
-    imageUrl:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-    description: "Painting of a flower.",
-    user: "user4",
-    userImage:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-  },
-  {
-    id: "5",
-    imageUrl:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-    description: "Painting of a flower.",
-    user: "user5",
-    userImage:
-      "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-  },
-  // ...more posts
-];
 
 const CommunityPage: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -85,54 +49,139 @@ const CommunityPage: React.FC = () => {
   const [communityTagArray, setCommunityTagArray] = useState<string[]>([]);
   const [isLargeView, setIsLargeView] = useState<boolean>(false);
   const params = useLocalSearchParams();
-  const { communityId, communityName, communityStreak, communityTags, communityImage } = params;
-  const handleLikePress = () => {
-    // You would have some logic to handle the like action here
-    console.log("Like button pressed!");
-  };
+  const [postData, setPostData] = useState<Post[]>([]);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const {
+    communityId,
+    communityName,
+    communityStreak,
+    communityTags,
+    communityImage,
+  } = params;
+  const [showReactionMenu, setShowReactionMenu] = useState(false);
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
-  const handlePress = () => {
-    setIsLargeView(!isLargeView);
-  };
-  useEffect(() => {
-    console.log(
-      "Communities:",
-      communityId,
-      communityName,
-      communityStreak,
-      communityTags
+  const position = useRef(new Animated.ValueXY()).current;
+  const screenHeight = Dimensions.get("window").height;
+  const [isFollowersModalVisible, setIsFollowersModalVisible] = useState(false);
+  const [followers, setFollowers] = useState([]);
+  const ReactionMenu = () => {
+    return (
+      <View style={styles.reactionMenu}>
+        {/* Icons represent reactions, you can use images or icons from a library like react-native-vector-icons */}
+        <Text style={styles.reactionIcon}>👍</Text>
+        <Text style={styles.reactionIcon}>❤️</Text>
+        <Text style={styles.reactionIcon}>😂</Text>
+        <Text style={styles.reactionIcon}>😮</Text>
+        <Text style={styles.reactionIcon}>😢</Text>
+        <Text style={styles.reactionIcon}>😡</Text>
+      </View>
     );
-    const communityTagArray = Array.isArray(communityTags) ? communityTags : communityTags.split(",");
-    console.log("Community Tags:", communityTagArray);
-    setCommunityTagArray(communityTagArray);
-  }, []);
+  };
+
+const handleLongPress = () => {
+  setShowReactionMenu(true);
+};
+  const fetchPosts = async () => {
+    console.log("Fetching posts for community:", communityId);
+    try {
+      const res = await axios.get(`${url}/posts/community/${communityId}`);
+      if (res.status === 200) {
+        console.log("Posts fetched successfully:", res.data);
+
+        // Fetch usernames in parallel
+        const postsWithUsernames = await Promise.all(
+          res.data.map(async (post) => {
+            try {
+              const usernameResponse = await axios.get(
+                `${url}/user/GetNameByID/${post.user_id}`
+              );
+              const username = usernameResponse.data; // Assuming this is the username directly
+
+              return {
+                ...post,
+                imageUrl: `${url}/post/image/${post.id}.jpg`,
+                user: username,
+                userImage: `${url}/user/image/${post.user_id}.jpg`,
+              };
+            } catch (error) {
+              console.error("Error fetching user info:", error);
+              return post; // Return the original post if there was an error fetching the username
+            }
+          })
+        );
+
+        setPostData(postsWithUsernames);
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  };
+
+  const fetchFollowers = async () => {
+    console.log("Fetching followers for community:", communityId);
+    try {
+      const res = await axios.get(
+        `${url}/community/${communityId}/getAllUsers`
+      );
+      if (res.status === 200) {
+        console.log("Followers fetched successfully:", res.data);
+        const followersMap = await Promise.all(
+          res.data.map(async (follower) => {
+            const username = follower.username;
+            const userImage = `${url}/user/image/${follower.id}.jpg`;
+            return {
+              username,
+              userImage,
+            };
+          })
+        );
+        setFollowers(followersMap);
+        console.log("Followers:", followers);
+      }
+    } catch (error) {
+      console.error("Error fetching followers:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      console.log(
+        "Communities:",
+        communityId,
+        communityName,
+        communityStreak,
+        communityTags
+      );
+      const communityTagArray = Array.isArray(communityTags)
+        ? communityTags
+        : communityTags.split(",");
+      console.log("Community Tags:", communityTagArray);
+      setCommunityTagArray(communityTagArray);
+      await fetchPosts();
+      await fetchFollowers();
+    };
+
+    fetchData();
+  }, [communityId, communityName, communityStreak, communityTags]);
 
   const renderPost = ({ item }: { item: Post }) => {
-    const postStyle = isLargeView ? styles.largePost : styles.post;
-
-    const imageStyle = isLargeView ? styles.largePostImage : styles.postImage;
     return (
-      <TouchableOpacity onPress={() => handlePress()} style={postStyle}>
-        {isLargeView && (
-          <View style={styles.userContainer}>
-            <Image style={styles.userImage} source={{ uri: item.userImage }} />
-            <Text style={styles.userText}>{item.user}</Text>
-          </View>
-        )}
-        <Image source={{ uri: item.imageUrl }} style={imageStyle} />
-        {isLargeView && (
-          <View style={styles.actionsContainer}>
-            <TouchableOpacity
-              onPress={handleLikePress}
-              style={styles.actionButton}
-            >
-              <FontAwesomeIcon icon={faHeart} size={24} color={"#555"} />
-            </TouchableOpacity>
-          </View>
-        )}
+      <TouchableOpacity
+        onPress={() => {
+          setSelectedPost(item);
+          setModalVisible(true);
+        }}
+        style={styles.post}
+      >
+        <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
+        <Text style={styles.postTitle}>{item.title}</Text>
       </TouchableOpacity>
     );
   };
+
   useEffect(() => {
     // Start the fade-in animation when the component mounts
     Animated.timing(fadeAnim, {
@@ -141,61 +190,321 @@ const CommunityPage: React.FC = () => {
       useNativeDriver: true,
     }).start();
   }, [fadeAnim]);
-  const JoinCommunity = async() => {
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderMove: Animated.event([null, { dy: position.y }], {
+        useNativeDriver: false,
+      }),
+      onPanResponderRelease: (_, gestureState) => {
+        // Check if the swipe was upwards and significant
+        if (gestureState.dy < -150) {
+          // Note the negative value for upward movement
+          closeModal();
+        } else {
+          // Reset position if not swiped up significantly
+          Animated.spring(position, {
+            toValue: { x: 0, y: 0 },
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
+  const closeModal = () => {
+    Animated.timing(position, {
+      toValue: { x: 0, y: -screenHeight }, // Animate the modal off the top of the screen
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => setModalVisible(false));
+  };
+  const PostDetailModal = ({ isVisible, post, onClose }) => {
+    if (!post) return null;
+
+    useEffect(() => {
+      if (isVisible) {
+        position.setValue({ x: 0, y: 0 });
+      }
+    }, [isVisible]);
+
+    const formatDate = (dateString) => {
+      const options = {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      };
+      return new Date(dateString).toLocaleDateString(
+        undefined,
+        options as Intl.DateTimeFormatOptions
+      );
+    };
+
+    return (
+      <Modal
+        animationType="none"
+        transparent={true}
+        visible={isVisible}
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalOverlay}>
+          <Animated.View
+            style={[
+              styles.modalContainer,
+              {
+                transform: [{ translateY: position.getLayout().top }],
+              },
+            ]}
+            {...panResponder.panHandlers}
+          >
+            <View style={styles.userInfoContainer}>
+              <Image
+                source={{ uri: post.userImage }}
+                style={styles.userImage}
+              />
+              <Text style={styles.username}>{post.user}</Text>
+            </View>
+            <TouchableOpacity onLongPress={handleLongPress} onPressOut={() => setShowReactionMenu(false)}>
+
+            <Image
+              source={{ uri: post.imageUrl }}
+              style={styles.modalPostImage}
+            />
+              {showReactionMenu && <ReactionMenu />}
+            </TouchableOpacity>
+
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{post.title}</Text>
+
+              <Text style={styles.modalCaption}>{post.caption}</Text>
+              <Text style={styles.modalTimestamp}>
+                {formatDate(post.created_at)}
+              </Text>
+            </View>
+          </Animated.View>
+        </View>
+      </Modal>
+    );
+  };
+
+  const FollowersModal = ({ isVisible, followers, onClose }) => {
+    if (!followers) return null;
+
+    return (
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isVisible}
+        onRequestClose={() => setIsFollowersModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <FlatList
+              data={followers}
+              ListHeaderComponent={
+                <Text
+                  style={{
+                    fontSize: 24,
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    padding: 10,
+                  }}
+                >
+                  Followers
+                </Text>
+              
+              }
+              renderItem={({ item }) => (
+                console.log("Item:", item),
+                (
+                  <View
+                    style={{
+                      flexDirection: "column",
+                    }}
+                  >
+                  <View style={styles.userInfo}>
+                    <Image
+                      source={{ uri: item.userImage }} // Use the correct property to set the image source
+                      style={styles.modalUserImage}
+                    />
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        color: "black",
+                        padding: 10,
+                      }}
+                    >
+                      {item.username}
+                    </Text>
+                  </View>
+                  </View>
+                )
+              )}
+              keyExtractor={(item, index) => item.username + index} // Use a unique key for each item
+            />
+
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setIsFollowersModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
+  const LeaveCommunity = async () => {
+    console.log("Leaving Community");
+    const res = await axios.delete(`${url}/community/${communityId}/leave`);
+    console.log(res.data);
+    if (res.status === 204) {
+      console.log("Community left successfully:", res.data);
+      Alert.alert("Community left successfully");
+      router.push({
+        pathname: "/(tabs)/Communities",
+        params: {
+          refresh: "true",
+        },
+      });
+    }
+  };
+
+  const CheckCommunityStatus = () => {
+    console.log("Checking Community Status");
+    // Implement the logic to check the status of the community
+  };
+
+  const JoinCommunity = async () => {
     console.log("Joining Community");
     const res = await axios.put(`${url}/community/join/${communityId}`);
     console.log(res.data);
     if (res.status === 200) {
       console.log("Community joined successfully:", res.data);
       Alert.alert("Community joined successfully");
+      router.push({
+        pathname: "/(tabs)/Communities",
+        params: {
+          refresh: "true",
+        },
+      });
     }
-  }
-  const renderHeader = () => (
-    <Animated.View style={{ ...styles.headerContainer, opacity: fadeAnim }}>
-      <ImageBackground
-        source={{ uri: communityImage as string }}
-        style={{ width: "100%", height: "100%", position: "absolute" }}
-      >
-      <LinearGradient
-        colors={["transparent", "rgba(0,0,0,2.0)"]}
-        style={styles.gradientHeader}
-        start={{ x: 0.0, y: 0.0 }}
-        end={{ x: 0.0, y: 1.0 }}
-      >
-        <Text style={styles.headerTitle}>{communityName}</Text>
-      </LinearGradient>
-      </ImageBackground>
+  };
+  const renderHeader = useCallback(
+    () => (
+      <Animated.View style={{ ...styles.headerContainer, opacity: fadeAnim }}>
+        <ImageBackground
+          source={{ uri: communityImage as string }}
+          style={{ width: "100%", height: "100%", position: "absolute" }}
+        >
+          <LinearGradient
+            colors={["transparent", "rgba(0,0,0,2.0)"]}
+            style={styles.gradientHeader}
+            start={{ x: 0.0, y: 0.0 }}
+            end={{ x: 0.0, y: 1.0 }}
+          >
+            <Text style={styles.headerTitle}>{communityName}</Text>
+          </LinearGradient>
+        </ImageBackground>
 
-      <View style={styles.overlayContent}>
-        <Text style={styles.streakText}>{communityStreak}</Text>
-        <View style={styles.tagContainer}>
-          {Array.isArray(communityTagArray) && communityTagArray.map((tag: string) => (
-            <View style={styles.tag} key={tag}>
-              <Text style={styles.tagText}>{tag}</Text>
-            </View>
-          ))}
+        <View style={styles.overlayContent}>
+          <TouchableOpacity
+            onPress={() => setIsMenuVisible(!isMenuVisible)}
+            style={{ position: "absolute", top: 50, right: 30 }}
+          >
+            <FontAwesomeIcon icon={faEllipsisV} size={24} color="white" />
+          </TouchableOpacity>
+          <Text style={styles.streakText}>{communityStreak}</Text>
+          <View style={styles.tagContainer}>
+            {Array.isArray(communityTagArray) &&
+              communityTagArray.map((tag: string) => (
+                <View style={styles.tag} key={tag}>
+                  <Text style={styles.tagText}>{tag}</Text>
+                </View>
+              ))}
+          </View>
+          <View style={styles.statsContainer}>
+            <Text
+              style={styles.statText}
+              onPress={() => {
+                setIsFollowersModalVisible(true);
+              }}
+            >
+              56 Followers
+            </Text>
+            <Text style={styles.statText}>198 Posts</Text>
+          </View>
         </View>
-        <Button title = "Join Community" onPress = {JoinCommunity}/>
-        <View style={styles.statsContainer}>
-          <Text style={styles.statText}>56 Followers</Text>
-          <Text style={styles.statText}>198 Posts</Text>
-        </View>
-      </View>
-    </Animated.View>
+      </Animated.View>
+    ),
+    [
+      communityName,
+      communityStreak,
+      communityTagArray,
+      communityImage,
+      fadeAnim,
+    ]
   );
 
   return (
-    <Animated.View style={{ flex: 1, opacity: fadeAnim, marginTop:0, padding:0}}>
-      <FlatList
-        style={{borderRadius: 25, overflow: "hidden" }}
-        key={selectedPostId ? "single-column" : "multi-column"} // Unique key based on layout
-        data={postData}
-        ListHeaderComponent={renderHeader}
-        renderItem={renderPost}
-        keyExtractor={(item) => item.id}
-        numColumns={selectedPostId ? 1 : 2}
-        columnWrapperStyle={!isLargeView ? styles.row : null}
-      />
+    <Animated.View
+      style={{ flex: 1, opacity: fadeAnim, marginTop: 0, padding: 0 }}
+    >
+      <Pressable onPress={() => setIsMenuVisible(false)} style={{ flex: 1 }}>
+        <FlatList
+          style={{ borderRadius: 25, overflow: "hidden" }}
+          key={selectedPostId ? "single-column" : "multi-column"} // Unique key based on layout
+          data={postData}
+          ListHeaderComponent={renderHeader}
+          renderItem={renderPost}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          showsVerticalScrollIndicator={false}
+        />
+        <PostDetailModal
+          isVisible={modalVisible}
+          post={selectedPost}
+          onClose={() => setModalVisible(false)}
+        />
+        <FollowersModal
+          isVisible={isFollowersModalVisible}
+          followers={followers}
+          onClose={() => setIsFollowersModalVisible(false)}
+        />
+      </Pressable>
+
+      {isMenuVisible && (
+        <View style={styles.menuContainer}>
+          <TouchableOpacity onPress={JoinCommunity} style={styles.menuOption}>
+            <Text style={styles.menuText}>Join Community</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={LeaveCommunity} style={styles.menuOption}>
+            <Text style={styles.menuText}>Leave Community</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={CheckCommunityStatus}
+            style={styles.menuOption}
+          >
+            <Text
+              style={styles.menuText}
+              onPress={() => {
+                router.push({
+                  pathname: "/(pages)/CommunityStatus",
+                  params: {
+                    communityId: communityId,
+                  },
+                });
+              }}
+            >
+              Check Status
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </Animated.View>
   );
 };
@@ -221,7 +530,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     height: "100%",
-
   },
   headerTitle: {
     fontSize: 50,
@@ -365,6 +673,128 @@ const styles = StyleSheet.create({
   commentsButtonText: {
     color: "#fff",
     textAlign: "center",
+  },
+  menuContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    padding: 10,
+    position: "absolute",
+    top: 40, // Adjust based on the position of the three dots button
+    right: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  menuOption: {
+    paddingVertical: 10,
+  },
+  menuText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContainer: {
+    width: "90%",
+    backgroundColor: "white",
+    borderRadius: 20,
+    overflow: "hidden",
+  },
+  modalPostImage: {
+    width: "100%",
+    height: 500,
+  },
+  modalContent: {
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  userInfoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 20,
+  },
+  username: {
+    fontSize: 18,
+    fontWeight: "bold",
+    position: "absolute",
+    right: 20,
+  },
+  modalCaption: {
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 20,
+    textAlign: "left",
+    padding: 10,
+  },
+  modalTimestamp: {
+    fontSize: 14,
+    color: "#666",
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+  },
+  closeButton: {
+    backgroundColor: "#2196F3",
+    borderRadius: 20,
+    padding: 10,
+    alignItems: "center",
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  gradientFooter: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 20,
+  },
+  userInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+    padding: 10,
+  },
+  modalUserImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+  },
+  modalUsername: {
+    fontSize: 18,
+    color: "white",
+  },
+
+  postTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: 10,
+  },
+  reactionMenu: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 50, // Adjust based on your UI
+    backgroundColor: '#FFF',
+    borderRadius: 20,
+    padding: 5,
+  },
+  reactionIcon: {
+    fontSize: 30, // Adjust based on your UI
+    marginHorizontal: 5,
   },
 });
 export default CommunityPage;

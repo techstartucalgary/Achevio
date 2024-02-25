@@ -16,6 +16,7 @@ import { useSelector } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
+
 // Dummy data for tags and days
 const availableTags = [
   "Sports",

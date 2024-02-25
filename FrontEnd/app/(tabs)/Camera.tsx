@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, TouchableOpacity, StyleSheet, Text, StatusBar, Image, Dimensions, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Text, StatusBar, Dimensions, ActivityIndicator } from 'react-native';
 import { Camera, CameraType, FlashMode } from 'expo-camera';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons'; // Make sure to install @expo/vector-icons
 import { StackNavigationProp, createStackNavigator } from '@react-navigation/stack';
 import { manipulateAsync, FlipType, SaveFormat } from 'expo-image-manipulator';
-import { Link, router} from "expo-router";
-import { useFocusEffect } from '@react-navigation/native';
+import { Link, router, useFocusEffect} from "expo-router";
+import { Image } from 'expo-image';
+
 
 type RootStackParamList = {
     Signup: undefined;

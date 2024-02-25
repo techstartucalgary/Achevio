@@ -21,6 +21,10 @@ const PagesLayout = () => {
         name="UploadingImages"
         options={{ headerShown: false}}
       />
+      <Stack.Screen
+        name="CommunityStatus"
+        options={{ headerShown: false}}
+      />
     </Stack>
   );
 };

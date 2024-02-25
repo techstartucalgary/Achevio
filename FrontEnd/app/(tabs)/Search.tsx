@@ -16,7 +16,7 @@ import {
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 
 type TagProps = {
   text: string;
@@ -60,37 +60,74 @@ const RadioButton: React.FC<RadioButtonProps> = ({
     <Text style={styles.radioButtonLabel}>{label}</Text>
   </TouchableOpacity>
 );
-
+interface tags {
+  name: string;
+  color: string;
+}
+interface data {
+  forYou: any;
+  popular: any;
+  trending: any;
+  activeTab: any;
+}
 const Search: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
-
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<tags[]>([]);
+  const [selectedTags, setSelectedTags] = useState([]);
   const [sortOption, setSortOption] = useState<string>("");
   const [isFiltersVisible, setIsFiltersVisible] = useState<boolean>(false); // State to manage filter visibility
   const { url } = useSelector((state: any) => state.user);
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<data>({
+    forYou: [],
+    popular: [],
+    trending: [],
+    activeTab: [],
+  });
   const [filteredData, setFilteredData] = useState([]);
+  const [activeTab, setActiveTab] = useState("forYou");
+
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
   };
   useEffect(() => {
-    
     fetchData();
   }, []);
   const fetchData = async () => {
     const res = await axios.get(`${url}/community/search`, {});
-    setData(res.data.forYou);
-    console.log(res.data.forYou );
-    setFilteredData(res.data.forYou);
-  }
+    const resTags = await axios.get(`${url}/tag`, {});
+    setData(res.data);
+    if (activeTab === "forYou") {
+      // Fetch data for the "For You" tab
+      setFilteredData(res.data.forYou);
+      console.log(res.data.forYou);
+    }
+    else if (activeTab === "popular") {
+      // Fetch data for the "Popular" tab
+      setFilteredData(res.data.popular);
+      console.log(res.data.popular);
+    }
+    else if (activeTab === "trending") {
+      // Fetch data for the "Trending" tab
+      setFilteredData(res.data.trending);
+      console.log(res.data.trending);
+    }
+    setTags(resTags.data);
+    console.log(resTags.data);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [])
+  );
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-
     try {
-      fetchData(); // This will now also update the avatarUri state
+      await fetchData(); // This will now also update the avatarUri state
     } catch (error) {
       console.error("Failed to refresh profile data:", error);
     }
@@ -99,32 +136,34 @@ const Search: React.FC = () => {
   }, []);
 
   const filterByCommunityName = (searchQuery) => {
-    if (data && data.length > 0) {
-      return data.filter((item) =>
+    if (filteredData && filteredData.length > 0) {
+      return filteredData.filter((item) =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     } else {
       return [];
     }
   };
-  
+  useEffect(() => {
+    if (activeTab === "forYou") {
+      // Fetch data for the "For You" tab
+      setFilteredData(data.forYou);
+    }
+    else if (activeTab === "popular") {
+      // Fetch data for the "Popular" tab
+      setFilteredData(data.popular);
+    }
+    else if (activeTab === "trending") {
+      // Fetch data for the "Trending" tab
+      setFilteredData(data.trending);
+    }
+  }
+  , [activeTab]);
+
   useEffect(() => {
     const filteredData = filterByCommunityName(searchQuery);
     setFilteredData(filteredData);
-  }
-  , [searchQuery]);
-
-  const tags = [
-    "Creativity",
-    "Creepy",
-    "Cramming",
-    "Craft",
-    "Car",
-    "Colour",
-    "Celebrate",
-    "Cat",
-    "Cookie",
-  ];
+  }, [searchQuery]);
 
   // Function to handle the selection of sort options
   const handleSortOptionChange = (option: string) => {
@@ -138,113 +177,138 @@ const Search: React.FC = () => {
 
   return (
     <>
-    <StatusBar barStyle="dark-content" />
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-
-    <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-      <View style={styles.searchBar}>
-        <Ionicons name="search" size={20} color="#000" />
-        <TextInput
-          placeholder="Search"
-          style={styles.searchInput}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        {searchQuery.length > 0 && (
-          <MaterialIcons
-            name="close"
-            size={20}
-            color="#000"
-            style={styles.closeIcon}
-            onPress={() => setSearchQuery("")}
-          />
-        )}
-        <TouchableOpacity onPress={toggleFiltersVisibility}>
-          <Ionicons name="options" size={20} color="#000" />
-        </TouchableOpacity>
-      </View>
-
-      {isFiltersVisible && (
-        <ScrollView style={styles.scrollView}>
-          <Text style={styles.filtersTitle}>Filters</Text>
-          <View style={styles.tagsContainer}>
-            {tags.map((tag) => (
-              <Tag
-                key={tag}
-                text={tag}
-                selected={selectedTags.includes(tag)}
-                onSelect={() => toggleTag(tag)}
-              />
-            ))}
-          </View>
-          <Text style={styles.sortTitle}>Sort By:</Text>
-          {[
-            "Community name",
-            "Community tags",
-            "Communities my friends are in",
-          ].map((option) => (
-            <RadioButton
-              key={option}
-              label={option}
-              value={option}
-              onPress={() => handleSortOptionChange(option)}
-              selectedValue={sortOption}
+      <StatusBar barStyle="dark-content" />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <ScrollView
+          style={styles.container}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
+          <View style={styles.searchBar}>
+            <Ionicons name="search" size={20} color="#000" />
+            <TextInput
+              placeholder="Search"
+              style={styles.searchInput}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
             />
-          ))}
-          <TouchableOpacity style={styles.resultsButton}>
-            <Text style={styles.resultsButtonText}>See all results</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      )}
-      {
-        filteredData && filteredData.length > 0 ? (
-          <View>
-            {filteredData.map((item) => (
-    <TouchableOpacity
-    style={styles.communityItem}
-    onPress={() => {
-      console.log(`/(pages)/CommunitiesPage`);
-      console.log(item);
-      router.push({
-        pathname: "/(pages)/CommunitiesPage", // The route name
-        params: {
-          communityId: item.id,
-          communityName: item.name,
-          communityStreak: item.streak,
-          communityTags: item.tags.map((tag) => {
-            return tag.name + " ";
-          }),
-          communityImage: `${url}/community/image/${item.id}.jpg`,
-        }, // Parameters as an object
-      });
-    }}
-  >
-    <ImageBackground
-      source={{ uri: `${url}/community/image/${item.id}.jpg` }}
-      style={styles.communityItemBackground}
-      imageStyle={styles.communityItemImageStyle}
-    >
-      <Text style={styles.communityTitle}>{item.name}</Text>
-      <View style={styles.textOverlay}>
-        <Text style={styles.communityStreak}>{item.streak}</Text>
-        <Text style={styles.communityTags}>
-          {item.tags.map((tag) => {
-            return tag.name + " ";
-          })}
-        </Text>
-      </View>
-    </ImageBackground>
-  </TouchableOpacity>
+            {searchQuery.length > 0 && (
+              <MaterialIcons
+                name="close"
+                size={20}
+                color="#000"
+                style={styles.closeIcon}
+                onPress={() => setSearchQuery("")}
+              />
+            )}
+            <TouchableOpacity onPress={toggleFiltersVisibility}>
+              <Ionicons name="options" size={20} color="#000" />
+            </TouchableOpacity>
+          </View>
+          {/* Tabs */}
+          <View style={styles.tabsContainer}>
+            {["forYou", "popular", "trending"].map((tab) => (
+              <TouchableOpacity
+                key={tab}
+                style={[styles.tab, activeTab === tab && styles.activeTab]}
+                onPress={() => setActiveTab(tab)}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeTab === tab && styles.activeTabText,
+                  ]}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </Text>
+              </TouchableOpacity>
             ))}
           </View>
-        ) : (
-          <View>
-            <Text>No results found</Text>
-          </View>
-        )
-      }
-    </ScrollView>
-    </TouchableWithoutFeedback>
+          {isFiltersVisible &&
+            (console.log(tags),
+            (
+              <ScrollView style={styles.scrollView}>
+                <Text style={styles.filtersTitle}>Filters</Text>
+                <View style={styles.tagsContainer}>
+                {tags.map((tag, index) => (
+                    <Tag
+                    key={`${tag.name}_${index}`} // Combining name and index for uniqueness
+                    text={tag.name}
+                      selected={selectedTags.includes(tag.name)}
+                      onSelect={() => toggleTag(tag.name)}
+                    />
+                  ))}
+                </View>
+                <Text style={styles.sortTitle}>Sort By:</Text>
+                {[
+                  "Community name",
+                  "Community tags",
+                  "Communities my friends are in",
+                ].map((option) => (
+                  <RadioButton
+                    key={option + "radio"}
+                    label={option}
+                    value={option}
+                    onPress={() => handleSortOptionChange(option)}
+                    selectedValue={sortOption}
+                  />
+                ))}
+                <TouchableOpacity style={styles.resultsButton}>
+                  <Text style={styles.resultsButtonText}>See all results</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            ))}
+
+          {filteredData && filteredData.length > 0 ? (
+            <View>
+              {filteredData.map((item, index) => (
+                <TouchableOpacity
+                  style={styles.communityItem}
+                  key={item.id || index} // Using item.id or index as a fallback
+
+                  onPress={() => {
+                    console.log(`/(pages)/CommunitiesPage`);
+                    console.log(item);
+                    router.push({
+                      pathname: "/(pages)/CommunitiesPage", // The route name
+                      params: {
+                        communityId: item.id,
+                        communityName: item.name,
+                        communityStreak: item.streak,
+                        communityTags: item.tags.map((tag) => {
+                          return tag.name + " ";
+                        }),
+                        communityImage: `${url}/community/image/${item.id}.jpg`,
+                      }, // Parameters as an object
+                    });
+                  }}
+                >
+                  <ImageBackground
+                    source={{ uri: `${url}/community/image/${item.id}.jpg` }}
+                    style={styles.communityItemBackground}
+                    imageStyle={styles.communityItemImageStyle}
+                  >
+                    <Text style={styles.communityTitle}>{item.name}</Text>
+                    <View style={styles.textOverlay}>
+                      <Text style={styles.communityStreak}>{item.streak}</Text>
+                      <Text style={styles.communityTags}>
+                        {item.tags.map((tag) => {
+                          return tag.name + " ";
+                        })}
+                      </Text>
+                    </View>
+                  </ImageBackground>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : (
+            <View>
+              <Text>No results found</Text>
+            </View>
+          )}
+        </ScrollView>
+      </TouchableWithoutFeedback>
     </>
   );
 };
@@ -396,6 +460,30 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     textAlign: "center",
+  },
+  tabsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 10,
+  },
+  tab: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: "#007bff",
+  },
+  tabText: {
+    color: "#ffffff",
+    fontSize: 16,
+  },
+  activeTabText: {
+    fontWeight: "bold",
+    color: "#007bff",
+  },
+  tabContent: {
+    padding: 20,
   },
 });
 export default Search;

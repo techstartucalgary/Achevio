@@ -1,3 +1,4 @@
+from typing import Any
 from uuid import UUID
 from sqlalchemy import select, orm
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -5,10 +6,15 @@ from litestar.exceptions import HTTPException
 
 from models.user_community_association import UserCommunityAssociation
 from models.community import Community
+from schemas.community import CommunityBaseSchema,CommunitySearchResultSchema
 
 from models.user import User
 from schemas.users import UserSchema
 
+from sqlalchemy import func
+
+from uuid_extensions import uuid7
+import asyncio
 
 async def get_community_list(session: AsyncSession, limit: int = 100, offset: int = 0) -> list[Community]:
     """
@@ -28,6 +34,20 @@ async def get_community_list(session: AsyncSession, limit: int = 100, offset: in
     
     # Return all community records as a list.
     return result.scalars().all()
+
+
+async def get_basic_community_list(session: AsyncSession, asc: bool = True) -> list[Community]:
+    query = select(Community).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.postdays)).options(orm.selectinload(Community.tags))
+    result = await session.execute(query)
+
+    vals = result.scalars().all()
+
+    if asc:
+        sorted(vals)
+    else:
+        sorted(vals, reverse=True)
+    return vals
+
 
 
 async def get_community_by_id(session: AsyncSession, id: UUID) -> Community:
@@ -54,6 +74,33 @@ async def get_community_by_id(session: AsyncSession, id: UUID) -> Community:
         # Raise an HTTP exception if there's an issue retrieving the community.
         raise HTTPException(status_code=401, detail="Error retrieving community")
 
+
+
+async def fetch_and_convert(session: AsyncSession, query):
+    result = await session.execute(query)
+    return [CommunityBaseSchema(**item.__dict__) for item in result.scalars().all()]
+
+
+
+async def search_communities(session: AsyncSession) -> CommunitySearchResultSchema:
+    popular_query = (
+        select(Community)
+        .options(orm.selectinload(Community.postdays))
+        .options(orm.selectinload(Community.tags))
+        .options(orm.selectinload(Community.users))
+        .group_by(Community.id)
+        .order_by(func.count().desc())
+    )
+    trending_query = select(Community).options(orm.selectinload(Community.postdays)).options(orm.selectinload(Community.tags)).order_by(Community.created_at)
+
+
+    for_you_query = select(Community).options(orm.selectinload(Community.postdays)).options(orm.selectinload(Community.tags)).order_by(Community.created_at)
+
+    popular = await fetch_and_convert(session, popular_query)
+    trending = await fetch_and_convert(session, trending_query)
+    for_you = await fetch_and_convert(session, for_you_query)
+    
+    return CommunitySearchResultSchema(popular=popular, trending=trending, for_you=for_you)
 
 async def get_community_by_name(session: AsyncSession, name: str) -> Community:
     """

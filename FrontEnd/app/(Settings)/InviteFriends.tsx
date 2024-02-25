@@ -1,12 +1,12 @@
-import React from "react";
-import { View, Text } from "react-native";
+import React from 'react'
+import {View,Text} from 'react-native'
 
 const InviteFriends = () => {
   return (
     <View>
-      <Text>InviteFriends</Text>
+        <Text>InviteFriends</Text>
     </View>
-  );
-};
+    )
+}
 
-export default InviteFriends;
+export default InviteFriends

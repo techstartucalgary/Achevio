@@ -1,17 +1,10 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-} from "react-native";
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 
 const ChangePassword: React.FC = () => {
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleChangePassword = () => {
     // Here, you would add your logic to change the password.
@@ -19,11 +12,11 @@ const ChangePassword: React.FC = () => {
     // then call an API to update the password.
 
     if (newPassword !== confirmPassword) {
-      Alert.alert("Error", "New password and confirmation do not match.");
+      Alert.alert('Error', 'New password and confirmation do not match.');
       return;
     }
 
-    console.log("Password changed successfully.");
+    console.log('Password changed successfully.');
     // Upon successful change, you could navigate back or show a success message.
   };
 
@@ -66,35 +59,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    justifyContent: "center",
-    backgroundColor: "#fff",
+    justifyContent: 'center',
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 22,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 20,
-    textAlign: "center",
+    textAlign: 'center',
   },
   input: {
-    width: "100%",
+    width: '100%',
     height: 40,
-    borderColor: "#ddd",
+    borderColor: '#ddd',
     borderWidth: 1,
     marginTop: 10,
     borderRadius: 5,
     paddingLeft: 10,
   },
   button: {
-    backgroundColor: "#4A90E2",
+    backgroundColor: '#4A90E2',
     marginTop: 20,
     padding: 10,
     borderRadius: 5,
-    alignItems: "center",
+    alignItems: 'center',
   },
   buttonText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 });
 

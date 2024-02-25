@@ -12,7 +12,6 @@ if TYPE_CHECKING:
 class Tag(UUIDBase):
     __tablename__ = 'tag_table'
     name: Mapped[str] = mapped_column(String(100), unique=True)
-    color: Mapped[str] = mapped_column(String(100), unique=True)
     
     # communities: Mapped[list['Community']] = relationship(
     #     secondary=community_postday_association,

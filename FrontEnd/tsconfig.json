@@ -1,14 +1,11 @@
 {
-  "compilerOptions": {
-    "esModuleInterop": true
-  },
+  "compilerOptions": { "esModuleInterop": true },
+  "extends": "expo/tsconfig.base",
   "include": [
     "**/*.ts",
     "**/*.tsx",
     "node_modules/expo/**/*.ts",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts",
-    "app/redux/store.tsx"
-  ],
-  "extends": "expo/tsconfig.base"
+    "expo-env.d.ts"
+, "app/redux/store.tsx"  ]
 }

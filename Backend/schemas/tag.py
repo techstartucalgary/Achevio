@@ -11,7 +11,6 @@ from .schema import Schema
 class TagSchema(Schema):
     # id: UUID
     name: str
-    color: str
     
 
 

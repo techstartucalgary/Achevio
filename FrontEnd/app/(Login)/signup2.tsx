@@ -21,10 +21,7 @@ type RootStackParamList = {
   // ... other screen definitions
 };
 
-type SignupScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "Signup"
->;
+type SignupScreenNavigationProp = StackNavigationProp<RootStackParamList, "Signup">;
 
 type Props = {
   navigation: SignupScreenNavigationProp;
@@ -91,10 +88,7 @@ export default function Signup2Screen() {
         Alert.alert("Success", "Signup successful!");
         // handle successful signup, like navigation or clearing the form
       } else {
-        Alert.alert(
-          "Error",
-          response.data.detail || "An unexpected error occurred."
-        );
+        Alert.alert("Error", response.data.detail || "An unexpected error occurred.");
       }
     } catch (error) {
       console.log("Error details:", error);
@@ -131,10 +125,7 @@ export default function Signup2Screen() {
       ) : (
         <>
           <Text style={styles.title}>Signup</Text>
-          <Image
-            source={require("../../assets/images/temp_rocket.png")}
-            style={styles.image}
-          />
+          <Image source={require("../../assets/images/temp_rocket.png")} style={styles.image} />
 
           <TextInput
             style={styles.input}
@@ -160,14 +151,9 @@ export default function Signup2Screen() {
             placeholderTextColor="#343a40"
             secureTextEntry
           />
-          <TouchableOpacity
-            style={styles.signupBtn}
-            onPress={postSignupInfo}
-            disabled={isLoading}
-          >
+          <TouchableOpacity style={styles.signupBtn} onPress={postSignupInfo} disabled={isLoading}>
             <Text style={styles.signupText}>Signup</Text>
           </TouchableOpacity>
-          <Text style={styles.navText}>---------------- OR ----------------</Text>
           <Link href="/login" asChild>
             <Pressable>
               <Text style={styles.navText}>Go back to Login</Text>

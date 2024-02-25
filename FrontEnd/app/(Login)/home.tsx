@@ -18,6 +18,7 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
+  const colorScheme = useColorScheme();
   const params = useLocalSearchParams();
   const slider = params.slide || 0;
 

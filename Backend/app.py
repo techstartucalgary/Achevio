@@ -93,5 +93,7 @@ app = Litestar(
         StaticFilesConfig(directories=['static/images/users'], path='/user/image'),
         StaticFilesConfig(directories=['static/images/posts'], path='/post/image'),
         StaticFilesConfig(directories=['static/images/communities'], path='/community/image'), # Images provided by Freepik
+        StaticFilesConfig(directories=['static/images/backgrounds'], path='/background/image'), # Images provided by Freepik
+
     ]
 )

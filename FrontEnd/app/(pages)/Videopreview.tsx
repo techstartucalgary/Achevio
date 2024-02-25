@@ -1,14 +1,14 @@
-import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { Video } from 'expo-av';
-import { useLocalSearchParams, router } from 'expo-router';
+import React from "react";
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { Video } from "expo-av";
+import { useLocalSearchParams, router } from "expo-router";
 
 export default function VideoPreviewPage() {
   const params = useLocalSearchParams();
   const videoUri = params.videoUri; // Assuming you pass the video URI as 'videoUri'
 
   const handleRetake = () => {
-    router.push('/Camera');
+    router.push("/Camera");
   };
 
   const handleProceed = () => {
@@ -16,7 +16,6 @@ export default function VideoPreviewPage() {
   };
 
   return (
-    
     <View style={styles.container}>
       <Video
         source={{ uri: videoUri.toString() }}
@@ -42,29 +41,29 @@ export default function VideoPreviewPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: '100%',
-    backgroundColor: 'black',
+    width: "100%",
+    backgroundColor: "black",
   },
   overlay: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 50,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
   },
   button: {
-    backgroundColor: '#ffffffa0',
+    backgroundColor: "#ffffffa0",
     padding: 15,
     borderRadius: 20,
     marginHorizontal: 20,
   },
   video: {
     flex: 1,
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   buttonText: {
     fontSize: 18,
-    color: '#000',
+    color: "#000",
   },
 });

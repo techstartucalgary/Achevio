@@ -76,8 +76,11 @@ const Collage: React.FC = () => {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.imageWrapper} onPress={() => handleImagePress(item.uri)}>
-      <Image source={{ uri: item.uri }} style={styles.image} />
+      <View style={styles.imageShadow}>
+        <Image source={{ uri: item.uri }} style={styles.image} />
+      </View>
     </TouchableOpacity>
+
   );
   const renderSection = ({ section }) => (
     <View style={styles.sectionContainer}>
@@ -87,7 +90,7 @@ const Collage: React.FC = () => {
         renderItem={renderItem}
         horizontal
         showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => `image-${item.id}`} // Ensure unique key for each item
         contentContainerStyle={styles.horizontalListContent}
       />
     </View>
@@ -138,6 +141,14 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     color: '#333', // Dark color for contrast and readability
   },
+  imageShadow: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3, // Now applied to the View, not the Image
+  },
+  
   horizontalListContent: {
     paddingLeft: 10,
   },

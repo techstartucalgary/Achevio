@@ -1,8 +1,8 @@
-import {Stack, Tabs} from "expo-router";
+import { Stack, Tabs } from "expo-router";
 import React from "react";
 import Colors from "../../constants/Colors";
-import { Pressable, useColorScheme } from "react-native";
-import {FontAwesome as vectorIcon } from "@expo/vector-icons";
+import { Pressable, StatusBar, useColorScheme } from "react-native";
+import { FontAwesome as vectorIcon } from "@expo/vector-icons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import HomeIcon from "../../assets/icons/homeIcon";
 import CameraIcon from "../../assets/icons/CameraIcon";
@@ -18,37 +18,47 @@ function TabBarIcon(props: {
 const ScreenLayout = () => {
   return (
     <Tabs screenOptions={{ headerShown: false }}>
-      <Tabs.Screen name="Communities" 
-      options={{
-        tabBarIcon: ({ color }) => <TabBarIcon name="users" color={color} />,
-        headerShown: false,
-        tabBarLabel: '',
-      }}>
-      </Tabs.Screen>
-      <Tabs.Screen name="Search" options={{
-        tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
-        headerShown: false,
-        tabBarLabel: ''
-      
-      }} />
-      <Tabs.Screen name="Camera" options ={{
-        tabBarIcon: ({ color }) => <TabBarIcon name="camera" color={color} />,
-        headerShown: false,
-        tabBarLabel: ''
-      }}/>
-      <Tabs.Screen name="Collage" options ={{
-        tabBarIcon: ({ color }) => <TabBarIcon name="photo" color={color} />,
-        headerShown: false,
-        tabBarLabel: ''
-      
-      }}/>
-      <Tabs.Screen name="Profile" options={{
-        tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
-        headerShown: false,
-        tabBarLabel: ''
-      }} />
-      
+      <Tabs.Screen
+        name="Communities"
+        options={{
+          tabBarIcon: ({ color }) => <TabBarIcon name="users" color={color} />,
+          headerShown: false,
+          tabBarLabel: "",
+        }}
+      ></Tabs.Screen>
+      <Tabs.Screen
+        name="Search"
+        options={{
+          tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+          headerShown: false,
+          tabBarLabel: "",
+        }}
+      />
+      <Tabs.Screen
+        name="Camera"
+        options={{
+          tabBarIcon: ({ color }) => <TabBarIcon name="camera" color={color} />,
+          headerShown: false,
+          tabBarLabel: "",
+        }}
+      />
+      <Tabs.Screen
+        name="Collage"
+        options={{
+          tabBarIcon: ({ color }) => <TabBarIcon name="photo" color={color} />,
+          headerShown: false,
+          tabBarLabel: "",
+        }}
+      />
+      <Tabs.Screen
+        name="Profile"
+        options={{
+          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          headerShown: false,
+          tabBarLabel: "",
+        }}
+      />
     </Tabs>
   );
-}
-export default ScreenLayout
+};
+export default ScreenLayout;

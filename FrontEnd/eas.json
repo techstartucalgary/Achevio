@@ -1,18 +1,18 @@
 {
-  "cli": {
-    "version": ">= 7.1.3"
-  },
-  "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
+    "cli": {
+      "version": ">= 7.1.3"
     },
-    "preview": {
-      "distribution": "internal"
+    "build": {
+      "development": {
+        "developmentClient": true,
+        "distribution": "internal"
+      },
+      "preview": {
+        "distribution": "internal"
+      },
+      "production": {}
     },
-    "production": {}
-  },
-  "submit": {
-    "production": {}
+    "submit": {
+      "production": {}
+    }
   }
-}

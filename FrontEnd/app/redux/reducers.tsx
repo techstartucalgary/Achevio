@@ -1,9 +1,10 @@
-import { SET_URL, SET_USERNAME, SET_THEME, SET_USERID } from "./actions";
+import { SET_URL, SET_USERNAME, SET_THEME, SET_USERID, SET_ACCESS_TOKEN } from "./actions";
 const initialState = {
-    url: "http://10.14.158.194:8000",
+    url: "http://10.0.0.220:8000",
     username: "",
     theme: "dark",
     userId: "",
+    accessToken: "",
 };
 function userReducer(state = initialState, action) {
     switch (action.type) {
@@ -15,6 +16,8 @@ function userReducer(state = initialState, action) {
             return { ...state, theme: action.payload}
         case SET_USERID:
             return { ...state, userId: action.payload}
+        case SET_ACCESS_TOKEN:
+            return { ...state, accessToken: action.payload}
         default:
             return state;
     }

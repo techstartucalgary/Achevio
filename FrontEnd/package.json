@@ -29,6 +29,7 @@
     "expo-av": "^13.10.3",
     "expo-camera": "~13.4.4",
     "expo-crypto": "~12.4.1",
+    "expo-dev-client": "~2.4.12",
     "expo-font": "~11.4.0",
     "expo-image-manipulator": "^11.5.0",
     "expo-image-picker": "~14.3.2",
@@ -65,8 +66,7 @@
     "redux-thunk": "^3.1.0",
     "swiper": "^11.0.5",
     "tsc": "^2.0.4",
-    "webgltexture-loader-expo-camera": "^2.0.0",
-    "expo-dev-client": "~2.4.12"
+    "webgltexture-loader-expo-camera": "^2.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

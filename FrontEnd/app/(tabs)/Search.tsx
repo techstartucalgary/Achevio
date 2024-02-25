@@ -101,22 +101,23 @@ const Search: React.FC = () => {
     setData(res.data);
     if (activeTab === "forYou") {
       // Fetch data for the "For You" tab
-      setFilteredData(data.forYou);
-      console.log(data.forYou);
+      setFilteredData(res.data.forYou);
+      console.log(res.data.forYou);
     }
     else if (activeTab === "popular") {
       // Fetch data for the "Popular" tab
-      setFilteredData(data.popular);
-      console.log(data.popular);
+      setFilteredData(res.data.popular);
+      console.log(res.data.popular);
     }
     else if (activeTab === "trending") {
       // Fetch data for the "Trending" tab
-      setFilteredData(data.trending);
-      console.log(data.trending);
+      setFilteredData(res.data.trending);
+      console.log(res.data.trending);
     }
     setTags(resTags.data);
     console.log(resTags.data);
   };
+
   useFocusEffect(
     useCallback(() => {
       fetchData();
@@ -230,10 +231,10 @@ const Search: React.FC = () => {
               <ScrollView style={styles.scrollView}>
                 <Text style={styles.filtersTitle}>Filters</Text>
                 <View style={styles.tagsContainer}>
-                  {tags.map((tag) => (
+                {tags.map((tag, index) => (
                     <Tag
-                      key={tag.name}
-                      text={tag.name}
+                    key={`${tag.name}_${index}`} // Combining name and index for uniqueness
+                    text={tag.name}
                       selected={selectedTags.includes(tag.name)}
                       onSelect={() => toggleTag(tag.name)}
                     />
@@ -246,7 +247,7 @@ const Search: React.FC = () => {
                   "Communities my friends are in",
                 ].map((option) => (
                   <RadioButton
-                    key={option}
+                    key={option + "radio"}
                     label={option}
                     value={option}
                     onPress={() => handleSortOptionChange(option)}
@@ -261,9 +262,11 @@ const Search: React.FC = () => {
 
           {filteredData && filteredData.length > 0 ? (
             <View>
-              {filteredData.map((item) => (
+              {filteredData.map((item, index) => (
                 <TouchableOpacity
                   style={styles.communityItem}
+                  key={item.id || index} // Using item.id or index as a fallback
+
                   onPress={() => {
                     console.log(`/(pages)/CommunitiesPage`);
                     console.log(item);

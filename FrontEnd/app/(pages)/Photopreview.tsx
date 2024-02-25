@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from "react";
 import {
   View,
-  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -13,6 +12,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, router } from "expo-router";
 import axios from "axios";
 import { LinearGradient } from "expo-linear-gradient";
+import { Image } from 'expo-image';
 
 export default function PhotoPreviewPage() {
   const params = useLocalSearchParams();

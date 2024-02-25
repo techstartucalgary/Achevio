@@ -3,7 +3,6 @@ import {
   StyleSheet,
   View,
   Text,
-  Image,
   ScrollView,
   Switch,
   TouchableOpacity,
@@ -18,6 +17,8 @@ import { useSelector, useDispatch } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 import { AreYouSure } from "../../components/PopUpMessages";
 import { setUserId } from "../redux/actions";
+import { Image } from 'expo-image';
+
 // Dummy fallback data
 const fallbackData = {
   username: "John Doe",
@@ -70,7 +71,7 @@ const ProfilePage: React.FC = () => {
   const [userIDAgain, setUserIDAgain] = useState("");
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [avatarUri, setAvatarUri] = useState(
-    "https://i.pravatar.cc/150?img=68"
+    "https://static.vecteezy.com/system/resources/previews/026/619/142/non_2x/default-avatar-profile-icon-of-social-media-user-photo-image-vector.jpg"
   );
   const [refreshing, setRefreshing] = useState(false);
   const dispatch = useDispatch();

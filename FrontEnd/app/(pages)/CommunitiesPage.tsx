@@ -3,7 +3,6 @@ import {
   Animated,
   View,
   Text,
-  Image,
   StyleSheet,
   FlatList,
   Dimensions,
@@ -15,6 +14,7 @@ import {
   Pressable,
   PanResponder,
 } from "react-native";
+import { Image } from 'expo-image';
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { set } from "date-fns";
@@ -58,6 +58,8 @@ const CommunityPage: React.FC = () => {
     communityTags,
     communityImage,
   } = params;
+  const [showReactionMenu, setShowReactionMenu] = useState(false);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
@@ -65,7 +67,23 @@ const CommunityPage: React.FC = () => {
   const screenHeight = Dimensions.get("window").height;
   const [isFollowersModalVisible, setIsFollowersModalVisible] = useState(false);
   const [followers, setFollowers] = useState([]);
+  const ReactionMenu = () => {
+    return (
+      <View style={styles.reactionMenu}>
+        {/* Icons represent reactions, you can use images or icons from a library like react-native-vector-icons */}
+        <Text style={styles.reactionIcon}>👍</Text>
+        <Text style={styles.reactionIcon}>❤️</Text>
+        <Text style={styles.reactionIcon}>😂</Text>
+        <Text style={styles.reactionIcon}>😮</Text>
+        <Text style={styles.reactionIcon}>😢</Text>
+        <Text style={styles.reactionIcon}>😡</Text>
+      </View>
+    );
+  };
 
+const handleLongPress = () => {
+  setShowReactionMenu(true);
+};
   const fetchPosts = async () => {
     console.log("Fetching posts for community:", communityId);
     try {
@@ -248,10 +266,14 @@ const CommunityPage: React.FC = () => {
               />
               <Text style={styles.username}>{post.user}</Text>
             </View>
+            <TouchableOpacity onLongPress={handleLongPress} onPressOut={() => setShowReactionMenu(false)}>
+
             <Image
               source={{ uri: post.imageUrl }}
               style={styles.modalPostImage}
             />
+              {showReactionMenu && <ReactionMenu />}
+            </TouchableOpacity>
 
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>{post.title}</Text>
@@ -281,6 +303,19 @@ const CommunityPage: React.FC = () => {
           <View style={styles.modalContainer}>
             <FlatList
               data={followers}
+              ListHeaderComponent={
+                <Text
+                  style={{
+                    fontSize: 24,
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    padding: 10,
+                  }}
+                >
+                  Followers
+                </Text>
+              
+              }
               renderItem={({ item }) => (
                 console.log("Item:", item),
                 (
@@ -289,14 +324,6 @@ const CommunityPage: React.FC = () => {
                       flexDirection: "column",
                     }}
                   >
-                  <Text style = 
-                  {{
-                    fontSize: 18,
-                    color: "black",
-                    padding: 10,
-                    textAlign: "center",
-                  }}
-                  >Total Followers: {followers.length}</Text>
                   <View style={styles.userInfo}>
                     <Image
                       source={{ uri: item.userImage }} // Use the correct property to set the image source
@@ -434,8 +461,8 @@ const CommunityPage: React.FC = () => {
           ListHeaderComponent={renderHeader}
           renderItem={renderPost}
           keyExtractor={(item) => item.id}
-          numColumns={selectedPostId ? 1 : 2}
-          columnWrapperStyle={!isLargeView ? styles.row : null}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
           showsVerticalScrollIndicator={false}
         />
         <PostDetailModal
@@ -756,6 +783,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginTop: 10,
+  },
+  reactionMenu: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 50, // Adjust based on your UI
+    backgroundColor: '#FFF',
+    borderRadius: 20,
+    padding: 5,
+  },
+  reactionIcon: {
+    fontSize: 30, // Adjust based on your UI
+    marginHorizontal: 5,
   },
 });
 export default CommunityPage;

@@ -20,7 +20,6 @@ export default function GoogleLoginButton() {
   });
   React.useEffect(() => {
     const redirectUri = AuthSession.makeRedirectUri();
-    console.log("Redirect URI:", redirectUri);
   }, []);
   React.useEffect(() => {
     if (response?.type === "success" && response.authentication) {

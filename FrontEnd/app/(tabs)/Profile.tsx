@@ -9,6 +9,7 @@ import {
   Alert,
   RefreshControl,
   Pressable,
+  ImageBackground,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -205,8 +206,10 @@ const ProfilePage: React.FC = () => {
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
+      showsVerticalScrollIndicator={false}
     >
-      <View style={styles.headerContainer}>
+      <View style={{ alignItems: "center" }}>
+        <ImageBackground source={{ uri: avatarUri }}style={styles.headerContainer}>
         <Text style={styles.title}>Profile</Text>
         <Text style={styles.username}>{username}</Text>
         <TouchableOpacity
@@ -219,6 +222,7 @@ const ProfilePage: React.FC = () => {
         >
           <Image source={{ uri: avatarUri }} style={styles.avatar} />
         </TouchableOpacity>
+        </ImageBackground>
       </View>
 
       <View style={styles.sectionContainerTop}>
@@ -292,23 +296,22 @@ const ProfilePage: React.FC = () => {
     </ScrollView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212", // Darker background for the main container
   },
   headerContainer: {
     alignItems: "center",
-    backgroundColor: "#ADD8E6",
     height: 220,
-    padding: 30,
     marginBottom: 30,
+    width: "100%",
+
   },
   title: {
     fontSize: 26,
     fontWeight: "bold",
-    color: "black",
+    color: "#ffffff", // White color for better readability
     paddingVertical: 20,
   },
   avatar: {
@@ -317,12 +320,13 @@ const styles = StyleSheet.create({
     borderRadius: 80,
     marginBottom: 10,
     top: 15,
-    borderColor: "white",
+    borderColor: "white", // Keeping the white border for contrast
     borderWidth: 4,
   },
   username: {
     fontSize: 22,
     fontWeight: "bold",
+    color: "#ffffff", // Changed to white for readability against dark background
   },
   sectionContainerTop: {
     paddingTop: 40,
@@ -332,6 +336,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     padding: 10,
+    color: "#ffffff", // White for text to ensure it stands out
   },
   option: {
     flexDirection: "row",
@@ -339,13 +344,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
+    borderBottomColor: "#373737", // Darker color for the line to be subtle
   },
   optionText: {
     fontSize: 16,
+    color: "#ffffff", // White for readability
   },
   button: {
-    backgroundColor: "black",
+    backgroundColor: "#373737", // A dark but slightly lighter shade for buttons
     padding: 5,
     borderRadius: 20,
     marginTop: 0,
@@ -364,6 +370,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     left: 190,
     zIndex: 100,
+    backgroundColor: "#242424", // Make sure the edit button also fits the dark theme
   },
 });
 

@@ -13,7 +13,7 @@ import {
   StatusBar,
 } from "react-native";
 import { getDayOfYear, getISODay } from "date-fns";
-import { router, useFocusEffect, useLocalSearchParams, useSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
@@ -145,13 +145,10 @@ const Communities = () => {
   const fetchCommunities = async () => {
     try {
       const response = await axios.get(`${url}/user/myCommunities`);
-      console.log(response.data);
       dispatch({ type: "SET_USERID", payload: response.data.id });
 
       if (response.status === 200) {
         setCommunities(response.data);
-        console.log("Communities fetched successfully");
-        console.log(communities);
       } else {
         console.error("Failed to fetch communities:", response.status);
       }
@@ -171,7 +168,6 @@ const Communities = () => {
       //     setPostData((prev) => [...prev, ...posts]);
       //   });
       // }
-      // console.log("postData", postData);
      
     }, [])
   );
@@ -223,8 +219,6 @@ const Communities = () => {
     <TouchableOpacity
       style={styles.communityItem}
       onPress={() => {
-        console.log(`/(pages)/CommunitiesPage`);
-        console.log(item);
         router.push({
           pathname: "/(pages)/CommunitiesPage", // The route name
           params: {
@@ -296,7 +290,6 @@ const Communities = () => {
     try {
       const response = await axios.get(`${url}/posts/community/${communityId}`);
       if (response.status === 200) {
-        console.log(`Posts fetched successfully for community ${communityId}`);
         return response.data; // Assuming the response data is the list of posts
       } else {
         console.error(`Failed to fetch posts for community ${communityId}:`, response.status);

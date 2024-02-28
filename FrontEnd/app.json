@@ -19,6 +19,7 @@
     },
     "android": {
       "package": "com.Techstart.achievio",
+      
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000"

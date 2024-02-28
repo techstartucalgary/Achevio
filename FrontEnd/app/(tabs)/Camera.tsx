@@ -31,7 +31,6 @@ export default function CameraPage() {
   const [isRecording, setIsRecording] = useState(false); // Add state for video recording
   const cameraRef = useRef<Camera>(null);
   const [isFocused, setIsFocused] = useState(false);
-const [isLoading, setIsLoading] = useState(false);
 
 
   useFocusEffect(
@@ -102,7 +101,6 @@ const [isLoading, setIsLoading] = useState(false);
       videoRecordPromise.then((data) => {
         setIsRecording(false);
         // Handle the recorded video data (e.g., save or upload)
-        console.log(data.uri);
         router.push({
           pathname: '/(pages)/Videopreview',
           params: { videoUri: data.uri }, // Parameters as an object
@@ -120,26 +118,19 @@ const [isLoading, setIsLoading] = useState(false);
   // Capture Photo
   const takePicture = async () => {
     if (cameraRef.current) {
-      console.log('Taking picture');
-      setIsLoading(true); // Start loading
       const photoData = await cameraRef.current.takePictureAsync();
-      console.log('photoData:', photoData);
   
       let uri = photoData.uri;
   
       // Automatically mirror the image if using the front camera
       if (type === CameraType.front) {
-        console.log('Mirroring image');
         const mirroredImage = await manipulateAsync(
           uri,
-          [{ flip: FlipType.Horizontal }], // Flip horizontally to mirror the image
+          [{ flip: FlipType.Horizontal }],
           { format: SaveFormat.JPEG }
         );
-        console.log('Mirrored image:', mirroredImage);
         uri = mirroredImage.uri; // Use the mirrored image URI for further processing
       }
-  
-      setIsLoading(false); // End loading
   
       // Proceed to use the image URI as needed, for example, navigating to a preview screen
       router.push({
@@ -154,11 +145,6 @@ const [isLoading, setIsLoading] = useState(false);
     <StatusBar barStyle="light-content" />
     {isFocused && (
       <Camera style={styles.camera} type={type} flashMode={flashMode} ref={cameraRef} />
-    )}
-    {isLoading && (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
     )}
       <View style={styles.buttonContainer}>
           {/* Capture Button */}

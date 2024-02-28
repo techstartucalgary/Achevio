@@ -65,9 +65,7 @@ export default function SignupScreen() {
   };
 
   const postSignupInfo = async () => {
-    console.log("signup has been pressed"); // for debugging
     if (!validateInput()) {
-      console.log("validateInput failed"); // for debugging
       return;
     }
     setIsLoading(true);
@@ -95,19 +93,13 @@ export default function SignupScreen() {
         Alert.alert("Error", response.data.detail || "An unexpected error occurred.");
       }
     } catch (error) {
-      console.log("Error details:", error);
       // Check for additional details
       if (error.response) {
         // The request was made and the server responded with a status code
-        console.log(error.response.data);
-        console.log(error.response.status);
-        console.log(error.response.headers);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log(error.request);
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Error", error.message);
       }
     } finally {
       setIsLoading(false);

@@ -14,7 +14,6 @@ const EditProfile: React.FC = () => {
 
   const handleSubmit = () => {
     // Handle the submit action here. For example, update the user profile.
-    console.log("Profile Updated:", { name, email, bio });
     // After updating, you might want to navigate back or show a success message
   };
 

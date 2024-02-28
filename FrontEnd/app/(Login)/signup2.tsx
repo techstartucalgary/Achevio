@@ -63,9 +63,7 @@ export default function Signup2Screen() {
   };
 
   const postSignupInfo = async () => {
-    console.log("signup has been pressed"); // for debugging
     if (!validateInput()) {
-      console.log("validateInput failed"); // for debugging
       return;
     }
     setIsLoading(true);
@@ -97,19 +95,13 @@ export default function Signup2Screen() {
         );
       }
     } catch (error) {
-      console.log("Error details:", error);
       // Check for additional details
       if (error.response) {
         // The request was made and the server responded with a status code
-        console.log(error.response.data);
-        console.log(error.response.status);
-        console.log(error.response.headers);
       } else if (error.request) {
         // The request was made but no response was received
-        console.log(error.request);
       } else {
         // Something happened in setting up the request that triggered an Error
-        console.log("Error", error.message);
       }
     } finally {
       setIsLoading(false);
@@ -118,7 +110,6 @@ export default function Signup2Screen() {
   const getRequest = async () => {
     try {
       const response = await axios.get("http://10.13.85.26:8000/user");
-      console.log(response.data);
     } catch (error) {
       console.error(error);
     }

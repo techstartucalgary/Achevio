@@ -23,7 +23,6 @@ const ChangePassword: React.FC = () => {
       return;
     }
 
-    console.log("Password changed successfully.");
     // Upon successful change, you could navigate back or show a success message.
   };
 

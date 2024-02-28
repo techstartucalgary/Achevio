@@ -37,7 +37,6 @@ const SelectCommunities = () => {
         setCommunities(response.data);
       })
       .catch((error) => console.error("Error fetching communities:", error));
-    console.log(res);
   }, []);
 
   const handleSelectCommunity = (id: string) => {
@@ -60,8 +59,7 @@ const SelectCommunities = () => {
     } as any);
     formData.append("title", title as string);
     formData.append("caption", caption as string);
-    formData.append("communities_id", selectedCommunities.join(",") as string);
-
+    formData.append("communities_id", selectedCommunities.join(","));
     axios
       .post(`${url}/user/post`, formData, {
         headers: {
@@ -69,7 +67,6 @@ const SelectCommunities = () => {
         },
       })
       .then((response) => {
-        console.log("Response:", response);
         router.push("/(tabs)/Communities");
       })
       .catch((error) => console.error("Error uploading image:", error))

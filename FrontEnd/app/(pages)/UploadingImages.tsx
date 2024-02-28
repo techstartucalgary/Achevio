@@ -38,17 +38,12 @@ const UploadingImages: React.FC = () => {
         postdays: postDaysPayload, // Send as an array of objects
         tags: tagsPayload, // Send as an array of objects
       });
-      console.log("Response:", res);
-      console.log("Community created successfully:", res.data);
-      console.log("formData:", formData); 
       const uploadImg = await axios.put(`${url}/community/${res.data.id}/image`, formData, {
         headers: {
           "content-type": "multipart/form-data",
         },
       });
-      console.log('uploadImg:', uploadImg);
       if (res.status === 201 && uploadImg.status === 200) {
-        console.log("Community created successfully:", res.data);
         router.push("/(tabs)/Communities");
       }
     } catch (error) {
@@ -70,7 +65,6 @@ const UploadingImages: React.FC = () => {
         quality: 1,
       });
       if (pickerResult.canceled) {
-        console.log("Image picker canceled");
         return;
       }
       let localUri = pickerResult.assets[0].uri;

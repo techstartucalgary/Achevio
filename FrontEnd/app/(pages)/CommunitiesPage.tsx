@@ -13,10 +13,11 @@ import {
   Alert,
   Pressable,
   PanResponder,
+  ActivityIndicator,
 } from "react-native";
 import { Image } from 'expo-image';
 import { LinearGradient } from "expo-linear-gradient";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { set } from "date-fns";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import {
@@ -28,6 +29,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { setUsername } from "../redux/actions";
+import LottieView from 'lottie-react-native';
 
 const screenWidth = Dimensions.get("window").width;
 type Post = {
@@ -51,6 +53,7 @@ const CommunityPage: React.FC = () => {
   const params = useLocalSearchParams();
   const [postData, setPostData] = useState<Post[]>([]);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [ refreshing, setRefreshing ] = useState(false);
   const {
     communityId,
     communityName,
@@ -98,6 +101,7 @@ const handleLongPress = () => {
               const usernameResponse = await axios.get(
                 `${url}/user/GetNameByID/${post.user_id}`
               );
+              console.log("userid", post.user_id);
               const username = usernameResponse.data; // Assuming this is the username directly
 
               return {
@@ -112,8 +116,8 @@ const handleLongPress = () => {
             }
           })
         );
-
         setPostData(postsWithUsernames);
+        console.log("Posts:", postsWithUsernames);
       }
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -146,7 +150,9 @@ const handleLongPress = () => {
     }
   };
 
-  useEffect(() => {
+useFocusEffect(
+  useCallback(() => {
+
     const fetchData = async () => {
       console.log(
         "Communities:",
@@ -155,17 +161,21 @@ const handleLongPress = () => {
         communityStreak,
         communityTags
       );
+      setRefreshing(true);
+      await fetchPosts();
+      await fetchFollowers();
       const communityTagArray = Array.isArray(communityTags)
         ? communityTags
         : communityTags.split(",");
-      console.log("Community Tags:", communityTagArray);
       setCommunityTagArray(communityTagArray);
-      await fetchPosts();
-      await fetchFollowers();
+      setRefreshing(false);
+
     };
 
     fetchData();
-  }, [communityId, communityName, communityStreak, communityTags]);
+  }
+  , [communityId])
+  );
 
   const renderPost = ({ item }: { item: Post }) => {
     return (
@@ -176,8 +186,7 @@ const handleLongPress = () => {
         }}
         style={styles.post}
       >
-        <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
-        <Text style={styles.postTitle}>{item.title}</Text>
+        <Image source={{ uri: item.imageUrl }} style={styles.postImage} cachePolicy="memory-disk" />
       </TouchableOpacity>
     );
   };
@@ -260,21 +269,23 @@ const handleLongPress = () => {
             {...panResponder.panHandlers}
           >
             <View style={styles.userInfoContainer}>
+              
               <Image
                 source={{ uri: post.userImage }}
                 style={styles.userImage}
               />
               <Text style={styles.username}>{post.user}</Text>
             </View>
-            <TouchableOpacity onLongPress={handleLongPress} onPressOut={() => setShowReactionMenu(false)}>
 
-            <Image
+            <Pressable onLongPress={handleLongPress} onPressOut={() => setShowReactionMenu(false)}>
+              <Image
               source={{ uri: post.imageUrl }}
               style={styles.modalPostImage}
             />
               {showReactionMenu && <ReactionMenu />}
-            </TouchableOpacity>
 
+            </Pressable>
+            
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>{post.title}</Text>
 
@@ -344,7 +355,6 @@ const handleLongPress = () => {
               )}
               keyExtractor={(item, index) => item.username + index} // Use a unique key for each item
             />
-
             <TouchableOpacity
               style={styles.closeButton}
               onPress={() => setIsFollowersModalVisible(false)}
@@ -448,23 +458,37 @@ const handleLongPress = () => {
       fadeAnim,
     ]
   );
-
+  const CustomLoadingScreen = () => {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <LottieView
+          source={require('../../assets/rocketLoad.json')}
+          autoPlay
+          loop
+          style={styles.animation}
+        />
+      </View>
+    );
+  };
   return (
     <Animated.View
       style={{ flex: 1, opacity: fadeAnim, marginTop: 0, padding: 0 }}
     >
       <Pressable onPress={() => setIsMenuVisible(false)} style={{ flex: 1 }}>
+        {
+          refreshing ? <CustomLoadingScreen /> :
         <FlatList
           style={{ borderRadius: 25, overflow: "hidden" }}
           key={selectedPostId ? "single-column" : "multi-column"} // Unique key based on layout
           data={postData}
           ListHeaderComponent={renderHeader}
           renderItem={renderPost}
-          keyExtractor={(item) => item.id}
           numColumns={2}
-          columnWrapperStyle={styles.row}
+          keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
         />
+        }
+
         <PostDetailModal
           isVisible={modalVisible}
           post={selectedPost}
@@ -525,6 +549,10 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+  },
+  animation: {
+    width: 120, // Adjust the size as needed
+    height: 120, // Adjust the size as needed
   },
   gradientHeader: {
     position: "absolute",

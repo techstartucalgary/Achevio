@@ -22,7 +22,6 @@ export default function TabLayout() {
   const slider = params.slide || 0;
 
   useEffect(() => {
-    console.log("home");
   }, []);
   return (
     <Swiper

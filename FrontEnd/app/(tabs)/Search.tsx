@@ -17,6 +17,7 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { router, useFocusEffect } from "expo-router";
+import { Image } from "expo-image";
 
 type TagProps = {
   text: string;
@@ -102,20 +103,16 @@ const Search: React.FC = () => {
     if (activeTab === "forYou") {
       // Fetch data for the "For You" tab
       setFilteredData(res.data.forYou);
-      console.log(res.data.forYou);
     }
     else if (activeTab === "popular") {
       // Fetch data for the "Popular" tab
       setFilteredData(res.data.popular);
-      console.log(res.data.popular);
     }
     else if (activeTab === "trending") {
       // Fetch data for the "Trending" tab
       setFilteredData(res.data.trending);
-      console.log(res.data.trending);
     }
     setTags(resTags.data);
-    console.log(resTags.data);
   };
 
   useFocusEffect(
@@ -226,7 +223,6 @@ const Search: React.FC = () => {
             ))}
           </View>
           {isFiltersVisible &&
-            (console.log(tags),
             (
               <ScrollView style={styles.scrollView}>
                 <Text style={styles.filtersTitle}>Filters</Text>
@@ -258,7 +254,8 @@ const Search: React.FC = () => {
                   <Text style={styles.resultsButtonText}>See all results</Text>
                 </TouchableOpacity>
               </ScrollView>
-            ))}
+            )}
+
 
           {filteredData && filteredData.length > 0 ? (
             <View>
@@ -268,8 +265,6 @@ const Search: React.FC = () => {
                   key={item.id || index} // Using item.id or index as a fallback
 
                   onPress={() => {
-                    console.log(`/(pages)/CommunitiesPage`);
-                    console.log(item);
                     router.push({
                       pathname: "/(pages)/CommunitiesPage", // The route name
                       params: {
@@ -284,10 +279,9 @@ const Search: React.FC = () => {
                     });
                   }}
                 >
-                  <ImageBackground
+                  <Image
                     source={{ uri: `${url}/community/image/${item.id}.jpg` }}
                     style={styles.communityItemBackground}
-                    imageStyle={styles.communityItemImageStyle}
                   >
                     <Text style={styles.communityTitle}>{item.name}</Text>
                     <View style={styles.textOverlay}>
@@ -298,7 +292,7 @@ const Search: React.FC = () => {
                         })}
                       </Text>
                     </View>
-                  </ImageBackground>
+                  </Image>
                 </TouchableOpacity>
               ))}
             </View>

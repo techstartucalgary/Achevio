@@ -119,11 +119,9 @@ export default function LoginScreen() {
     const res = await postLoginInfo(inputUsername, password);
     setLoading(false);
     if (res && responseCheck(res)) {
-      console.log("Success login");
       setErrorMessageVisible(false);
       dispatch({ type: "SET_USERNAME", payload: inputUsername });
       const response = await axios.get(`${url}/user/me`);
-      console.log(response.data);
       dispatch({ type: "SET_USERID", payload: response.data.id });
       router.push("/(tabs)/Camera");
     } else {

@@ -17,13 +17,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from uuid_extensions import uuid7
 import aiofiles
 
-from schemas.users import CreateUserDTO, UserSchema, UserOutDTO, UpdateUserDTO
+from schemas.users import CreateUserDTO, UserSchema, UserOutDTO, UpdateUserDTO, BasicUserOutDTO
 from schemas.community import CommunitySchema, CreateCommunityDTO, ViewCommunityDTO
 from schemas.post import PostSchema, CreatePostSchema, PostDTO, CreatePostDTO, CreateMultiplePostDTO, CreateMultiplePostSchema
 from models.user import User
 from models.community import Community
 from models.post import Post
-from crud.users import get_user_by_username, get_user_by_id,get_user_list, user_join_community, user_leave_community, transfer_community_ownership, get_user_communities
+from crud.users import get_user_by_username, get_user_by_id,get_user_list, user_join_community, user_leave_community, transfer_community_ownership, get_user_communities, get_friends_by_id
 from crud.postday import get_postday_by_name
 from crud.tag import get_tag_by_name
 from .auth import oauth2_auth
@@ -43,7 +43,7 @@ class UserController(Controller):
     async def update_user(self, session: AsyncSession, request: 'Request[User, Token, Any]', data: DTOData[UserSchema]) -> str:
         user = await get_user_by_id(session, request.user)
         data.update_instance(user)
-        return "chill"
+        return "User Updated"
 
 
 
@@ -294,5 +294,17 @@ class UserController(Controller):
         friend = await get_user_by_id(session, friend_id)
         user.friends.append(friend)
         return "Added friend!"
+    
+
+    @post('/friends', return_dto=BasicUserOutDTO) # WIP
+    async def get_friends(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> list[UserSchema]:
+        user = await get_user_by_id(session, request.user)
+        return user.friends
+        # return user.friends
+    
+
+
+
+    # @post('/featured-posts')
 
 

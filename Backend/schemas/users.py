@@ -25,6 +25,7 @@ class UserSchema(Schema):
     updated_at: datetime
     is_active: bool
     last_login: datetime
+    # friends: list[UserSchema]
 
     posts: "list[PostSchema]" = []
     
@@ -60,6 +61,13 @@ class UserOutDTO(UserDTO):
         include={'id', 'username', 'first_name', 'last_name', 'email', 'created_at', 'updated_at', 'is_active', 'last_login', 'communities'},
         max_nested_depth=2,
     )
+
+class BasicUserOutDTO(UserDTO):
+    config = DTOConfig(
+        include={'id', 'username', 'first_name', 'last_name', 'email', 'created_at', 'updated_at', 'is_active', 'last_login'},
+        max_nested_depth=2,
+    )
+
 
 class UpdateUserDTO(UserDTO):
     config = DTOConfig(

@@ -37,5 +37,6 @@ class User(UUIDAuditBase):
     friends = relationship('User',
                            secondary=friend_association,
                            primaryjoin='User.id==friend_association_table.c.user_id',
-                           secondaryjoin='User.id==friend_association_table.c.friend_id'
+                           secondaryjoin='User.id==friend_association_table.c.friend_id',
+                           lazy='selectin',
     )

@@ -111,13 +111,23 @@ async def get_user_by_id(session: AsyncSession, id: UUID) -> User:
         HTTPException: If there's an error retrieving the user or if the user doesn't exist.
     """
     # Create a query to find the user by username and execute it.
-    query = select(User).options(orm.selectinload(User.communities)).where(User.id == id)
+    query = select(User).options(orm.selectinload(User.communities)).options(orm.selectinload(User.friends)).where(User.id == id)
     result = await session.execute(query)
     try:
         return result.scalar_one()
     except:
         # Raise an HTTP exception if there's an issue retrieving the user.
         raise HTTPException(status_code=401, detail="Error retrieving user")
+
+
+async def get_friends_by_id(session: AsyncSession, id: UUID) -> list[User]:
+    query = select(User).options(orm.selectinload(User.friends)).where(User.id == id)
+    result = await session.execute(query)
+    try:
+        return result.scalars().all()
+    except:
+        raise HTTPException(status_code=401, detail="Error retrieving user")
+    
 
 
 async def transfer_community_ownership(session: AsyncSession, id: UUID, user: User, new_owner: str) -> str:

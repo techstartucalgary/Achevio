@@ -1,7 +1,9 @@
 from uuid import UUID
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from litestar.exceptions import HTTPException
+
+import os
 
 from models.post import Post
 
@@ -23,7 +25,7 @@ async def get_posts_list(session: AsyncSession, limit: int, offset: int) -> list
     return result.scalars().all()
 
 
-async def get_posts_by_id(session: AsyncSession, post_id: UUID) -> Post:
+async def get_post_by_id(session: AsyncSession, post_id: UUID) -> Post:
     """
     Fetches a single Post by its ID.
 
@@ -59,13 +61,21 @@ async def get_posts_by_user_id(session: AsyncSession, user_id: UUID) -> list[Pos
     Raises:
         HTTPException: If there's an issue retrieving the Posts.
     """
-    query = select(Post).where(Post.user_id == user_id)
+    query = select(Post).where(Post.user_id == user_id).order_by(Post.created_at.desc())
     result = await session.execute(query)
     try:
         return result.scalars().all()
     except:
         raise HTTPException(status_code=401, detail="Error retrieving user posts")
     
+
+async def get_posts_by_multiple_user_id(session: AsyncSession, user_ids: list[UUID], limit: int=100, offset: int=0) -> list[Post]:
+    query = select(Post).where(Post.user_id.in_(user_ids)).limit(limit).offset(offset)
+    result = await session.execute(query)
+    try:
+        return result.scalars().all()
+    except:
+        raise HTTPException(status_code=401, detail="Error retrieving users posts")
 
 async def get_posts_by_community_id(session: AsyncSession, community_id: UUID, limit: int=100, offset: int=0) -> list[Post]:
     """
@@ -102,3 +112,25 @@ async def get_posts_by_any(session: AsyncSession, limit: int=100, offset: int=0,
         return result.scalars().all()
     except:
         raise HTTPException(status_code=401, detail="Error retrieving posts")
+    
+
+
+async def delete_post_by_id(session: AsyncSession, post_id: UUID) -> None:
+    query = delete(Post).where(Post.id == post_id)
+    result = await session.execute(query)
+    image_dir = "static/images/posts"
+    post_image = os.path.join(image_dir, f'{post_id}.jpg')
+    
+    try:
+        os.remove(post_image)
+    except:
+        return None
+    
+
+async def get_posts_from_id_list(session: AsyncSession, user_id: UUID) -> Post:
+    query = select(Post).where(Post.id.in_())
+    result = await session.execute(query)
+    try:
+        return result.scalars().one_or_none()
+    except:
+        raise HTTPException(status_code=401, detail="Error retrieving post")

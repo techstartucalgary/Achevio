@@ -57,6 +57,36 @@ const CreateCommunity: React.FC = () => {
         : [...prevDays, day]
     );
   };
+  const goNext = () => {
+    if (communityName === "") {
+      alert("Please enter a community name");
+      return;
+    }
+    else if (description === "") {
+      alert("Please enter a description");
+      return;
+    }
+    else if (selectedTags.length === 0) {
+      alert("Please select at least one tag");
+      return;
+    }
+    else if (postDays.length === 0) {
+      alert("Please select at least one post day");
+      return;
+    }
+    else {
+      router.push({
+        pathname: "/UploadingImages",
+        params: {
+          communityName,
+          description,
+          selectedTags,
+          postDays,
+        },
+      })
+    }
+  };
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -142,16 +172,8 @@ const CreateCommunity: React.FC = () => {
 
             <TouchableOpacity
               style={styles.button}
-              onPress={() =>
-                router.push({
-                  pathname: "/UploadingImages",
-                  params: {
-                    communityName,
-                    description,
-                    selectedTags,
-                    postDays,
-                  },
-                })
+              onPress={
+                goNext                
               }
             >
               <Text style={styles.buttonText}>Create Community</Text>

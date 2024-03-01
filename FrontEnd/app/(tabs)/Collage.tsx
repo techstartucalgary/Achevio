@@ -19,16 +19,18 @@ const Collage = () => {
   const [postsData, setPostsData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [userId, setUserId] = useState(null);
   const { url } = useSelector((state: any) => state.user);
 
-  const fetchPostsForCommunity = async (communityId) => {
+  const fetchPostsForCommunity = async (communityId, userId) => {
     try {
       const response = await axios.get(`${url}/posts/community/${communityId}`);
       if (response.status === 200) {
-        return response.data.map((post) => ({
+        const userPosts = response.data.filter((post) => post.user_id === userId); // Filter posts by user ID
+        return userPosts.map((post) => ({
           id: post.id,
           uri: `${url}/post/image/${post.id}.jpg`,
-          date: new Date(post.created_at).toISOString(), // Assuming 'created_at' is a valid date
+          date: new Date(post.created_at).toISOString(),
         }));
       } else {
         console.error("Failed to fetch posts for community:", communityId);
@@ -39,18 +41,29 @@ const Collage = () => {
       return [];
     }
   };
-
+  const getUserID = async () => {
+    try {
+      const response = await axios.get(`${url}/user/me`);
+      if (response.status === 200) {
+        setUserId(response.data.id);
+      } else {
+        console.error("Failed to fetch user ID");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching user ID:", error);
+      return null;
+    }
+  }
   useFocusEffect(
     useCallback(() => {
       const fetchPosts = async () => {
         try {
-          const communitiesResponse = await axios.get(
-            `${url}/user/myCommunities`
-          );
+          const communitiesResponse = await axios.get(`${url}/user/myCommunities`);
           if (communitiesResponse.status === 200) {
             const communities = communitiesResponse.data;
             const postsPromises = communities.map((community) =>
-              fetchPostsForCommunity(community.id)
+              fetchPostsForCommunity(community.id, userId)
             );
             const postsArrays = await Promise.all(postsPromises);
             const aggregatedPosts = [].concat(...postsArrays); // Flatten the array of arrays
@@ -62,9 +75,9 @@ const Collage = () => {
           console.error("Error fetching communities or posts:", error);
         }
       };
-
+      getUserID();
       fetchPosts();
-    }, [])
+    }, [userId]) // Include userId in dependencies to refetch posts when it changes
   );
 
   const groupImagesByDate = (images) => {

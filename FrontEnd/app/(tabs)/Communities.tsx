@@ -142,24 +142,8 @@ const PostDetailsModal = ({ post, isVisible, onClose, onComment }) => {
           >
           </Image>
           {showReactionMenu && <ReactionMenu showReactionMenu={showReactionMenu} setShowReactionMenu={setShowReactionMenu} />}
-
           </Pressable>
-
           <Text style={styles.postCaption}>{post.caption}</Text>
-          <View style={styles.actionsContainer}>
-            <TouchableOpacity
-              onPress={() => onComment()}
-              style={styles.actionButton}
-            >
-              <FontAwesomeIcon icon={faComment} size={24} color={"#555"} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleLikePress}
-              style={styles.actionButton}
-            >
-              <FontAwesomeIcon icon={faHeart} size={24} color={"#555"} />
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
     </Modal>

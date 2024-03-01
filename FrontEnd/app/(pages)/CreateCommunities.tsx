@@ -70,7 +70,7 @@ const CreateCommunity: React.FC = () => {
             <Text style={styles.title}>Create a New Community</Text>
 
             <View style={styles.inputContainer}>
-              <Ionicons name="people" size={24} color="#007bff" />
+              <Ionicons name="people" size={24} color="#5C5CFF" />
               <TextInput
                 value={communityName}
                 onChangeText={setCommunityName}
@@ -83,7 +83,7 @@ const CreateCommunity: React.FC = () => {
               <Ionicons
                 name="information-circle-outline"
                 size={24}
-                color="#007bff"
+                color="#5C5CFF"
               />
               <TextInput
                 value={description}
@@ -161,11 +161,10 @@ const CreateCommunity: React.FC = () => {
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
-};
-const styles = StyleSheet.create({
+};const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212", // Dark background color
   },
   keyboardView: {
     flex: 1,
@@ -180,31 +179,35 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
+    color: "#ffffff", // Light text for better contrast on dark background
   },
   input: {
     width: "90%",
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#333", // Darker border color for inputs
     padding: 10,
     borderRadius: 8,
     margin: 5,
+    color: "#ffffff", // Light text color
+    backgroundColor: "#222", // Slightly lighter input background for contrast
   },
   label: {
     alignSelf: "flex-start",
     marginLeft: 5,
     marginBottom: 5,
     fontWeight: "bold",
+    color: "#ffffff", // Light text for labels
   },
   button: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#5C5CFF", // You can adjust the button color as needed
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 16,
     width: "100%",
     alignItems: "center",
     marginTop: 20,
   },
   buttonText: {
-    color: "#fff",
+    color: "#fff", // Text color remains light for contrast
     fontWeight: "bold",
     fontSize: 16,
   },
@@ -216,20 +219,20 @@ const styles = StyleSheet.create({
   },
   tag: {
     borderWidth: 1,
-    borderColor: "#007bff",
+    borderColor: "#5C5CFF", // Adjust if necessary to fit your theme
     borderRadius: 20,
     padding: 8,
     margin: 4,
+    backgroundColor: "#222", // Darker tag background for unselected tags
   },
   tagSelected: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#5C5CFF", // Highlight color for selected tags
   },
   tagText: {
-    color: "#000",
-    fontSize: 14,
+    color: "#ffffff", // Light text color for better readability
   },
   tagTextSelected: {
-    color: "#fff",
+    color: "#fff", // Ensuring contrast remains high for selected tags
   },
   scrollView: {
     width: "100%",
@@ -239,6 +242,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 5,
+    color: "#ffffff", // Light text color for subtitles
   },
   daysContainer: {
     flexDirection: "row",
@@ -249,30 +253,31 @@ const styles = StyleSheet.create({
   },
   dayButton: {
     borderWidth: 1,
-    borderColor: "#007bff",
+    borderColor: "#5C5CFF", // Button border color
     borderRadius: 20,
     padding: 8,
     margin: 4,
+    backgroundColor: "#222", // Darker background for day buttons
   },
   daySelected: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#5C5CFF", // Highlight color for selected days
   },
   dayText: {
-    color: "#000",
-    fontSize: 14,
+    color: "#ffffff", // Light text color
   },
   dayTextSelected: {
-    color: "#fff",
+    color: "#fff", // Ensuring readability for selected days
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#333", // Darker border color
     borderRadius: 8,
     padding: 10,
     marginBottom: 15,
     width: "100%",
+    backgroundColor: "#222", // Slightly lighter background for contrast
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -282,6 +287,8 @@ const styles = StyleSheet.create({
   textArea: {
     minHeight: 100,
     textAlignVertical: "top",
+    color: "#ffffff", // Light text color for text area
+    backgroundColor: "#222", // Dark background for text area
   },
 });
 export default CreateCommunity;

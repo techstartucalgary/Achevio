@@ -98,7 +98,7 @@ const UploadingImages: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#121212", // Dark background color
   },
   keyboardView: {
     flex: 1,
@@ -108,29 +108,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
-
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
+    color: "#FFF", // Light text color
   },
   input: {
     width: "90%",
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#333", // Darker border color
     padding: 10,
     borderRadius: 8,
     margin: 5,
+    color: "#FFF", // Light text color
+    backgroundColor: "#222", // Dark input background
   },
   label: {
     alignSelf: "flex-start",
     marginLeft: 5,
     marginBottom: 5,
     fontWeight: "bold",
+    color: "#FFF", // Light text color
   },
   button: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#5C5CFF",
     padding: 15,
     borderRadius: 8,
     width: "100%",
@@ -138,7 +141,7 @@ const styles = StyleSheet.create({
     margin: 20,
   },
   buttonText: {
-    color: "#fff",
+    color: "#FFF", // Light text color
     fontWeight: "bold",
     fontSize: 16,
   },
@@ -154,16 +157,17 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 8,
     margin: 4,
+    backgroundColor: "#222", // Dark tag background
   },
   tagSelected: {
     backgroundColor: "#007bff",
   },
   tagText: {
-    color: "#000",
+    color: "#FFF", // Light text color
     fontSize: 14,
   },
   tagTextSelected: {
-    color: "#fff",
+    color: "#FFF",
   },
   scrollView: {
     width: "100%",
@@ -173,6 +177,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 5,
+    color: "#FFF", // Light text color
   },
   daysContainer: {
     flexDirection: "row",
@@ -187,26 +192,28 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 8,
     margin: 4,
+    backgroundColor: "#222", // Dark day button background
   },
   daySelected: {
     backgroundColor: "#007bff",
   },
   dayText: {
-    color: "#000",
+    color: "#FFF", // Light text color
     fontSize: 14,
   },
   dayTextSelected: {
-    color: "#fff",
+    color: "#FFF",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#333", // Darker border color
     borderRadius: 8,
     padding: 10,
     marginBottom: 15,
     width: "100%",
+    backgroundColor: "#222", // Dark input container background
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -216,6 +223,8 @@ const styles = StyleSheet.create({
   textArea: {
     minHeight: 100,
     textAlignVertical: "top",
+    color: "#FFF", // Light text color
+    backgroundColor: "#222", // Dark text area background
   },
 });
 export default UploadingImages;

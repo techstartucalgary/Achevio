@@ -1,36 +1,40 @@
-import { Stack, Tabs } from "expo-router";
+import { Tabs } from "expo-router";
 import React from "react";
-import Colors from "../../constants/Colors";
-import { Pressable, StatusBar, useColorScheme } from "react-native";
-import { FontAwesome as vectorIcon } from "@expo/vector-icons";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import HomeIcon from "../../assets/icons/homeIcon";
-import CameraIcon from "../../assets/icons/CameraIcon";
-import CollageIcon from "../../assets/icons/collageIcon";
-import SearchIcon from "../../assets/icons/searchIcon";
+import { FontAwesome } from "@expo/vector-icons";
+import { useColorScheme } from "react-native";
 
 function TabBarIcon(props: {
-  name: React.ComponentProps<typeof vectorIcon>["name"];
+  name: React.ComponentProps<typeof FontAwesome>["name"];
   color: string;
 }) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
+  return <FontAwesome size={30} {...props} />;
 }
+
 const ScreenLayout = () => {
+  // Determine the color scheme to apply appropriate colors
+  const colorScheme = useColorScheme();
+  const activeTintColor = colorScheme === 'dark' ? '#5C5CFF' : '#000'; // Example: white for dark mode, black for light mode
+  const inactiveTintColor = '#8e8e93'; // A neutral color for inactive icons
+
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: activeTintColor, // Color for active tab icons
+        tabBarInactiveTintColor: inactiveTintColor, // Color for inactive tab icons
+      }}
+    >
       <Tabs.Screen
         name="Communities"
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="users" color={color} />,
-          headerShown: false,
           tabBarLabel: "",
         }}
-      ></Tabs.Screen>
+      />
       <Tabs.Screen
         name="Search"
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
-          headerShown: false,
           tabBarLabel: "",
         }}
       />
@@ -38,7 +42,6 @@ const ScreenLayout = () => {
         name="Camera"
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="camera" color={color} />,
-          headerShown: false,
           tabBarLabel: "",
         }}
       />
@@ -46,7 +49,6 @@ const ScreenLayout = () => {
         name="Collage"
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="photo" color={color} />,
-          headerShown: false,
           tabBarLabel: "",
         }}
       />
@@ -54,11 +56,11 @@ const ScreenLayout = () => {
         name="Profile"
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
-          headerShown: false,
           tabBarLabel: "",
         }}
       />
     </Tabs>
   );
 };
+
 export default ScreenLayout;

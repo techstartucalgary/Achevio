@@ -39,6 +39,11 @@ const fallbackData = {
       navigateTo: "SecurityAndPrivacy",
     },
     {
+      title: "Your Friends", // New option
+      icon: "person-add", // Material icon for adding a person
+      navigateTo: "YourFriends", // Assuming you have a route set up for this
+    },
+    {
       title: "Invite friends",
       icon: "chevron-right",
       navigateTo: "InviteFriends",

@@ -11,8 +11,9 @@ import {
   ActivityIndicator,
   RefreshControl,
   StatusBar,
+  Pressable,
 } from "react-native";
-import { getDayOfYear, getISODay } from "date-fns";
+import { getDayOfYear, getISODay, set } from "date-fns";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons";
@@ -23,6 +24,37 @@ import { setUsername, setUrl } from "../redux/actions";
 import { ref } from "yup";
 import { Image } from 'expo-image';
 
+const ReactionMenu = ( { showReactionMenu, setShowReactionMenu }) => {
+  const handleReactionPress = (reaction) => {
+    // Handle reaction press here
+    console.log("Reaction pressed:", reaction);
+    setShowReactionMenu(false);
+    
+  };
+  return (
+    <View style={styles.reactionMenu}>
+      {/* Wrap each reaction icon inside a Pressable component */}
+      <Pressable onPress={() => handleReactionPress("👍")}>
+        <Text style={styles.reactionIcon}>👍</Text>
+      </Pressable>
+      <Pressable onPress={() => handleReactionPress("❤️")}>
+        <Text style={styles.reactionIcon}>❤️</Text>
+      </Pressable>
+      <Pressable onPress={() => handleReactionPress("😂")}>
+        <Text style={styles.reactionIcon}>😂</Text>
+      </Pressable>
+      <Pressable onPress={() => handleReactionPress("😮")}>
+        <Text style={styles.reactionIcon}>😮</Text>
+      </Pressable>
+      <Pressable onPress={() => handleReactionPress("😢")}>
+        <Text style={styles.reactionIcon}>😢</Text>
+      </Pressable>
+      <Pressable onPress={() => handleReactionPress("😡")}>
+        <Text style={styles.reactionIcon}>😡</Text>
+      </Pressable>
+    </View>
+  );
+};
 
 // Constants
 const windowWidth = Dimensions.get("window").width;
@@ -77,8 +109,13 @@ const todayIndex = datesData.findIndex((item) => item.isToday);
 
 // Post Details Modal Component
 const PostDetailsModal = ({ post, isVisible, onClose, onComment }) => {
+  const [showReactionMenu, setShowReactionMenu] = useState(false);
+
   const handleLikePress = () => {
     // Handle like press
+  };
+  const handleLongPress = () => {
+    setShowReactionMenu(!showReactionMenu);
   };
   return (
     <Modal
@@ -96,10 +133,18 @@ const PostDetailsModal = ({ post, isVisible, onClose, onComment }) => {
               <Text style={styles.closeButtonText}>×</Text>
             </TouchableOpacity>
           </View>
+          <Pressable onLongPress={handleLongPress}>
+
           <Image
             source={{ uri: post.imageUri }}
             style={styles.modalPostImage}
-          />
+            cachePolicy="memory-disk"
+          >
+          </Image>
+          {showReactionMenu && <ReactionMenu showReactionMenu={showReactionMenu} setShowReactionMenu={setShowReactionMenu} />}
+
+          </Pressable>
+
           <Text style={styles.postCaption}>{post.caption}</Text>
           <View style={styles.actionsContainer}>
             <TouchableOpacity
@@ -120,19 +165,29 @@ const PostDetailsModal = ({ post, isVisible, onClose, onComment }) => {
     </Modal>
   );
 };
-const postData = Array.from({ length: 10 }, (_, index) => ({
-  key: String(index),
-  imageUri:
-    "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
-  userImage:
-    "https://static.vecteezy.com/system/resources/previews/019/896/008/original/male-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png",
-  user: "User " + (index + 1),
-  caption: "Caption for post " + (index + 1),
-  comments: [{ id: uuid.v4(), text: "Comment 1 for post " + (index + 1) }],
-}));
+// const postData = Array.from({ length: 10 }, (_, index) => ({
+//   key: String(index),
+//   imageUri:
+//     "https://img.freepik.com/free-photo/abstract-nature-painted-with-watercolor-autumn-leaves-backdrop-generated-by-ai_188544-9806.jpg?size=626&ext=jpg&ga=GA1.1.1412446893.1704499200&semt=ais",
+//   userImage:
+//     "https://static.vecteezy.com/system/resources/previews/019/896/008/original/male-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png",
+//   user: "User " + (index + 1),
+//   caption: "Caption for post " + (index + 1),
+//   comments: [{ id: uuid.v4(), text: "Comment 1 for post " + (index + 1) }],
+// }));
+
+type Post = {
+  key: string;
+  imageUri: string;
+  userImage: string;
+  user: string;
+  caption: string;
+  comments: { id: string; text: string }[];
+};
 
 const Communities = () => {
   const flatListRef = useRef(null);
+  const [postData, setPosts] = useState<Post[]>([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [commentsModalVisible, setCommentsModalVisible] = useState(false);
@@ -142,7 +197,7 @@ const Communities = () => {
   const { url } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
 
-  const fetchCommunities = async () => {
+  const fetchCommunities = useCallback(async () => {
     try {
       const response = await axios.get(`${url}/user/myCommunities`);
       dispatch({ type: "SET_USERID", payload: response.data.id });
@@ -157,20 +212,62 @@ const Communities = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }
+  , [url]);
+  const fetchPosts = useCallback(async () => {
+    try {
+      // Fetch posts from your API
+      const res = await axios.get(`${url}/posts/friends`);
+      console.log("Posts:", res.data); // Adjust according to your API response
+  
+      const postsWithAdditionalDetails = await Promise.all(res.data.map(async (post) => {
+        try {
+          // Fetch username
+          const usernameResponse = await axios.get(`${url}/user/GetNameByID/${post.user_id}`);
+          const username = usernameResponse.data.name; // Adjust according to your API response
+  
+          // Construct post object with additional details
+          return {
+            key: post.id,
+            imageUri: `${url}/post/image/${post.id}.jpg`, // Assuming this is how you get the post image
+            userImage: `${url}/user/image/${post.user_id}.jpg`, // Assuming this is how you get the user image
+            user: username,
+            caption: post.caption,
+            comments: [] // Assuming you'll fill this later or adjust according to your needs
+          };
+        } catch (error) {
+          console.error("Error fetching additional post details:", error);
+          // Optionally handle the error, e.g., by setting default values
+          return {
+            key: post.id,
+            imageUri: '', // Default or error image URI
+            userImage: '', // Default or error user image URI
+            user: 'Unknown', // Default username
+            caption: post.caption,
+            comments: [] // Assuming you'll fill this later or adjust according to your needs
+          };
+        }
+      }));
+  
+      // Update the state with the new posts
+      setPosts(postsWithAdditionalDetails);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  }
+  , [communities]);
 
   useFocusEffect(
     useCallback(() => {
-      fetchCommunities();
-      // fetch posts from each community
-      // for (let i = 0; i < communities.length; i++) {
-      //   fetchPosts(communities[i].id).then((posts) => {
-      //     setPostData((prev) => [...prev, ...posts]);
-      //   });
-      // }
-     
-    }, [])
+      const fetchData = async () => {
+        await fetchCommunities();
+        await fetchPosts();
+      };
+  
+      fetchData();
+    }, []) 
   );
+  
 
 
   const onRefresh = useCallback(async () => {
@@ -286,20 +383,7 @@ const Communities = () => {
     </>
   );
 
-  const fetchPosts = async (communityId) => {
-    try {
-      const response = await axios.get(`${url}/posts/community/${communityId}`);
-      if (response.status === 200) {
-        return response.data; // Assuming the response data is the list of posts
-      } else {
-        console.error(`Failed to fetch posts for community ${communityId}:`, response.status);
-        return []; // Return an empty array in case of failure
-      }
-    } catch (error) {
-      console.error(`Error fetching posts for community ${communityId}:`, error);
-      return []; // Return an empty array in case of an error
-    }
-  };
+
 
   return (
     <>
@@ -374,7 +458,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   highlight: {
-    backgroundColor: "lightblue", // Your highlight color
+    backgroundColor: "#5C5CFF", // Your highlight color
     borderRadius: 10,
   },
   dateDay: {
@@ -459,11 +543,10 @@ const styles = StyleSheet.create({
   },
   createCommunityButton: {
     backgroundColor: "#1e1e1e",
-    padding: 15,
+    position: "relative",
     height: 80,
-    marginVertical: 8,
-    marginHorizontal: 10,
     borderRadius: 10, // if you want rounded corners
+    marginVertical: 10,
   },
   modalOverlay: {
     flex: 1,
@@ -546,6 +629,18 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.1)",
     borderRadius: 5,
     marginRight: 10, // Add some space between buttons
+  },
+  reactionMenu: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 50, // Adjust based on your UI
+    backgroundColor: '#FFF',
+    borderRadius: 20,
+    padding: 5,
+  },
+  reactionIcon: {
+    fontSize: 30, // Adjust based on your UI
+    marginHorizontal: 5,
   },
 });
 

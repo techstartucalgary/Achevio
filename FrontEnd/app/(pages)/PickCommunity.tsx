@@ -119,13 +119,12 @@ const SelectCommunities = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5", // Light background color
+    backgroundColor: "#121212", // Dark background color
   },
   ListofItems: {
     flex: 1,
     marginTop: 60,
   },
-
   item: {
     flexDirection: "row",
     alignItems: "center",
@@ -134,6 +133,7 @@ const styles = StyleSheet.create({
     borderRadius: 12, // Rounded corners for items
     height: 80,
     overflow: "hidden", // Ensure the background image respects the border radius
+    backgroundColor: "#1E1E1E", // Darker item background for contrast
   },
   backgroundImage: {
     flex: 1,
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   itemContent: {
     paddingVertical: 15,
     paddingHorizontal: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.5)", // Semi-transparent overlay for text readability
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Darker semi-transparent overlay for text readability
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
@@ -159,16 +159,16 @@ const styles = StyleSheet.create({
   text: {
     flex: 1,
     fontSize: 16,
-    color: "#333", // Dark text for better readability
+    color: "#FFFFFF", // Light text for better readability against dark theme
   },
   submitButton: {
-    backgroundColor: "#007BFF", // Vibrant button color
+    backgroundColor: "#5C5CFF", // Vibrant button color
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 25, // More pronounced rounded corners for the button
     margin: 20,
     alignItems: "center",
-    shadowColor: "#007BFF", // Matching shadow color
+    shadowColor: "#007BFF", // Matching shadow color for consistency
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 4.65,

@@ -68,17 +68,21 @@ const Collage = () => {
   );
 
   const groupImagesByDate = (images) => {
-    const grouped = images.reduce((groups, image) => {
-      const date = image.date.split("T")[0]; // Ensure date format is consistent
-      (groups[date] = groups[date] || []).push(image);
-      return groups;
-    }, {});
-
-    return Object.keys(grouped).map((date) => ({
+    // Extract unique dates
+    const uniqueDates = Array.from(new Set(images.map((image) => image.date.split("T")[0])));
+  
+    // Sort the unique dates in ascending order
+    uniqueDates.sort();
+  
+    // Create groups based on sorted dates
+    const grouped = uniqueDates.map((date) => ({
       title: date,
-      data: grouped[date],
+      data: images.filter((image) => image.date.split("T")[0] === date),
     }));
+  
+    return grouped;
   };
+  
 
   const handleImagePress = (uri) => {
     setSelectedImage(uri);

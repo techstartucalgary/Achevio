@@ -91,7 +91,7 @@ const EditPost = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#121212",
     alignItems: "center",
     padding: 20,
     paddingTop: 50,
@@ -100,17 +100,18 @@ const styles = StyleSheet.create({
     width: "90%",
     margin: 12,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#333",
     padding: 10,
     borderRadius: 8,
-    backgroundColor: "#f9f9f9",
+    color: "#ffffff",
+    backgroundColor: "#222",
   },
   captionInput: {
     height: 150,
     textAlignVertical: "top",
   },
   button: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#5C5CFF",
     padding: 15,
     borderRadius: 20,
     alignItems: "center",

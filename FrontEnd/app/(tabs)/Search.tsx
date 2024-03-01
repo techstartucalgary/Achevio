@@ -10,8 +10,8 @@ import {
   StatusBar,
   TouchableWithoutFeedback,
   Keyboard,
-  ImageBackground,
   RefreshControl,
+  ImageBackground,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
@@ -279,9 +279,10 @@ const Search: React.FC = () => {
                     });
                   }}
                 >
-                  <Image
+                  <ImageBackground
                     source={{ uri: `${url}/community/image/${item.id}.jpg` }}
                     style={styles.communityItemBackground}
+                    imageStyle={styles.communityItemImageStyle}
                   >
                     <Text style={styles.communityTitle}>{item.name}</Text>
                     <View style={styles.textOverlay}>
@@ -292,7 +293,7 @@ const Search: React.FC = () => {
                         })}
                       </Text>
                     </View>
-                  </Image>
+                  </ImageBackground>
                 </TouchableOpacity>
               ))}
             </View>
@@ -390,14 +391,14 @@ const styles = StyleSheet.create({
   },
   tag: {
     borderWidth: 1,
-    borderColor: "#007bff",
+    borderColor: "#5C5CFF",
     borderRadius: 20,
     paddingVertical: 8,
     paddingHorizontal: 16,
     margin: 5,
   },
   tagSelected: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#5C5CFF",
   },
   tagText: {
     color: "white",
@@ -423,7 +424,7 @@ const styles = StyleSheet.create({
     width: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "#007bff",
+    borderColor: "#5C5CFF",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,
@@ -442,7 +443,7 @@ const styles = StyleSheet.create({
     color: "white",
   },
   resultsButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#5C5CFF",
     borderRadius: 25,
     paddingVertical: 15,
     paddingHorizontal: 30,
@@ -466,7 +467,7 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: "#007bff",
+    borderBottomColor: "#5C5CFF",
   },
   tabText: {
     color: "#ffffff",
@@ -474,7 +475,7 @@ const styles = StyleSheet.create({
   },
   activeTabText: {
     fontWeight: "bold",
-    color: "#007bff",
+    color: "#5C5CFF",
   },
   tabContent: {
     padding: 20,

@@ -45,6 +45,7 @@ type Post = {
   userImage: string;
 };
 
+
 const CommunityPage: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const { url } = useSelector((state: any) => state.user);
@@ -82,6 +83,10 @@ const CommunityPage: React.FC = () => {
         <Text style={styles.reactionIcon}>😡</Text>
       </View>
     );
+  };
+  type PostItemProps = {
+    item: Post;
+    onSelectPost: (post: Post) => void;
   };
 
 const handleLongPress = () => {
@@ -174,22 +179,29 @@ useFocusEffect(
 
     fetchData();
   }
-  , [communityId])
+  , [communityId] )
   );
 
-  const renderPost = ({ item }: { item: Post }) => {
+  const PostItem: React.FC<PostItemProps> = React.memo(({ item, onSelectPost }) => {
     return (
       <TouchableOpacity
-        onPress={() => {
-          setSelectedPost(item);
-          setModalVisible(true);
-        }}
+        onPress={() => onSelectPost(item)}
         style={styles.post}
       >
         <Image source={{ uri: item.imageUrl }} style={styles.postImage} cachePolicy="memory-disk" />
       </TouchableOpacity>
     );
-  };
+  });
+
+  const onSelectPost = useCallback((post) => {
+    setSelectedPost(post);
+    setModalVisible(true);
+  }, []);
+  
+  
+const renderPost = useCallback(({ item }) => (
+  <PostItem item={item} onSelectPost={onSelectPost} />
+), [onSelectPost]);
 
   useEffect(() => {
     // Start the fade-in animation when the component mounts
@@ -484,11 +496,14 @@ useFocusEffect(
           ListHeaderComponent={renderHeader}
           renderItem={renderPost}
           numColumns={2}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
+          initialNumToRender={8}
+          onEndReachedThreshold={0.5}
+          maxToRenderPerBatch={5}
+          updateCellsBatchingPeriod={30}
         />
         }
-
         <PostDetailModal
           isVisible={modalVisible}
           post={selectedPost}

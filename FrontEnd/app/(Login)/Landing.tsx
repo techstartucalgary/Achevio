@@ -1,5 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
+import { platform } from "os";
 import React, { useEffect, useRef, useState } from "react";
 import {
   View,
@@ -10,6 +11,7 @@ import {
   Animated,
   Dimensions,
   Easing,
+  Platform,
 } from "react-native";
 
 const { width, height } = Dimensions.get("window");
@@ -55,7 +57,7 @@ const Landing = () => {
   const topHalfStars = stars.current.filter((star) => star.top < height / 1.5);
 
   return (
-    <View style={styles.container}>
+    <View style={StyleSheet.compose(styles.container, { marginTop: Platform.OS === "android" ? 20 : 0 })}>
       <View style={styles.starsContainer}>
         {topHalfStars.map((star, index) => (
           <Animated.Image
@@ -73,7 +75,7 @@ const Landing = () => {
         ))}
       </View>
       <Image source={require("../../assets/images/temp_icon_full.png")} style={styles.image} />
-      <Text style={styles.title}>Achievio</Text>
+      <Text style={styles.title}>Achevio</Text>
       <Text style={styles.subheading}>Reach for the stars</Text>
       <Pressable style={styles.navText} onPress={() =>  router.push({
                   pathname: "/(Login)/home",

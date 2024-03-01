@@ -118,10 +118,11 @@ export default function CameraPage() {
   // Capture Photo
   const takePicture = async () => {
     if (cameraRef.current) {
-      const photoData = await cameraRef.current.takePictureAsync();
+      const photoData = await cameraRef.current.takePictureAsync({
+        quality: 0.5, // Lower quality
+      });
   
       let uri = photoData.uri;
-  
       // Automatically mirror the image if using the front camera
       if (type === CameraType.front) {
         const mirroredImage = await manipulateAsync(
@@ -131,6 +132,15 @@ export default function CameraPage() {
         );
         uri = mirroredImage.uri; // Use the mirrored image URI for further processing
       }
+      else {
+        const resizedPhoto = await manipulateAsync(
+          photoData.uri,
+          [{ resize: { width: 800 } }],
+          { compress:1, format: SaveFormat.JPEG }
+        
+        );
+        uri = resizedPhoto.uri;
+      }  
   
       // Proceed to use the image URI as needed, for example, navigating to a preview screen
       router.push({

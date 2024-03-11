@@ -79,8 +79,6 @@ class UserController(Controller):
         return UserSchema.model_validate(await get_user_by_id(session, request.user))
 
 
-    
-
     @get('/myCommunities')
     async def get_my_communities(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> list[CommunitySchema]:
         '''
@@ -158,11 +156,6 @@ class UserController(Controller):
         except Exception as e:
             raise HTTPException(
                 status_code=409, detail=f'Error: {e}')
-
-
-
-
-
 
 
     @patch('/profile_image', media_type=MediaType.TEXT)

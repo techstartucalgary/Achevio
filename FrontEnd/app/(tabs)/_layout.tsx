@@ -46,11 +46,13 @@ const ScreenLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="Collage"
-        options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="photo" color={color} />,
-          tabBarLabel: "",
-        }}
+        name = "LeaderBoard"
+        options={
+          {
+            tabBarIcon: ({ color }) => <TabBarIcon name="trophy" color={color} />,
+            tabBarLabel: "",
+          }
+        }
       />
       <Tabs.Screen
         name="Profile"

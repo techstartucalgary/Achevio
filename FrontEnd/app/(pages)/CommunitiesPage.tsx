@@ -155,8 +155,7 @@ const handleLongPress = () => {
     }
   };
 
-useFocusEffect(
-  useCallback(() => {
+useEffect(() => {
 
     const fetchData = async () => {
       console.log(
@@ -174,18 +173,29 @@ useFocusEffect(
         : communityTags.split(",");
       setCommunityTagArray(communityTagArray);
       setRefreshing(false);
-
+  
     };
-
+  
     fetchData();
-  }
-  , [communityId] )
-  );
+
+}, [communityId]);
 
   const PostItem: React.FC<PostItemProps> = React.memo(({ item, onSelectPost }) => {
     return (
       <TouchableOpacity
-        onPress={() => onSelectPost(item)}
+        onPress={
+          () => {
+            console.log("PostData:", postData);
+            router.push({
+              pathname: "/(pages)/PostPage",
+              params: {
+                communityId: communityId,
+                url: url,
+                selectedPostId: item.id,
+              },
+            });
+          }
+        }
         style={styles.post}
       >
         <Image source={{ uri: item.imageUrl }} style={styles.postImage} cachePolicy="memory-disk" />

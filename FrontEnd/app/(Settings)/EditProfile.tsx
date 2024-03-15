@@ -1,49 +1,59 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { useSelector } from "react-redux";
+import { Alert } from "react-native";
+import { router } from "expo-router";
 
 const EditProfile: React.FC = () => {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState(""); // Use local state to store the user's first name
+  const [lastName, setLastName] = useState(""); // Use local state to store the user's last name
+  const [username, setUsername] = useState(""); // Use local state to store the user's username
   const [email, setEmail] = useState("");
   const [bio, setBio] = useState("");
 
-  const handleSubmit = () => {
-    // Handle the submit action here. For example, update the user profile.
-    // After updating, you might want to navigate back or show a success message
+  const url = useSelector((state: any) => state.user.url); // Access URL from Redux state
+
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch(`${url}/user/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username,
+          first_name: firstName,
+          last_name: lastName,
+          email: email,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update profile");
+      }
+      Alert.alert("Success", "Profile updated successfully");
+
+      // navigate to the profile page
+      router.push("/(tabs)/Profile");
+
+      // Handle success response
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      // Handle error
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Edit Profile</Text>
 
-      <TextInput
-        value={name}
-        onChangeText={setName}
-        placeholder="Name"
-        style={styles.input}
-      />
+      <TextInput value={username} onChangeText={setUsername} placeholder="Username" style={styles.input} />
 
-      <TextInput
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Email"
-        keyboardType="email-address"
-        style={styles.input}
-      />
+      <TextInput value={firstName} onChangeText={setFirstName} placeholder="First name" style={styles.input} />
 
-      <TextInput
-        value={bio}
-        onChangeText={setBio}
-        placeholder="Bio"
-        multiline
-        numberOfLines={4}
-        style={[styles.input, styles.textArea]}
-      />
+      <TextInput value={lastName} onChangeText={setLastName} placeholder="Last name" style={styles.input} />
+
+      <TextInput value={email} onChangeText={setEmail} placeholder="Email" keyboardType="email-address" style={styles.input} />
 
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Update Profile</Text>

@@ -87,6 +87,7 @@ const CommunityPage: React.FC = () => {
   type PostItemProps = {
     item: Post;
     onSelectPost: (post: Post) => void;
+    index: number;
   };
 
 const handleLongPress = () => {
@@ -180,8 +181,8 @@ useEffect(() => {
 
 }, [communityId]);
 
-  const PostItem: React.FC<PostItemProps> = React.memo(({ item, onSelectPost }) => {
-    return (
+const PostItem: React.FC<PostItemProps> = React.memo(({ item, onSelectPost, index }) => {
+  return (
       <TouchableOpacity
         onPress={
           () => {
@@ -191,7 +192,7 @@ useEffect(() => {
               params: {
                 communityId: communityId,
                 url: url,
-                selectedPostId: item.id,
+                selectedIndex: index, // Pass the index as a parameter
               },
             });
           }
@@ -209,9 +210,10 @@ useEffect(() => {
   }, []);
   
   
-const renderPost = useCallback(({ item }) => (
-  <PostItem item={item} onSelectPost={onSelectPost} />
+  const renderPost = useCallback(({ item, index }) => ( // Destructure index from here
+  <PostItem item={item} onSelectPost={onSelectPost} index={index} /> // Pass index to PostItem
 ), [onSelectPost]);
+
 
   useEffect(() => {
     // Start the fade-in animation when the component mounts

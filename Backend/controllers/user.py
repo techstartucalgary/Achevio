@@ -249,7 +249,7 @@ class UserController(Controller):
     async def get_name_by_id(self, session: AsyncSession, id: str) -> str:
         user = await get_user_by_id(session, id)
         return str(user.username)
-        
+    
 
     @get('/GetNames')
     async def get_names_by_id(self, session: AsyncSession, parameters: list[UUID]) -> list[str]:

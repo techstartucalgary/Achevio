@@ -57,6 +57,7 @@ export default function LoginScreen() {
 
   async function postLoginInfo(username: string, password: string): Promise<LoginResponse | null> {
     try {
+      console.log("Logging in with username: ", username);
       const configurationObject = {
         method: "post",
         url: `${url}/login`,
@@ -68,7 +69,9 @@ export default function LoginScreen() {
       };
 
       const response = await axios(configurationObject);
+
       if (response.status === 201) {
+        console.log("Login successful");
         return {
           status: response.status,
           data: response.data,

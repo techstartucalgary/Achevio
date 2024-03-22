@@ -25,6 +25,7 @@ class UserSchema(Schema):
     updated_at: datetime
     is_active: bool
     last_login: datetime
+    time_zone: str
     # friends: list[UserSchema]
 
     posts: "list[PostSchema]" = []

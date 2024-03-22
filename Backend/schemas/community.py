@@ -13,8 +13,8 @@ from datetime import datetime
 class CommunityBaseSchema(Schema):
     id: UUID    
     name: str
-    postdays: list[PostdaySchema] = []
     tags: list[TagSchema] = []
+    public: bool = False
     
 
 
@@ -65,8 +65,7 @@ class CommunityDTO(PydanticDTO[CommunitySchema]):
 
 class CreateCommunityDTO(PydanticDTO[CommunitySchema]):
     config = DTOConfig(
-        # exclude={'id', 'users', 'owner_id', 'postdays.0.id'},
-        include={'name', 'description', 'postdays.0.day', 'tags'},
+        include={'name', 'description', 'tags'},
         max_nested_depth=2,
     )
 
@@ -85,14 +84,12 @@ class CommunityOutDTO(PydanticDTO[CommunitySchema]):
 
 class ViewCommunityDTO(PydanticDTO[CommunitySchema]):
     config = DTOConfig(
-        include={'id', 'name', 'description', 'postday', 'tags'},
+        include={'id', 'name', 'description', 'tags'},
         max_nested_depth=2,
     )
 
 
-# from .postday import PostdaySchema
 from .tag import TagSchema
-from .postday import PostdaySchema
 from .user_community_association import UserCommunityAssociationSchema
 CommunitySchema.model_rebuild()
 

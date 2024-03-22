@@ -15,7 +15,6 @@ from litestar.enums import RequestEncodingType
 import datetime
 import pytz
 from uuid_extensions import uuid7
-from crud.postday import *
 import shutil
 from litestar.contrib.jwt import OAuth2Login, Token
 from models.user import User
@@ -43,7 +42,7 @@ class CommunityController(Controller):
     
 
     @post('/', dto=CreateCommunityDTO)
-    async def create_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: DTOData[CommunitySchema]) -> CommunitySchema:
+    async def create_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: DTOData[CommunitySchema], goal_nb_of_days: int) -> CommunitySchema:
         '''
         Create a new community with the current user as the owner.
 
@@ -60,27 +59,21 @@ class CommunityController(Controller):
         '''
         current_time = datetime.datetime.now(pytz.utc)
 
-        commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time, postdays=[], tags=[])
+        commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time, tags=[])
         validated_community_data = CommunitySchema.model_validate(commiunity_data)
 
         try:
             community = Community(**validated_community_data.__dict__)
             session.add(community)
-            
-            # Adds postdays to community
-            postdays = data.as_builtins()['postdays']
-            for i in range(len(postdays)):
-                postday = await get_postday_by_name(session, postdays[i].__dict__['day'])
-                community.postdays.append(postday)
-            
+                        
             # Adds tags to community
             tags = data.as_builtins()['tags']
+            print(tags)
             for i in range(len(tags)):
                 tag = await get_tag_by_name(session, tags[i].__dict__['name'])
                 community.tags.append(tag)
-
             validated_community_data = CommunitySchema.model_validate(commiunity_data)
-            await user_join_community(session, validated_community_data.id, request.user, 'owner')
+            await user_join_community(session=session, community_id=validated_community_data.id, user_id=request.user, goal_nb_of_days=goal_nb_of_days, role='owner')
             
             await session.commit()
             return validated_community_data
@@ -157,7 +150,7 @@ class CommunityController(Controller):
     
 
     @put('/join/{communityID:str}')
-    async def join_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, communityID: str) -> UserSchema:
+    async def join_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, communityID: str, goal_nb_of_days: int) -> str:
         '''
         Join a community.
 
@@ -169,22 +162,10 @@ class CommunityController(Controller):
         Returns:
             str: A message indicating success.
         '''
-
-        user = UserSchema.model_validate(await user_join_community(session, communityID, request.user))
+        user = UserSchema.model_validate(await user_join_community(session=session, communityID=communityID, user_id=request.user, goal_nb_of_days=goal_nb_of_days, role='member'))
         await session.commit()
-        return user
+        return "User successfulyl joined communitty"
 
-    ''' This endpoint has been deprecated, please use the user_create_community endpoint instead
-    @post('/', dto=CreateCommunityDTO, exclude_from_auth=True)
-    async def create_community(self, session: AsyncSession, data: DTOData[CommunitySchema]) -> CommunitySchema:
-        current_time = datetime.datetime.now(pytz.utc)
-        commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time)
-        validated_community_data = CommunitySchema.model_validate(commiunity_data)
-        try:
-            session.add(Community(**validated_community_data.__dict__))
-            return validated_community_data
-        except Exception as e:
-            raise HTTPException(status_code=409, detail=f'Error creating community: {e}')
-    '''
+
 
     

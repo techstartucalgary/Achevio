@@ -62,6 +62,7 @@ async def on_startup() -> None:
         # await conn.run_sync(UUIDBase.metadata.drop_all)
         # await conn.run_sync(UUIDAuditBase.metadata.drop_all)
 
+
         await conn.run_sync(Base.metadata.create_all)
         await conn.run_sync(UUIDBase.metadata.create_all)
         await conn.run_sync(UUIDAuditBase.metadata.create_all)

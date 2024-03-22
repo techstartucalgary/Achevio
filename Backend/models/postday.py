@@ -13,7 +13,3 @@ class Postday(UUIDBase):
     __tablename__ = 'postday_table'
     day: Mapped[str] = mapped_column(String(10), unique=True)
     
-    communities: Mapped[list['Community']] = relationship(
-        secondary=community_postday_association,
-        back_populates='postdays'
-    )

@@ -20,6 +20,8 @@ class User(UUIDAuditBase):
     last_login: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True))
     password: Mapped[str] = mapped_column(String(255))
 
+    time_zone = mapped_column(String(100), default='UTC')
+
     communities = relationship('UserCommunityAssociation', back_populates='user')
 
     posts: Mapped[list['Post']] = relationship(lazy='selectin')

@@ -31,7 +31,7 @@ async def get_community_list(session: AsyncSession, limit: int = 100, offset: in
         list[Community]: A list of Community objects.
     """
     # Create a query to select communities with related users and postdays, with a limit and offset for pagination, and execute it.
-    query = select(Community).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.postdays)).options(orm.selectinload(Community.tags)).limit(limit).offset(offset)
+    query = select(Community).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.tags)).limit(limit).offset(offset)
     result = await session.execute(query)
     
     # Return all community records as a list.
@@ -39,7 +39,7 @@ async def get_community_list(session: AsyncSession, limit: int = 100, offset: in
 
 
 async def get_basic_community_list(session: AsyncSession, asc: bool = True) -> list[Community]:
-    query = select(Community).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.postdays)).options(orm.selectinload(Community.tags))
+    query = select(Community).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.tags))
     result = await session.execute(query)
 
     vals = result.scalars().all()
@@ -67,7 +67,7 @@ async def get_community_by_id(session: AsyncSession, id: UUID) -> Community:
         HTTPException: If there's an error retrieving the community or if the community doesn't exist.
     """
     # Create a query to find the community by its UUID and execute it.
-    query = select(Community).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.tags)).options(orm.selectinload(Community.postdays)).where(Community.id == id)
+    query = select(Community).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.tags)).where(Community.id == id)
     result = await session.execute(query)
     try:
         # Return the single community or None if not found.
@@ -87,16 +87,15 @@ async def fetch_and_convert(session: AsyncSession, query):
 async def search_communities(session: AsyncSession) -> CommunitySearchResultSchema:
     popular_query = (
         select(Community)
-        .options(orm.selectinload(Community.postdays))
         .options(orm.selectinload(Community.tags))
         .options(orm.selectinload(Community.users))
         .group_by(Community.id)
         .order_by(func.count().desc())
     )
-    trending_query = select(Community).options(orm.selectinload(Community.postdays)).options(orm.selectinload(Community.tags)).order_by(Community.created_at)
+    trending_query = select(Community).options(orm.selectinload(Community.tags)).order_by(Community.created_at)
 
 
-    for_you_query = select(Community).options(orm.selectinload(Community.postdays)).options(orm.selectinload(Community.tags)).order_by(Community.created_at)
+    for_you_query = select(Community).options(orm.selectinload(Community.tags)).order_by(Community.created_at)
 
     popular = await fetch_and_convert(session, popular_query)
     trending = await fetch_and_convert(session, trending_query)

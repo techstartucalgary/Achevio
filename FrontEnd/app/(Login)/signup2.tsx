@@ -14,6 +14,7 @@ import {
 import { StackNavigationProp } from "@react-navigation/stack";
 import { Link } from "expo-router";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
 
 type RootStackParamList = {
   Signup: undefined;
@@ -40,14 +41,16 @@ type signupData = {
   password: string;
   detail: string;
 };
-export default function Signup2Screen() {
-  const [username, setUsername] = useState("");
-  const [first_name, setFirstName] = useState("");
-  const [last_name, setLastName] = useState("");
+export default function Signup2Screen(props) {
+  const [username, setUsername] = useState(props.username);
+  const [first_name, setFirstName] = useState(props.first_name);
+  const [last_name, setLastName] = useState(props.last_name);
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
+  const url = useSelector((state: any) => state.user.url);
 
   const validateInput = () => {
     if (!email || !username || !password || !confirmPassword) {
@@ -61,21 +64,18 @@ export default function Signup2Screen() {
     // Add any additional validation here (e.g., email format, password strength)
     return true;
   };
-
   const postSignupInfo = async () => {
-    if (!validateInput()) {
-      return;
-    }
+    if (!validateInput()) return;
     setIsLoading(true);
     try {
       const response = await axios.post(
-        "http://10.13.85.26:8000/user",
+        `${url}/user`,
         {
-          username,
-          first_name,
-          last_name,
-          email,
-          password,
+          username: username,
+          first_name: first_name,
+          last_name: last_name,
+          password: password,
+          email: email,
         },
         {
           headers: {
@@ -84,34 +84,17 @@ export default function Signup2Screen() {
           },
         }
       );
-
       if (response.status === 201) {
         Alert.alert("Success", "Signup successful!");
-        // handle successful signup, like navigation or clearing the form
+        dispatch(setUsername(username) as any);
       } else {
-        Alert.alert(
-          "Error",
-          response.data.detail || "An unexpected error occurred."
-        );
+        Alert.alert("Error", response.data.detail || "An unexpected error occurred.");
       }
-    } catch (error) {
-      // Check for additional details
-      if (error.response) {
-        // The request was made and the server responded with a status code
-      } else if (error.request) {
-        // The request was made but no response was received
-      } else {
-        // Something happened in setting up the request that triggered an Error
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  const getRequest = async () => {
-    try {
-      const response = await axios.get("http://10.13.85.26:8000/user");
     } catch (error) {
       console.error(error);
+      Alert.alert("Error", "An error occurred during signup.");
+    } finally {
+      setIsLoading(false);
     }
   };
 

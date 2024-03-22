@@ -307,7 +307,7 @@ const Communities = () => {
             communityName: item.name,
             communityStreak: item.streak,
             communityTags: item.tags.map((tag) => {
-              return tag.name + " ";
+              return tag.name + " " + tag.color;
             }),
             communityImage: `${url}/community/image/${item.id}.jpg`,
           }, // Parameters as an object

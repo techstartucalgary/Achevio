@@ -21,13 +21,18 @@ import { Image } from "expo-image";
 
 type TagProps = {
   text: string;
+  color: string;
   selected: boolean;
   onSelect: () => void;
 };
 
-const Tag: React.FC<TagProps> = ({ text, selected, onSelect }) => (
+const Tag: React.FC<TagProps> = ({ text, color, selected, onSelect }) => (
   <TouchableOpacity
-    style={[styles.tag, selected && styles.tagSelected]}
+    style={[
+      styles.tag,
+      { borderColor: color },
+      selected && { backgroundColor: color },
+    ]}
     onPress={onSelect}
   >
     <Text style={[styles.tagText, selected && styles.tagTextSelected]}>
@@ -35,7 +40,6 @@ const Tag: React.FC<TagProps> = ({ text, selected, onSelect }) => (
     </Text>
   </TouchableOpacity>
 );
-
 type RadioButtonProps = {
   label: string;
   value: string;
@@ -88,10 +92,12 @@ const Search: React.FC = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [activeTab, setActiveTab] = useState("forYou");
 
-  const toggleTag = (tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
+  const toggleTag = (tagName: string) => {
+    if (selectedTags.includes(tagName)) {
+      setSelectedTags(selectedTags.filter((tag) => tag !== tagName));
+    } else {
+      setSelectedTags([...selectedTags, tagName]);
+    }
   };
   useEffect(() => {
     fetchData();
@@ -103,12 +109,10 @@ const Search: React.FC = () => {
     if (activeTab === "forYou") {
       // Fetch data for the "For You" tab
       setFilteredData(res.data.forYou);
-    }
-    else if (activeTab === "popular") {
+    } else if (activeTab === "popular") {
       // Fetch data for the "Popular" tab
       setFilteredData(res.data.popular);
-    }
-    else if (activeTab === "trending") {
+    } else if (activeTab === "trending") {
       // Fetch data for the "Trending" tab
       setFilteredData(res.data.trending);
     }
@@ -145,21 +149,31 @@ const Search: React.FC = () => {
     if (activeTab === "forYou") {
       // Fetch data for the "For You" tab
       setFilteredData(data.forYou);
-    }
-    else if (activeTab === "popular") {
+    } else if (activeTab === "popular") {
       // Fetch data for the "Popular" tab
       setFilteredData(data.popular);
-    }
-    else if (activeTab === "trending") {
+    } else if (activeTab === "trending") {
       // Fetch data for the "Trending" tab
       setFilteredData(data.trending);
     }
-  }
-  , [activeTab]);
+  }, [activeTab]);
 
   useEffect(() => {
-    const filteredData = filterByCommunityName(searchQuery);
-    setFilteredData(filteredData);
+    let filtered = [...data[activeTab]]; // Start with a copy of the active tab's data
+
+    // Filter by search query
+    if (searchQuery) {
+      filtered = filtered.filter(item =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+  
+    // Filter by selected tags
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter(item =>
+        item.tags.some(tag => selectedTags.includes(tag.name))
+      );
+    }
   }, [searchQuery]);
 
   // Function to handle the selection of sort options
@@ -222,40 +236,40 @@ const Search: React.FC = () => {
               </TouchableOpacity>
             ))}
           </View>
-          {isFiltersVisible &&
-            (
-              <ScrollView style={styles.scrollView}>
-                <Text style={styles.filtersTitle}>Filters</Text>
-                <View style={styles.tagsContainer}>
+          {isFiltersVisible && (
+            <ScrollView style={styles.scrollView}>
+              <Text style={styles.filtersTitle}>Filters</Text>
+              <View style={styles.tagsContainer}>
                 {tags.map((tag, index) => (
-                    <Tag
+                  <Tag
                     key={`${tag.name}_${index}`} // Combining name and index for uniqueness
                     text={tag.name}
-                      selected={selectedTags.includes(tag.name)}
-                      onSelect={() => toggleTag(tag.name)}
-                    />
-                  ))}
-                </View>
-                <Text style={styles.sortTitle}>Sort By:</Text>
-                {[
-                  "Community name",
-                  "Community tags",
-                  "Communities my friends are in",
-                ].map((option) => (
-                  <RadioButton
-                    key={option + "radio"}
-                    label={option}
-                    value={option}
-                    onPress={() => handleSortOptionChange(option)}
-                    selectedValue={sortOption}
+                    color={tag.color}
+                    selected={selectedTags.includes(tag.name)}
+                    onSelect={() => toggleTag(tag.name)}
                   />
                 ))}
-                <TouchableOpacity style={styles.resultsButton}>
-                  <Text style={styles.resultsButtonText}>See all results</Text>
-                </TouchableOpacity>
-              </ScrollView>
-            )}
+              </View>
 
+              <Text style={styles.sortTitle}>Sort By:</Text>
+              {[
+                "Community name",
+                "Community tags",
+                "Communities my friends are in",
+              ].map((option) => (
+                <RadioButton
+                  key={option + "radio"}
+                  label={option}
+                  value={option}
+                  onPress={() => handleSortOptionChange(option)}
+                  selectedValue={sortOption}
+                />
+              ))}
+              <TouchableOpacity style={styles.resultsButton}>
+                <Text style={styles.resultsButtonText}>See all results</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          )}
 
           {filteredData && filteredData.length > 0 ? (
             <View>
@@ -263,7 +277,6 @@ const Search: React.FC = () => {
                 <TouchableOpacity
                   style={styles.communityItem}
                   key={item.id || index} // Using item.id or index as a fallback
-
                   onPress={() => {
                     router.push({
                       pathname: "/(pages)/CommunitiesPage", // The route name

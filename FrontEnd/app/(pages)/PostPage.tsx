@@ -163,10 +163,10 @@ const PostPage: React.FC = () => {
           isBackground
           source={{ uri: item.imageUrl }}
           style={styles.postImage}
-          resizeMode="cover" // This ensures the image covers the allotted space without altering its aspect ratio
+          resizeMode="cover"
         >
           <LinearGradient
-            colors={["transparent", "rgba(0,0,0,0.8)"]}
+            colors={["transparent", "rgba(0,0,0,0.2)"]}
             style={styles.gradientOverlay}
           >
             {showReactionMenu && (
@@ -200,11 +200,6 @@ const PostPage: React.FC = () => {
       horizontal={false}
       showsHorizontalScrollIndicator={false}
       showsVerticalScrollIndicator={false}
-      initialNumToRender={4}
-      onEndReachedThreshold={0.5}
-      maxToRenderPerBatch={5}
-      updateCellsBatchingPeriod={30}
-      windowSize={5}
       ref={flatListRef}
       initialScrollIndex={parseInt(selectedIndex.toString())}
       getItemLayout={getItemLayout}
@@ -221,8 +216,9 @@ const styles = StyleSheet.create({
     
   },
   postImage: {
-    width: '100%',
-    height: height
+    width: '100%', // This ensures the image is full-width of its container.
+    height: '100%', // This ensures the image is full-height of its container.
+    resizeMode: 'cover', 
   },
   
   gradientOverlay: {

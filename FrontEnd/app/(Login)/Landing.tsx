@@ -77,19 +77,19 @@ const Landing = () => {
       <Image source={require("../../assets/images/temp_icon_full.png")} style={styles.image} />
       <Text style={styles.title}>Achevio</Text>
       <Text style={styles.subheading}>Reach for the stars</Text>
-      <Pressable style={styles.navText} onPress={() =>  router.push({
+      <Pressable style={styles.navText} onPress={() =>  router.replace({
                   pathname: "/(Login)/home",
                   params: {
-                    slide: 1,
+                    slider: 1,
                   },
                 }
       )}>
         <Text style={styles.navTextsize}>Login</Text>
       </Pressable>
-      <Pressable style={styles.navText} onPress={() => router.push({
+      <Pressable style={styles.navText} onPress={() => router.replace({
                   pathname: "/(Login)/home",
                   params: {
-                    slide: 2,
+                    slider: 2,
                   },
                 }
       )}>

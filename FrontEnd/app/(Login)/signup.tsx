@@ -9,102 +9,30 @@ import {
   View,
   Image,
 } from "react-native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { Link } from "expo-router";
-import axios from "axios";
-import { useSelector, useDispatch } from "react-redux";
-import { setUsername, setUrl } from "../redux/actions";
-type RootStackParamList = {
-  Signup: undefined;
-  Login: undefined;
-  // ... other screen definitions
-};
+import {router} from "expo-router";
 
-type SignupScreenNavigationProp = StackNavigationProp<RootStackParamList, "Signup">;
-
-type Props = {
-  navigation: SignupScreenNavigationProp;
-};
-
-type signupData = {
-  communities: [];
-  email: string;
-  first_name: string;
-  last_name: string;
-  id: string;
-  username: string;
-  password: string;
-  detail: string;
-};
 export default function SignupScreen() {
+  const [localUsername, setLocalUsername] = useState("");
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
-  const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [localUsername, setLocalUsername] = useState("");
-  const [localEmail, setLocalEmail] = useState("");
-  const [localPassword, setLocalPassword] = useState("");
-  const [localConfirmPassword, setLocalConfirmPassword] = useState("");
-
-  const [isLoading, setIsLoading] = useState(false);
-  const dispatch = useDispatch();
-  const { url, username } = useSelector((state: any) => state.user);
+  const [isLoading] = useState(false);
 
   const validateInput = () => {
-    if (!localEmail || !localUsername || !localPassword || !localConfirmPassword) {
+    if (first_name === "" || last_name === "" || localUsername === "" ) {
       Alert.alert("Error", "Please fill in all fields.");
       return false;
     }
-    if (localPassword !== localConfirmPassword) {
-      Alert.alert("Error", "Passwords do not match.");
-      return false;
-    }
-    // Add any additional validation here
+
     return true;
   };
-
-  const postSignupInfo = async () => {
-    if (!validateInput()) {
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const response = await axios.post(
-        `${url}/user`,
-        {
-          username: localUsername,
-          password: localPassword,
-          email: localEmail,
-          first_name: "Magdy",
-          last_name: "Hafez",
-        },
-        {
-          headers: {
-            accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.status === 201) {
-        Alert.alert("Success", "Signup successful!");
-        dispatch<any>(setUsername(localUsername));
-      } else {
-        Alert.alert("Error", response.data.detail || "An unexpected error occurred.");
-      }
-    } catch (error) {
-      // Check for additional details
-      if (error.response) {
-        // The request was made and the server responded with a status code
-      } else if (error.request) {
-        // The request was made but no response was received
-      } else {
-        // Something happened in setting up the request that triggered an Error
-      }
-    } finally {
-      setIsLoading(false);
-    }
+  const goNext = () => {
+    router.replace({
+      pathname: "/(Login)/home",
+      params: { username: localUsername, first_name: first_name, last_name: last_name, slider:3},
+    });
   };
+
+
   return (
     <View style={styles.container}>
       {isLoading ? (
@@ -140,13 +68,24 @@ export default function SignupScreen() {
             placeholderTextColor="#343a40"
             autoCapitalize="none"
           />
-          <TouchableOpacity style={styles.signupBtn} onPress={postSignupInfo} disabled={isLoading}>
+          <TouchableOpacity style={styles.signupBtn} onPress={
+            () => {
+              if (validateInput()) {
+                goNext();
+              }
+            }
+          } disabled={isLoading}>
             <Text style={styles.signupText}>Continue</Text>
           </TouchableOpacity>
           <Text style={styles.navText}>---------------- OR ----------------</Text>
-          <Link href="/" style={styles.linkstyle}>
+          <TouchableOpacity style={styles.linkstyle} onPress={() => router.replace({
+            pathname:"/(Login)/home",
+            params:{
+              slider: 1
+            }
+          })}>
             <Text style={styles.loginText}>Go back to Login</Text>
-          </Link>
+          </TouchableOpacity>
 
           <StatusBar backgroundColor="#000000" barStyle="light-content" />
         </>

@@ -157,11 +157,16 @@ export default function LoginScreen() {
         </TouchableOpacity>
         {loading ? <ActivityIndicator size="large" color="#0000ff" /> : <GoogleLoginButton />}
         <Text style={styles.navText}>---------------- OR ----------------</Text>
-        <Link href="/signup" asChild>
-          <Pressable>
+        <TouchableOpacity onPress={() => router.replace(
+          {
+            pathname:"/(Login)/home",
+            params:{
+              slider: 2
+            }
+          }
+        )}>
             <Text style={styles.navText}>Go to Signup</Text>
-          </Pressable>
-        </Link>
+        </TouchableOpacity>
 
         <StatusBar backgroundColor="#000000" barStyle="light-content" />
       </View>

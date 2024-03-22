@@ -19,7 +19,9 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const params = useLocalSearchParams();
-  const slider = params.slide || 0;
+  const slider = params.slider || 0;
+  const { username, first_name, last_name } = params;
+  console.log(slider);
 
   useEffect(() => {
   }, []);
@@ -41,7 +43,7 @@ export default function TabLayout() {
         <SignupScreen />
       </View>
       <View style={styles.slide}>
-        <Signup2Screen />
+        <Signup2Screen username={username} first_name={first_name} last_name={last_name} />
       </View>
     </Swiper>
   );

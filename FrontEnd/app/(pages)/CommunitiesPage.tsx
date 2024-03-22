@@ -15,7 +15,7 @@ import {
   PanResponder,
   ActivityIndicator,
 } from "react-native";
-import { Image } from 'expo-image';
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { set } from "date-fns";
@@ -29,9 +29,8 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { setUsername } from "../redux/actions";
-import LottieView from 'lottie-react-native';
+import LottieView from "lottie-react-native";
 
-const screenWidth = Dimensions.get("window").width;
 type Post = {
   id: string;
   title: string;
@@ -45,16 +44,19 @@ type Post = {
   userImage: string;
 };
 
+const screenWidth = Dimensions.get("window").width;
+const largeImageSize = screenWidth * 0.45;
+const smallImageSize = (screenWidth * 0.45 - 3) / 2; // Adjust margin/padding as needed
 
 const CommunityPage: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const { url } = useSelector((state: any) => state.user);
-  const [communityTagArray, setCommunityTagArray] = useState<string[]>([]);
-  const [isLargeView, setIsLargeView] = useState<boolean>(false);
+  const [communityTagArray, setCommunityTagArray] = useState([]);
   const params = useLocalSearchParams();
+  const [rows, setRows] = useState([]);
   const [postData, setPostData] = useState<Post[]>([]);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const [ refreshing, setRefreshing ] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const {
     communityId,
     communityName,
@@ -84,15 +86,140 @@ const CommunityPage: React.FC = () => {
       </View>
     );
   };
-  type PostItemProps = {
-    item: Post;
-    onSelectPost: (post: Post) => void;
-    index: number;
+
+  const handleJumpToPost = (index) => {
+    router.push({
+      pathname: "/(pages)/PostPage",
+      params: {
+        communityId: communityId,
+        url: url,
+        selectedIndex: index, // Pass the index as a parameter
+      },
+    });
+  };
+  const RowItem = ({ largeUri, smallUris, isReversed = false, startIndex }) => (
+    <View
+      style={{
+        flexDirection: isReversed ? "row-reverse" : "row",
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 3,
+      }}
+    >
+      <TouchableOpacity onPress={() => handleJumpToPost(startIndex)}>
+        <Image
+          source={{ uri: largeUri }}
+          style={{
+            height: largeImageSize,
+            width: largeImageSize,
+            marginRight: isReversed ? 0 : 3,
+            marginLeft: isReversed ? 3 : 0,
+          }}
+          cachePolicy="memory-disk"
+        />
+      </TouchableOpacity>
+      <View
+        style={{
+          height: largeImageSize,
+          width: largeImageSize,
+          flexDirection: "column", // Adjust this to align items vertically in two rows
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginBottom: 3,
+          }}
+        >
+          {smallUris.slice(0, 2).map((uri, index) => (
+            <TouchableOpacity
+              key={uri} // Make sure uri is unique, otherwise, consider another key
+              onPress={() => handleJumpToPost(startIndex + index + 1)}
+              style={{ width: smallImageSize, height: smallImageSize }}
+            >
+              <Image
+                source={{ uri }}
+                style={{ height: "100%", width: "100%" }}
+                cachePolicy="memory-disk"
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          {smallUris.slice(2, 4).map((uri, index) => (
+            <TouchableOpacity
+              key={uri} // Make sure uri is unique, otherwise, consider another key
+              onPress={() => handleJumpToPost(startIndex + index + 3)} // Adjust index calculation for the second row
+              style={{ width: smallImageSize, height: smallImageSize }}
+            >
+              <Image
+                source={{ uri }}
+                style={{ height: "100%", width: "100%" }}
+                cachePolicy="memory-disk"
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    </View>
+  );
+
+  const LeftoverImagesRow = ({ uris, index }) => (
+    <View
+      style={{
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 3,
+      }}
+    >
+      {uris.map((uri, index) => (
+        <Image
+          key={index}
+          source={{ uri }}
+          style={{ height: largeImageSize, width: largeImageSize, margin: 3 }}
+          cachePolicy="memory-disk"
+        />
+      ))}
+    </View>
+  );
+  const prepareRows = (images) => {
+    const rows = [];
+    for (let i = 0; i < images.length; i += 5) {
+      const row = {
+        type: "row",
+        largeUri: images[i],
+        smallUris: images.slice(i + 1, i + 5),
+        startIndex: i, // Add the startIndex here
+      };
+      rows.push(row);
+    }
+    return rows;
   };
 
-const handleLongPress = () => {
-  setShowReactionMenu(true);
-};
+  const renderItem = useCallback(({ item, index }) => {
+    switch (item.type) {
+      case "row":
+        return (
+          <RowItem
+            largeUri={item.largeUri}
+            smallUris={item.smallUris}
+            isReversed={index % 2 !== 0}
+            startIndex={item.startIndex} // Pass startIndex here
+          />
+        );
+      case "leftovers":
+        return <LeftoverImagesRow uris={item.uris} index={index} />;
+      default:
+        return null; // Just in case
+    }
+  }, []);
+
+  const handleLongPress = () => {
+    setShowReactionMenu(true);
+  };
   const fetchPosts = async () => {
     console.log("Fetching posts for community:", communityId);
     try {
@@ -123,7 +250,11 @@ const handleLongPress = () => {
           })
         );
         setPostData(postsWithUsernames);
-        console.log("Posts:", postsWithUsernames);
+        const rows = prepareRows(
+          postsWithUsernames.map((post) => post.imageUrl)
+        );
+        setRows(rows);
+        console.log("Posts:", postData);
       }
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -156,8 +287,7 @@ const handleLongPress = () => {
     }
   };
 
-useEffect(() => {
-
+  useEffect(() => {
     const fetchData = async () => {
       console.log(
         "Communities:",
@@ -166,54 +296,23 @@ useEffect(() => {
         communityStreak,
         communityTags
       );
+
       setRefreshing(true);
       await fetchPosts();
       await fetchFollowers();
-      const communityTagArray = Array.isArray(communityTags)
-        ? communityTags
-        : communityTags.split(",");
-      setCommunityTagArray(communityTagArray);
+      const parsedTags = ((communityTags || "") as string)
+        .split(",")
+        .map((tagWithColor) => {
+          const [text, color] = tagWithColor.split(" ");
+          return { text, color };
+        });
+
+      setCommunityTagArray(parsedTags);
       setRefreshing(false);
-  
     };
-  
+
     fetchData();
-
-}, [communityId]);
-
-const PostItem: React.FC<PostItemProps> = React.memo(({ item, onSelectPost, index }) => {
-  return (
-      <TouchableOpacity
-        onPress={
-          () => {
-            console.log("PostData:", postData);
-            router.push({
-              pathname: "/(pages)/PostPage",
-              params: {
-                communityId: communityId,
-                url: url,
-                selectedIndex: index, // Pass the index as a parameter
-              },
-            });
-          }
-        }
-        style={styles.post}
-      >
-        <Image source={{ uri: item.imageUrl }} style={styles.postImage} cachePolicy="memory-disk" />
-      </TouchableOpacity>
-    );
-  });
-
-  const onSelectPost = useCallback((post) => {
-    setSelectedPost(post);
-    setModalVisible(true);
-  }, []);
-  
-  
-  const renderPost = useCallback(({ item, index }) => ( // Destructure index from here
-  <PostItem item={item} onSelectPost={onSelectPost} index={index} /> // Pass index to PostItem
-), [onSelectPost]);
-
+  }, [communityId]);
 
   useEffect(() => {
     // Start the fade-in animation when the component mounts
@@ -293,7 +392,6 @@ const PostItem: React.FC<PostItemProps> = React.memo(({ item, onSelectPost, inde
             {...panResponder.panHandlers}
           >
             <View style={styles.userInfoContainer}>
-              
               <Image
                 source={{ uri: post.userImage }}
                 style={styles.userImage}
@@ -301,15 +399,17 @@ const PostItem: React.FC<PostItemProps> = React.memo(({ item, onSelectPost, inde
               <Text style={styles.username}>{post.user}</Text>
             </View>
 
-            <Pressable onLongPress={handleLongPress} onPressOut={() => setShowReactionMenu(false)}>
+            <Pressable
+              onLongPress={handleLongPress}
+              onPressOut={() => setShowReactionMenu(false)}
+            >
               <Image
-              source={{ uri: post.imageUrl }}
-              style={styles.modalPostImage}
-            />
+                source={{ uri: post.imageUrl }}
+                style={styles.modalPostImage}
+              />
               {showReactionMenu && <ReactionMenu />}
-
             </Pressable>
-            
+
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>{post.title}</Text>
 
@@ -349,7 +449,6 @@ const PostItem: React.FC<PostItemProps> = React.memo(({ item, onSelectPost, inde
                 >
                   Followers
                 </Text>
-              
               }
               renderItem={({ item }) => (
                 console.log("Item:", item),
@@ -359,21 +458,21 @@ const PostItem: React.FC<PostItemProps> = React.memo(({ item, onSelectPost, inde
                       flexDirection: "column",
                     }}
                   >
-                  <View style={styles.userInfo}>
-                    <Image
-                      source={{ uri: item.userImage }} // Use the correct property to set the image source
-                      style={styles.modalUserImage}
-                    />
-                    <Text
-                      style={{
-                        fontSize: 18,
-                        color: "black",
-                        padding: 10,
-                      }}
-                    >
-                      {item.username}
-                    </Text>
-                  </View>
+                    <View style={styles.userInfo}>
+                      <Image
+                        source={{ uri: item.userImage }} // Use the correct property to set the image source
+                        style={styles.modalUserImage}
+                      />
+                      <Text
+                        style={{
+                          fontSize: 18,
+                          color: "black",
+                          padding: 10,
+                        }}
+                      >
+                        {item.username}
+                      </Text>
+                    </View>
                   </View>
                 )
               )}
@@ -453,13 +552,19 @@ const PostItem: React.FC<PostItemProps> = React.memo(({ item, onSelectPost, inde
           </TouchableOpacity>
           <Text style={styles.streakText}>{communityStreak}</Text>
           <View style={styles.tagContainer}>
-            {Array.isArray(communityTagArray) &&
-              communityTagArray.map((tag: string) => (
-                <View style={styles.tag} key={tag}>
-                  <Text style={styles.tagText}>{tag}</Text>
-                </View>
-              ))}
+            {communityTagArray.map(({ text, color }, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.tag,
+                  { backgroundColor: color || "rgba(255, 255, 255, 0.6)" },
+                ]}
+              >
+                <Text style={styles.tagText}>{text}</Text>
+              </View>
+            ))}
           </View>
+
           <View style={styles.statsContainer}>
             <Text
               style={styles.statText}
@@ -467,9 +572,9 @@ const PostItem: React.FC<PostItemProps> = React.memo(({ item, onSelectPost, inde
                 setIsFollowersModalVisible(true);
               }}
             >
-              56 Followers
+              {followers.length} Followers
             </Text>
-            <Text style={styles.statText}>198 Posts</Text>
+            <Text style={styles.statText}>{postData.length} posts</Text>
           </View>
         </View>
       </Animated.View>
@@ -484,9 +589,9 @@ const PostItem: React.FC<PostItemProps> = React.memo(({ item, onSelectPost, inde
   );
   const CustomLoadingScreen = () => {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <LottieView
-          source={require('../../assets/rocketLoad.json')}
+          source={require("../../assets/rocketLoad.json")}
           autoPlay
           loop
           style={styles.animation}
@@ -499,23 +604,23 @@ const PostItem: React.FC<PostItemProps> = React.memo(({ item, onSelectPost, inde
       style={{ flex: 1, opacity: fadeAnim, marginTop: 0, padding: 0 }}
     >
       <Pressable onPress={() => setIsMenuVisible(false)} style={{ flex: 1 }}>
-        {
-          refreshing ? <CustomLoadingScreen /> :
-        <FlatList
-          style={{ borderRadius: 25, overflow: "hidden" }}
-          key={selectedPostId ? "single-column" : "multi-column"} // Unique key based on layout
-          data={postData}
-          ListHeaderComponent={renderHeader}
-          renderItem={renderPost}
-          numColumns={2}
-          keyExtractor={(item) => item.id.toString()}
-          showsVerticalScrollIndicator={false}
-          initialNumToRender={8}
-          onEndReachedThreshold={0.5}
-          maxToRenderPerBatch={5}
-          updateCellsBatchingPeriod={30}
-        />
-        }
+        {refreshing ? (
+          <CustomLoadingScreen />
+        ) : (
+          <FlatList
+            style={{ borderRadius: 25, overflow: "hidden" }}
+            key={selectedPostId ? "single-column" : "multi-column"} // Unique key based on layout
+            data={rows}
+            ListHeaderComponent={renderHeader}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => index.toString()}
+            showsVerticalScrollIndicator={false}
+            initialNumToRender={8}
+            onEndReachedThreshold={0.5}
+            maxToRenderPerBatch={5}
+            updateCellsBatchingPeriod={30}
+          />
+        )}
         <PostDetailModal
           isVisible={modalVisible}
           post={selectedPost}
@@ -840,10 +945,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   reactionMenu: {
-    flexDirection: 'row',
-    position: 'absolute',
+    flexDirection: "row",
+    position: "absolute",
     bottom: 50, // Adjust based on your UI
-    backgroundColor: '#FFF',
+    backgroundColor: "#FFF",
     borderRadius: 20,
     padding: 5,
   },

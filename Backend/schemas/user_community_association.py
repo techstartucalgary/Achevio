@@ -11,6 +11,6 @@ class UserCommunityAssociationSchema(Schema):
     
     role: str
     current_nb_of_days: int
-    goal_nb_of_days: str
+    goal_nb_of_days: int
     streak: int = 0
 

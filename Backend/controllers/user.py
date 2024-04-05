@@ -254,9 +254,8 @@ class UserController(Controller):
         return str(user.username)
     
 
-    @get('/GetNames')
+    @get('/GetNames') # Wtf is this endpoint supposed to do?    -W
     async def get_names_by_id(self, session: AsyncSession, parameters: list[UUID]) -> list[str]:
-
         users = []
         for id in parameters:
             user = await get_user_by_id(session, id)

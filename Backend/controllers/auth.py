@@ -47,7 +47,7 @@ oauth2_auth = OAuth2PasswordBearerAuth[User](
 )
 
 
-@post('/login', dto=UserLoginDTO)
+@post('/login', dto=UserLoginDTO, return_dto=None)
 async def login_handler(request: Request, data: DTOData[UserSchema], session: AsyncSession) -> Response[OAuth2Login]:
     '''
     Handle user login.

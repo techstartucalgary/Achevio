@@ -19,6 +19,7 @@ class UserCommunityAssociation(UUIDBase):
 
     role = Column(String)
     community_name = Column(String)
+    
     current_nb_of_days = Column(Integer)
     goal_nb_of_days = Column(Integer)
     streak = Column(Integer, default=0)

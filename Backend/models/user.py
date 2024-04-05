@@ -16,8 +16,8 @@ class User(UUIDAuditBase):
     last_name: Mapped[str] = mapped_column(String(100))
     email: Mapped[str] = mapped_column(String(100))
     profile_picture: Mapped[str] = mapped_column(String(100), nullable=True)
-    is_active: Mapped[bool] = mapped_column(Boolean)
-    last_login: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True))
+    is_active: Mapped[bool] = mapped_column(Boolean, default=False)
+    last_login: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), default=datetime.datetime.utcnow)
     password: Mapped[str] = mapped_column(String(255))
 
     time_zone = mapped_column(String(100), default='UTC')

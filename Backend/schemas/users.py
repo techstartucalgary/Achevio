@@ -1,16 +1,14 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
-import argon2
 from uuid import UUID
 
 from litestar.dto import DTOConfig
 from litestar.contrib.pydantic import PydanticDTO
-# Initialize Argon2 for password hashing
-ph = argon2.PasswordHasher()
+
 from datetime import datetime
 from .schema import Schema
-
+from lib.hasher import ph
 
 
 class UserSchema(Schema):

@@ -76,10 +76,10 @@ class UserController(Controller):
         Returns:
             UserSchema: The user's information in UserSchema format.
         '''
-        return UserSchema.model_validate(await get_user_by_id(session, request.user))
+        return await get_user_by_id(session, request.user)
 
 
-    @get('/myCommunities')
+    @get('/myCommunities', return_dto=ViewCommunityDTO)
     async def get_my_communities(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> list[CommunitySchema]:
         '''
         Retrieves the communities associated with the current user. 
@@ -91,7 +91,7 @@ class UserController(Controller):
         Returns:
             list[CommunitySchema]: A list of communities in CommunitySchema format that the user belongs to.
         '''
-        return [CommunitySchema.model_validate(community) for community in await get_user_communities(session, request.user)]
+        return await get_user_communities(session, request.user)
 
 
     # DEPRECATED

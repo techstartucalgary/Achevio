@@ -174,7 +174,7 @@ async def transfer_community_ownership(session: AsyncSession, id: UUID, user: Us
 
 
 async def get_user_communities(session: AsyncSession, user_id: UUID):
-    query = select(Community).join(UserCommunityAssociation, Community.id == UserCommunityAssociation.community_id).filter(UserCommunityAssociation.user_id == user_id).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.postdays)).options(orm.selectinload(Community.tags))
+    query = select(Community).join(UserCommunityAssociation, Community.id == UserCommunityAssociation.community_id).filter(UserCommunityAssociation.user_id == user_id).options(orm.selectinload(Community.tags))
     result = await session.execute(query)
     return result.scalars().all()
 

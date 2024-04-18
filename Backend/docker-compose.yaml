@@ -18,11 +18,12 @@ services:
     image: redis:latest
     container_name: redis_container
     ports:
-      - "6379:6379"
+      - "6380:6380"
     volumes:
       - redis_data:/data
     restart: unless-stopped
+    command: redis-server --appendonly yes --port 6380
 
 volumes:
   db_data:
-  redis_data:
+  redis_data: 

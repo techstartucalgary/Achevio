@@ -19,12 +19,11 @@ class UserCommunityAssociation(UUIDBase):
 
     role = Column(String)
     community_name = Column(String)
-    
-    current_nb_of_days = Column(Integer)
+    current_nb_of_days = Column(Integer, default=0)
     goal_nb_of_days = Column(Integer)
     streak = Column(Integer, default=0)
 
-    community = relationship('Community', back_populates='users')
+    community = relationship('Community', back_populates='users', lazy='selectin')
     user = relationship('User', back_populates='communities')
 
 

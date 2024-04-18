@@ -9,7 +9,7 @@
     "node_modules/expo/**/*.ts",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "app/redux/store.tsx"
+    "app/redux/store/store.tsx"
   ],
   "extends": "expo/tsconfig.base"
 }

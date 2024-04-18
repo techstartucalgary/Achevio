@@ -25,7 +25,7 @@ class Community(UUIDAuditBase):
 
     tags: Mapped[list['Tag']] = relationship(
         secondary=community_tag_association,
-        # lazy='selectin'
+        lazy='selectin'
     )
 
     image: Mapped[str] = mapped_column(String(100), nullable=True)

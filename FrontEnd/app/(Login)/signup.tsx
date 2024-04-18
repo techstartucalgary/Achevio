@@ -8,8 +8,10 @@ import {
   TouchableOpacity,
   View,
   Image,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
-import {router} from "expo-router";
+import { router } from "expo-router";
 
 export default function SignupScreen() {
   const [localUsername, setLocalUsername] = useState("");
@@ -18,7 +20,7 @@ export default function SignupScreen() {
   const [isLoading] = useState(false);
 
   const validateInput = () => {
-    if (first_name === "" || last_name === "" || localUsername === "" ) {
+    if (first_name === "" || last_name === "" || localUsername === "") {
       Alert.alert("Error", "Please fill in all fields.");
       return false;
     }
@@ -28,69 +30,90 @@ export default function SignupScreen() {
   const goNext = () => {
     router.replace({
       pathname: "/(Login)/home",
-      params: { username: localUsername, first_name: first_name, last_name: last_name, slider:3},
+      params: {
+        username: localUsername,
+        first_name: first_name,
+        last_name: last_name,
+        slider: 3,
+      },
     });
   };
 
-
   return (
-    <View style={styles.container}>
-      {isLoading ? (
-        <Text>Loading...</Text>
-      ) : (
-        <>
-          <Image source={require("../../assets/images/temp_rocket.png")} style={styles.image} />
-          <Text style={styles.title}>Glad to have you on board !</Text>
-          <Text style={styles.subheading}>
-            But first we would like to get to know a little bit more about you{" "}
-          </Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={setLocalUsername}
-            value={localUsername}
-            placeholderTextColor="#343a40"
-            placeholder="Username"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            onChangeText={setFirstName}
-            value={first_name}
-            placeholder="First Name"
-            placeholderTextColor="#343a40"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            onChangeText={setLastName}
-            value={last_name}
-            placeholder="Last Name"
-            placeholderTextColor="#343a40"
-            autoCapitalize="none"
-          />
-          <TouchableOpacity style={styles.signupBtn} onPress={
-            () => {
-              if (validateInput()) {
-                goNext();
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.keyboardView}
+    >
+      <View style={styles.container}>
+        {isLoading ? (
+          <Text>Loading...</Text>
+        ) : (
+          <>
+            <Image
+              source={require("../../assets/images/temp_rocket.png")}
+              style={styles.image}
+            />
+            <Text style={styles.title}>Glad to have you on board !</Text>
+            <Text style={styles.subheading}>
+              But first we would like to get to know a little bit more about you{" "}
+            </Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={setLocalUsername}
+              value={localUsername}
+              placeholderTextColor="#343a40"
+              placeholder="Username"
+              autoCapitalize="none"
+            />
+            <TextInput
+              style={styles.input}
+              onChangeText={setFirstName}
+              value={first_name}
+              placeholder="First Name"
+              placeholderTextColor="#343a40"
+              autoCapitalize="none"
+            />
+            <TextInput
+              style={styles.input}
+              onChangeText={setLastName}
+              value={last_name}
+              placeholder="Last Name"
+              placeholderTextColor="#343a40"
+              autoCapitalize="none"
+            />
+            <TouchableOpacity
+              style={styles.signupBtn}
+              onPress={() => {
+                if (validateInput()) {
+                  goNext();
+                }
+              }}
+              disabled={isLoading}
+            >
+              <Text style={styles.signupText}>Continue</Text>
+            </TouchableOpacity>
+            <Text style={styles.navText}>
+              ---------------- OR ----------------
+            </Text>
+            <TouchableOpacity
+              style={styles.linkstyle}
+              onPress={() =>
+                router.replace({
+                  pathname: "/(Login)/home",
+                  params: {
+                    slider: 1,
+                  },
+                })
               }
-            }
-          } disabled={isLoading}>
-            <Text style={styles.signupText}>Continue</Text>
-          </TouchableOpacity>
-          <Text style={styles.navText}>---------------- OR ----------------</Text>
-          <TouchableOpacity style={styles.linkstyle} onPress={() => router.replace({
-            pathname:"/(Login)/home",
-            params:{
-              slider: 1
-            }
-          })}>
-            <Text style={styles.loginText}>Go back to Login</Text>
-          </TouchableOpacity>
+            >
+              <Text style={styles.loginText}>Go back to Login</Text>
+            </TouchableOpacity>
 
-          <StatusBar backgroundColor="#000000" barStyle="light-content" />
-        </>
-      )}
-    </View>
+            <StatusBar backgroundColor="#000000" barStyle="light-content" />
+          </>
+        )}
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -130,6 +153,9 @@ const styles = StyleSheet.create({
   signupText: {
     fontSize: 18,
     color: "#fffeeb",
+  },
+  keyboardView: {
+    flex: 1,
   },
   subheading: {
     fontSize: 16,

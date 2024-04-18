@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -11,21 +11,22 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Button,
 } from "react-native";
 import { useSelector } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-
+import { router, useFocusEffect } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 
 // Dummy data for tags and days
-const availableTags = [
-  "Sports",
-  "Music",
-  "Technology",
-  "Gaming",
-  "News",
-  "Health",
-];
+// const availableTags = [
+//   "Sports",
+//   "Music",
+//   "Technology",
+//   "Gaming",
+//   "News",
+//   "Health",
+// ];
 const daysOfWeek = [
   "Sunday",
   "Monday",
@@ -39,54 +40,52 @@ const daysOfWeek = [
 const CreateCommunity: React.FC = () => {
   const [communityName, setCommunityName] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [postDays, setPostDays] = useState<string[]>([]);
+  const params = useLocalSearchParams();
+  const { selectedTags } = params;
   const { url } = useSelector((state: any) => state.user);
-  const toggleTagSelection = (tag: string) => {
-    setSelectedTags((prevTags) =>
-      prevTags.includes(tag)
-        ? prevTags.filter((t) => t !== tag)
-        : [...prevTags, tag]
-    );
+  const [tags, setTags] = useState([]);
+  const [postFreq, setPostFreq] = useState("");
+  const parseTags = (tagsString) => {
+    if (!tagsString) return []; // Return an empty array if tagsString is undefined or null
+    return tagsString.split(",").map((tag) => {
+      const [name, color] = tag.split(" #");
+      return { name, color: `#${color}` };
+    });
   };
+  useEffect(() => {
+    const tags = parseTags(selectedTags);
+    setTags(tags);
+  }, [selectedTags]);
 
-  const toggleDaySelection = (day: string) => {
-    setPostDays((prevDays) =>
-      prevDays.includes(day)
-        ? prevDays.filter((d) => d !== day)
-        : [...prevDays, day]
-    );
-  };
+  
+
   const goNext = () => {
+    console.log("postFreq: ", postFreq);
+
     if (communityName === "") {
       alert("Please enter a community name");
       return;
-    }
-    else if (description === "") {
+    } else if (description === "") {
       alert("Please enter a description");
       return;
-    }
-    else if (selectedTags.length === 0) {
+    } else if (selectedTags.length === 0) {
       alert("Please select at least one tag");
       return;
-    }
-    else if (postDays.length === 0) {
+    } else if (postFreq === "") {
       alert("Please select at least one post day");
       return;
-    }
-    else {
+    } else {
       router.push({
         pathname: "/UploadingImages",
         params: {
           communityName,
           description,
           selectedTags,
-          postDays,
+          postFreq,
         },
-      })
+      });
     }
   };
-
 
   return (
     <SafeAreaView style={styles.container}>
@@ -124,58 +123,148 @@ const CreateCommunity: React.FC = () => {
               />
             </View>
 
-            <Text style={styles.subtitle}>Select Tags:</Text>
-            <View style={styles.tagsContainer}>
-              {availableTags.map((tag) => (
-                <TouchableOpacity
-                  key={tag}
+            <Text style={styles.subtitle}>Number of Posts per Week:</Text>
+            <View style={styles.numberContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.numberButton,
+                  postFreq === "1" && styles.numberButtonSelected,
+                ]}
+                onPress={() => setPostFreq("1")}
+              >
+                <Text
                   style={[
-                    styles.tag,
-                    selectedTags.includes(tag) && styles.tagSelected,
+                    styles.numberButton,
+                    postFreq === "1" && styles.numberButtonSelected,
                   ]}
-                  onPress={() => toggleTagSelection(tag)}
                 >
-                  <Text
-                    style={[
-                      styles.tagText,
-                      selectedTags.includes(tag) && styles.tagTextSelected,
-                    ]}
-                  >
-                    {tag}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            <Text style={styles.subtitle}>Post Days:</Text>
-            <View style={styles.daysContainer}>
-              {daysOfWeek.map((day) => (
-                <TouchableOpacity
-                  key={day}
+                  1
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.numberButton,
+                  postFreq === "2" && styles.numberButtonSelected,
+                ]}
+                onPress={() => setPostFreq("2")}
+              >
+                <Text
                   style={[
-                    styles.dayButton,
-                    postDays.includes(day) && styles.daySelected,
+                    styles.numberButton,
+                    postFreq === "2" && styles.numberButtonSelected,
                   ]}
-                  onPress={() => toggleDaySelection(day)}
                 >
-                  <Text
-                    style={[
-                      styles.dayText,
-                      postDays.includes(day) && styles.dayTextSelected,
-                    ]}
-                  >
-                    {day}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                  2
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.numberButton,
+                  postFreq === "3" && styles.numberButtonSelected,
+                ]}
+                onPress={() => setPostFreq("3")}
+              >
+                <Text
+                  style={[
+                    styles.numberButton,
+                    postFreq === "3" && styles.numberButtonSelected,
+                  ]}
+                >
+                  3
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.numberButton,
+                  postFreq === "4" && styles.numberButtonSelected,
+                ]}
+                onPress={() => setPostFreq("4")}
+              >
+                <Text
+                  style={[
+                    styles.numberButton,
+                    postFreq === "4" && styles.numberButtonSelected,
+                  ]}
+                >
+                  4
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.numberButton,
+                  postFreq === "5" && styles.numberButtonSelected,
+                ]}
+                onPress={() => setPostFreq("5")}
+              >
+                <Text
+                  style={[
+                    styles.numberButton,
+                    postFreq === "5" && styles.numberButtonSelected,
+                  ]}
+                >
+                  5
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.numberButton,
+                  postFreq === "6" && styles.numberButtonSelected,
+                ]}
+                onPress={() => setPostFreq("6")}
+              >
+                <Text
+                  style={[
+                    styles.numberButton,
+                    postFreq === "6" && styles.numberButtonSelected,
+                  ]}
+                >
+                  6
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.numberButton,
+                  postFreq === "7" && styles.numberButtonSelected,
+                ]}
+                onPress={() => setPostFreq("7")}
+              >
+                <Text
+                  style={[
+                    styles.numberButton,
+                    postFreq === "7" && styles.numberButtonSelected,
+                  ]}
+                >
+                  7
+                </Text>
+              </TouchableOpacity>
             </View>
-
             <TouchableOpacity
               style={styles.button}
-              onPress={
-                goNext                
+              onPress={() =>
+                router.push({
+                  pathname: "/SelectTags",
+                })
               }
             >
+              <Text style={styles.buttonText}> Select Tags</Text>
+            </TouchableOpacity>
+            {Array.isArray(tags) && tags.length > 0 && (
+              <>
+                <Text style={styles.subtitle}>Selected Tags:</Text>
+                <View style={styles.tagsContainer}>
+                  {tags.map((tag) => (
+                    <View
+                      style={[styles.tag, { backgroundColor: tag.color }]}
+                      key={tag.name}
+                    >
+                      <Text style={styles.tagText}>{tag.name}</Text>
+                    </View>
+                  ))}
+                </View>
+              </>
+            )}
+
+            <TouchableOpacity style={styles.button} onPress={goNext}>
               <Text style={styles.buttonText}>Create Community</Text>
             </TouchableOpacity>
           </View>
@@ -183,7 +272,8 @@ const CreateCommunity: React.FC = () => {
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
-};const styles = StyleSheet.create({
+};
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#121212", // Dark background color
@@ -266,29 +356,20 @@ const CreateCommunity: React.FC = () => {
     marginBottom: 5,
     color: "#ffffff", // Light text color for subtitles
   },
-  daysContainer: {
+  numberContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    flexWrap: "wrap",
-    marginBottom: 15,
-    paddingHorizontal: 20,
+    alignContent: "center",
   },
-  dayButton: {
-    borderWidth: 1,
-    borderColor: "#5C5CFF", // Button border color
-    borderRadius: 20,
+  numberButton: {
     padding: 8,
-    margin: 4,
-    backgroundColor: "#222", // Darker background for day buttons
+    margin: 3,
+    color: "#ffffff", // Light text color for number buttons
+    backgroundColor: "#222", // Darker background for number buttons
+    borderRadius: 20,
   },
-  daySelected: {
-    backgroundColor: "#5C5CFF", // Highlight color for selected days
-  },
-  dayText: {
-    color: "#ffffff", // Light text color
-  },
-  dayTextSelected: {
-    color: "#fff", // Ensuring readability for selected days
+  numberButtonSelected: {
+    backgroundColor: "#5C5CFF", // Highlight color for selected number buttons
   },
   inputContainer: {
     flexDirection: "row",
@@ -314,3 +395,24 @@ const CreateCommunity: React.FC = () => {
   },
 });
 export default CreateCommunity;
+
+// we may need this for later
+// {availableTags.map((tag) => (
+//   <TouchableOpacity
+//     key={tag}
+//     style={[
+//       styles.tag,
+//       selectedTags.includes(tag) && styles.tagSelected,
+//     ]}
+//     onPress={() => toggleTagSelection(tag)}
+//   >
+//     <Text
+//       style={[
+//         styles.tagText,
+//         selectedTags.includes(tag) && styles.tagTextSelected,
+//       ]}
+//     >
+//       {tag}
+//     </Text>
+//   </TouchableOpacity>
+// ))}

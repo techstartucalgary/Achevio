@@ -1,5 +1,0 @@
-{
-  "devDependencies": {
-    "babel-plugin-transform-inline-environment-variables": "^0.4.4"
-  }
-}

@@ -5,11 +5,6 @@ module.exports = function (api) {
     plugins: [
       // Required for expo-router
       'expo-router/babel',
-      ["transform-inline-environment-variables", {
-        "include": [
-          "REACT_APP_PRIVATE_IP"
-        ]
-      }]
     ],
   };
 };

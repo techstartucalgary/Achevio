@@ -15,16 +15,16 @@ class CommunityBaseSchema(Schema):
     name: str
     tags: list[TagSchema] = []
     public: bool = False
-    
+    image: Optional[str] = None
+
 
 
 class CommunitySchema(CommunityBaseSchema):
     description: str
-    image: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     
-    users: list[UserCommunityAssociationSchema] = None
+    users: list[UserCommunityAssociationSchema] = []
 
 
 

@@ -14,6 +14,7 @@ const PagesLayout = () => {
       <Stack.Screen name="EditPost" options={{ headerShown: false }} />
       <Stack.Screen name="Videopreview" options={{ headerShown: false }} />
       <Stack.Screen name="PickCommunity" options={{ headerShown: false }} />
+      <Stack.Screen name="SelectTags" options={{ headerShown: false }} />
       <Stack.Screen
         name="CreateCommunities"
         options={{ headerShown: false, presentation: "modal" }}

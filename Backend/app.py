@@ -24,6 +24,8 @@ from controllers.admin import AdminController
 from controllers.auth import oauth2_auth, login_handler, logout_handler
 from lib.seed import seed_data
 
+from lib.scheduler import scheduler, weekly_reset
+
 from models.base import Base
 
 from lib import (
@@ -71,6 +73,11 @@ async def on_startup() -> None:
         # Seed the database with initial data
         await seed_data(session)
         await session.commit()
+
+        # Start the scheduler
+        scheduler.add_job(weekly_reset, args=[session], trigger='cron', day_of_week='sun', hour=0, minute=0, second=0)
+        # scheduler.add_job(weekly_reset, args=[session], trigger='interval', seconds=5)      # For testing purposes
+        scheduler.start()
 
 
 

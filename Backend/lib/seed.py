@@ -275,8 +275,9 @@ async def seed_data(session: AsyncSession):
         community_id = paint_pals.id,
         role = "admin",
         community_name = paint_pals.name,
-        current_days = 0,
-        goal_days = 4
+        current_days = 4,
+        goal_days = 4,
+        streak = 400
     )
 
     user_2_paintpals = UserCommunityAssociation(

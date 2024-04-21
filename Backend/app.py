@@ -24,8 +24,6 @@ from controllers.post import PostController
 from controllers.admin import AdminController
 from controllers.auth import oauth2_auth, login_handler, logout_handler
 
-from lib.seed import seed_data
-
 from models.base import Base
 
 from lib import (
@@ -60,19 +58,14 @@ async def on_startup() -> None:
     async with db_config.get_engine().begin() as conn:
         # Drop and recreate tables (remove this line if persistence is needed)
 
-        await conn.run_sync(Base.metadata.drop_all)        
-        await conn.run_sync(UUIDBase.metadata.drop_all)
-        await conn.run_sync(UUIDAuditBase.metadata.drop_all)
-
+        # await conn.run_sync(Base.metadata.drop_all)        
+        # await conn.run_sync(UUIDBase.metadata.drop_all)
+        # await conn.run_sync(UUIDAuditBase.metadata.drop_all)
 
         await conn.run_sync(Base.metadata.create_all)
         await conn.run_sync(UUIDBase.metadata.create_all)
         await conn.run_sync(UUIDAuditBase.metadata.create_all)
 
-
-    async with db_config.get_session() as session:
-        await seed_data(session)
-        await session.commit()
 
 
 

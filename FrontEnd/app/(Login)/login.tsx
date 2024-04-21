@@ -9,8 +9,6 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -20,7 +18,7 @@ import GoogleLoginButton from "../../components/googleLoginButton";
 import { StackNavigationProp } from "@react-navigation/stack";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { setUsername, setUrl } from "../redux/actions/actions";
+import { setUsername, setUrl } from "../redux/actions";
 type RootStackParamList = {
   Signup: undefined;
   Login: undefined;
@@ -28,10 +26,7 @@ type RootStackParamList = {
   Camera: undefined;
 };
 
-type SignupScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "Signup"
->;
+type SignupScreenNavigationProp = StackNavigationProp<RootStackParamList, "Signup">;
 
 type Props = {
   navigation: SignupScreenNavigationProp;
@@ -60,10 +55,7 @@ export default function LoginScreen() {
     detail: string;
   };
 
-  async function postLoginInfo(
-    username: string,
-    password: string
-  ): Promise<LoginResponse | null> {
+  async function postLoginInfo(username: string, password: string): Promise<LoginResponse | null> {
     try {
       const configurationObject = {
         method: "post",
@@ -92,14 +84,8 @@ export default function LoginScreen() {
         // Extracting error details from axios error object
         const serverError = error as any;
         if (serverError && serverError.response) {
-          console.error(
-            "Error response: ",
-            serverError.response.status,
-            serverError.response.data
-          );
-          setErrorMessage(
-            serverError.response.data.detail || "An error occurred"
-          );
+          console.error("Error response: ", serverError.response.status, serverError.response.data);
+          setErrorMessage(serverError.response.data.detail || "An error occurred");
           setErrorMessageVisible(true);
         } else {
           console.error("Error: ", error);
@@ -143,66 +129,48 @@ export default function LoginScreen() {
     }
   }
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.keyboardView}
-    >
-      <TouchableWithoutFeedback onPress={dismissKeyboard}>
-        <View style={styles.container}>
-          <Image
-            source={require("../../assets/images/temp_rocket.png")}
-            style={styles.image}
-          />
-          <Text style={styles.title}>Welcome Back!</Text>
-          <TextInput
-            ref={usernameInputRef}
-            style={styles.input}
-            onChangeText={setInputUsername}
-            value={inputUsername}
-            placeholder="Username"
-            placeholderTextColor="#343a40"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            onChangeText={setPassword}
-            value={password}
-            placeholder="Password"
-            placeholderTextColor="#343a40"
-            secureTextEntry
-            autoCapitalize="none"
-          />
-          {errorMessageVisible ? (
-            <Text style={styles.errorStyle}>{errorMessage}</Text>
-          ) : null}
-          <TouchableOpacity style={styles.button} onPress={onPressLoginButton}>
-            <Text style={styles.buttonText}>Login</Text>
-          </TouchableOpacity>
-          {loading ? (
-            <ActivityIndicator size="large" color="#0000ff" />
-          ) : (
-            <GoogleLoginButton />
-          )}
-          <Text style={styles.navText}>
-            ---------------- OR ----------------
-          </Text>
-          <TouchableOpacity
-            onPress={() =>
-              router.replace({
-                pathname: "/(Login)/home",
-                params: {
-                  slider: 2,
-                },
-              })
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <View style={styles.container}>
+        <Image source={require("../../assets/images/temp_rocket.png")} style={styles.image} />
+        <Text style={styles.title}>Welcome Back!</Text>
+        <TextInput
+          ref={usernameInputRef}
+          style={styles.input}
+          onChangeText={setInputUsername}
+          value={inputUsername}
+          placeholder="Username"
+          placeholderTextColor="#343a40"
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          onChangeText={setPassword}
+          value={password}
+          placeholder="Password"
+          placeholderTextColor="#343a40"
+          secureTextEntry
+          autoCapitalize="none"
+        />
+        {errorMessageVisible ? <Text style={styles.errorStyle}>{errorMessage}</Text> : null}
+        <TouchableOpacity style={styles.button} onPress={onPressLoginButton}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
+        {loading ? <ActivityIndicator size="large" color="#0000ff" /> : <GoogleLoginButton />}
+        <Text style={styles.navText}>---------------- OR ----------------</Text>
+        <TouchableOpacity onPress={() => router.replace(
+          {
+            pathname:"/(Login)/home",
+            params:{
+              slider: 2
             }
-          >
+          }
+        )}>
             <Text style={styles.navText}>Go to Signup</Text>
-          </TouchableOpacity>
+        </TouchableOpacity>
 
-          <StatusBar backgroundColor="#000000" barStyle="light-content" />
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+        <StatusBar backgroundColor="#000000" barStyle="light-content" />
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -230,9 +198,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 20,
     color: "#333",
-  },
-  keyboardView: {
-    flex: 1,
   },
   button: {
     width: "100%",

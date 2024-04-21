@@ -1,5 +1,5 @@
 from sqlalchemy.orm import relationship
-from sqlalchemy import UUID, Boolean
+from sqlalchemy import UUID
 from litestar.contrib.sqlalchemy.base import UUIDAuditBase
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy import String
@@ -19,13 +19,15 @@ class Community(UUIDAuditBase):
     image: Mapped[str] = mapped_column(String(100))
 
     users = relationship('UserCommunityAssociation', back_populates='community')
-
-    public: Mapped[bool] = mapped_column(Boolean, default=False)
-
+    
+    postdays: Mapped[list['Postday']] = relationship(
+        secondary=community_postday_association,
+        back_populates='communities'
+    )
 
     tags: Mapped[list['Tag']] = relationship(
         secondary=community_tag_association,
-        lazy='selectin'
+        # lazy='selectin'
     )
 
     image: Mapped[str] = mapped_column(String(100), nullable=True)

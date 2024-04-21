@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
+import argon2
 from uuid import UUID
 
 from litestar.dto import DTOConfig
 from litestar.contrib.pydantic import PydanticDTO
-
+# Initialize Argon2 for password hashing
+ph = argon2.PasswordHasher()
 from datetime import datetime
 from .schema import Schema
-from lib.hasher import ph
+
 
 
 class UserSchema(Schema):
@@ -23,7 +25,6 @@ class UserSchema(Schema):
     updated_at: datetime
     is_active: bool
     last_login: datetime
-    time_zone: str = 'UTC'
     # friends: list[UserSchema]
 
     posts: "list[PostSchema]" = []
@@ -43,7 +44,7 @@ class UserSchema(Schema):
 # Define a DTO for user data
 class UserDTO(PydanticDTO[UserSchema]):
     config = DTOConfig(
-        max_nested_depth=3,
+        max_nested_depth=2,
     )
 # Define a DTO for user login data
 class UserLoginDTO(UserDTO):
@@ -58,13 +59,13 @@ class CreateUserDTO(UserDTO):
 class UserOutDTO(UserDTO):
     config = DTOConfig(
         include={'id', 'username', 'first_name', 'last_name', 'email', 'created_at', 'updated_at', 'is_active', 'last_login', 'communities'},
-        max_nested_depth=3,
+        max_nested_depth=2,
     )
 
 class BasicUserOutDTO(UserDTO):
     config = DTOConfig(
         include={'id', 'username', 'first_name', 'last_name', 'email', 'created_at', 'updated_at', 'is_active', 'last_login'},
-        max_nested_depth=3,
+        max_nested_depth=2,
     )
 
 

@@ -1,140 +1,148 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
-import { ListItem, Avatar, ButtonGroup } from 'react-native-elements';
-import { BarChart } from 'react-native-chart-kit';
-import { FontAwesome } from '@expo/vector-icons';
+import React from 'react';
+import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const screenWidth = Dimensions.get('window').width;
-
-const data = {
-  labels: ["Player One", "Player Two", "Player Three"],
-  datasets: [
-    {
-      data: [500, 400, 300]
-    }
-  ]
-};
-
-const chartConfig = {
-  backgroundGradientFrom: "#282c34", // Darker background
-  backgroundGradientTo: "#282c34", // Consistent with from color for a solid look
-  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`, // White color for text
-  barRadius: 5,
-  strokeWidth: 2,
-  barPercentage: 0.5,
-  useShadowColorFromDataset: false,
-  fillShadowGradient: `rgba(255, 255, 255, 1)`, // White gradient for bars
-  fillShadowGradientOpacity: 1,
-  decimalPlaces: 0,
-  animationDuration: 500,
-  propsForBackgroundLines: {
-    strokeDasharray: '', // Solid lines
-    stroke: 'rgba(255, 255, 255, 0.2)', // Lighter lines for contrast
-  },
-  propsForLabels: {
-    fontFamily: 'YourCustomFont-Family',
-    fill: 'rgba(255, 255, 255, 0.87)', // White color for labels with high opacity
-  },
-};
-const players = [
-  { id: '1', name: 'Player One', score: 500, avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-  { id: '2', name: 'Player Two', score: 400, avatar: 'https://randomuser.me/api/portraits/women/32.jpg' },
-  { id: '3', name: 'Player Three', score: 300, avatar: 'https://randomuser.me/api/portraits/men/33.jpg' },
+// Dummy data for the leaderboard
+const LEADERBOARD_DATA = [
+  { id: '1', username: 'Some username', score: 2050, trend: 'up' },
+  { id: '2', username: 'Some username', score: 1847, trend: 'down' },
+  { id: '3', username: 'Some username', score: 1674, trend: 'up' },
+  { id: '4', username: 'Some username', score: 1560, trend: 'down' },
+  { id: '5', username: 'Some username', score: 1452, trend: 'up' },
+  { id: '6', username: 'Some username', score: 1345, trend: 'down' },
+  { id: '7', username: 'Some username', score: 1230, trend: 'up' },
+  { id: '8', username: 'Some username', score: 1120, trend: 'down' },
+  { id: '9', username: 'Some username', score: 1010, trend: 'up' },
+  { id: '10', username: 'Some username', score: 950, trend: 'down' },
+  // Add more users as necessary...
 ];
 
+// Sort the data based on score
+const sortedData = LEADERBOARD_DATA.sort((a, b) => b.score - a.score);
+
 const LeaderboardScreen = () => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  // Component to render each top user with rank and gradient
+  const renderTopUser = (user, index) => {
+    const isHighest = index === 0; 
+    return (
+      <View key={user.id} style={styles.topUserContainer}>
+        {isHighest && <Image source={require('../../assets/images/crown.jpg')} style={styles.crown} />}
 
-  const updateIndex = (index) => {
-    setSelectedIndex(index);
-  }
+          <Image source={require('../../assets/images/dummyuser.png')} style={styles.avatar} />
+          <LinearGradient
+          // Adjust colors to your gradient preference
+          colors={isHighest ? ['#ffeaa7', '#f1c40f'] : ['#dfe6e9', '#b2bec3']}
+          style={[styles.linearGradient, { height: isHighest ? 150 : 100 }]}
+        >
+          <Text style={styles.username}>{user.username}</Text>
+          <Text style={styles.score}>{user.score}</Text>
+        </LinearGradient>
+      </View>
+    );
+  };
 
-  const buttonGroupButtons = ['Overall', 'Monthly', 'Weekly'];
+  // Component to render each user in the full list
+  const renderUserItem = (user) => (
+    <View key={user.id} style={styles.userItem}>
+      <View style={styles.avatarContainer}>
+        <Image source={require('../../assets/images/dummyuser.png')} style={styles.avatar} />
+      </View>
+      <Text style={styles.username}>{user.username}</Text>
+      <View style={{ flexDirection: 'column', alignItems: 'center', marginLeft: 'auto' }}>
+        <Image
+          source={user.trend === 'up' ? require('../../assets/images/arrowup.png') : require('../../assets/images/arrowdown.png')}
+          style={styles.trendIcon}
+        />
+        <Text style={[styles.trendScore, { color: user.trend === 'up' ? 'green' : 'red' }]}>{user.score}</Text>
+      </View>
+    </View>
+  );
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Leaderboard</Text>
-        <ButtonGroup
-          onPress={updateIndex}
-          selectedIndex={selectedIndex}
-          buttons={buttonGroupButtons}
-          containerStyle={styles.buttonGroupContainer}
-          selectedButtonStyle={styles.selectedButtonStyle}
-          textStyle={styles.buttonGroupText}
-          innerBorderStyle={{ width: 0 }}
-        />
+    <View style={styles.container}>
+      <Text style={styles.header}>Leader board</Text>
+      <View style={styles.topUsers}>
+        {renderTopUser(sortedData[1], 1)}
+        {renderTopUser(sortedData[0], 0)}
+        {renderTopUser(sortedData[2], 2)}
       </View>
-      <BarChart
-        style={styles.chart}
-        data={data}
-        width={screenWidth - 30}
-        height={220}
-        yAxisLabel=""
-        yAxisSuffix=''
-        chartConfig={chartConfig}
-        verticalLabelRotation={30}
-      />
-      {players.map((player, index) => (
-        <ListItem key={player.id} bottomDivider containerStyle={styles.listItem}>
-          <Avatar source={{ uri: player.avatar }} rounded size="medium" />
-          <ListItem.Content>
-            <ListItem.Title style={styles.listItemTitle}>{player.name}</ListItem.Title>
-            <ListItem.Subtitle>{`Score: ${player.score}`}</ListItem.Subtitle>
-          </ListItem.Content>
-          <FontAwesome name="trophy" size={24} color="#FFD700" />
-        </ListItem>
-      ))}
-    </ScrollView>
+      <ScrollView style={{ flex: 1 }}>
+      {LEADERBOARD_DATA.map(renderUserItem)}
+      </ScrollView>
+
+    </View>
   );
 };
 
+// Styles here...
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 45,
-    backgroundColor: '#121212', // Dark background
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ffffff', // White color for text
-    paddingBottom: 10,
-    textAlign: 'center',
-  },
-  buttonGroupContainer: {
-    height: 40,
-    borderColor: '#303030', // Adjusted border color for dark theme
-    borderWidth: 1,
-    borderRadius: 10,
-    backgroundColor: '#282c34', // Ensure the background color is set for the container
-  },
-  selectedButtonStyle: {
-    backgroundColor: '#1a73e8', // A brighter color for selected state for contrast
-  },
-  buttonGroupText: {
-    color: '#ffffff', // White text for better readability
-  },
-
-  listItem: {
-    borderRadius: 8,
-    marginVertical: 4,
-    backgroundColor: '#1f1f1f', // Darker background for list items
-    shadowColor: "#ffffff", // Shadow color adjusted for dark theme
-    // Rest of the shadow properties can remain the same if you prefer a shadow effect
-  },
-  listItemTitle: {
-    fontWeight: 'bold',
-    color: '#ffffff', // Ensuring text is visible against the dark backgrounds
-  },
-  chart: {
-    borderRadius: 16,
-    marginVertical: 8,
-    padding: 10,
+    backgroundColor: '#fff',
   },
   header: {
-    marginBottom: 20,
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 50,
+    marginBottom: 40,
   },
-  // Include other necessary style adjustments for the dark theme here
+  topUsers: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'flex-end',
+    marginTop: 20,
+  },
+  topUserContainer: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  crown: {
+    position: 'absolute',
+    top: -33,
+    zIndex: 1,
+    width: 47,
+    height: 50,
+    resizeMode: 'contain',
+  },
+  linearGradient: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginBottom: 5,
+  },
+  username: {
+    fontWeight: 'bold',
+  },
+  score: {
+    color: 'gray',
+  },
+  trendScore: {
+  },
+  userItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    marginHorizontal: 20,
+  },
+  trendIcon: {
+    width: 20,
+    height: 20,
+  },
+  avatarContainer: {
+    marginRight: 10,
+  },
+
+  // More styles...
 });
 export default LeaderboardScreen;

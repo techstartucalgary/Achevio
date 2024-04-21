@@ -20,7 +20,7 @@ import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import uuid from "react-native-uuid";
 import { useSelector, useDispatch } from "react-redux";
-import { setUsername, setUrl } from "../redux/actions/actions";
+import { setUsername, setUrl } from "../redux/actions";
 import { ref } from "yup";
 import { Image } from 'expo-image';
 
@@ -183,12 +183,11 @@ const Communities = () => {
 
   const fetchCommunities = useCallback(async () => {
     try {
-      const response = await axios.get(`${url}/user/me`);
+      const response = await axios.get(`${url}/user/myCommunities`);
       dispatch({ type: "SET_USERID", payload: response.data.id });
-      console.log("response.data", response.data);
 
       if (response.status === 200) {
-        setCommunities(response.data.communities.community);
+        setCommunities(response.data);
       } else {
         console.error("Failed to fetch communities:", response.status);
       }
@@ -298,7 +297,6 @@ const Communities = () => {
   };
   // Component for rendering community items
   const renderCommunityItem = ({ item }) => (
-    console.log("item", item),
     <TouchableOpacity
       style={styles.communityItem}
       onPress={() => {

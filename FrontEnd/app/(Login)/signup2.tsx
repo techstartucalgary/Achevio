@@ -10,8 +10,6 @@ import {
   TouchableWithoutFeedback,
   View,
   Pressable,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { Link } from "expo-router";
@@ -88,7 +86,7 @@ export default function Signup2Screen(props) {
       );
       if (response.status === 201) {
         Alert.alert("Success", "Signup successful!");
-        dispatch({ type: "SET_USERNAME", payload: username });
+        dispatch(setUsername(username) as any);
       } else {
         Alert.alert("Error", response.data.detail || "An unexpected error occurred.");
       }
@@ -101,10 +99,6 @@ export default function Signup2Screen(props) {
   };
 
   return (
-    <KeyboardAvoidingView
-    behavior={Platform.OS === "ios" ? "padding" : "height"}
-    style={styles.keyboardView}
-  >
     <View style={styles.container}>
       {isLoading ? (
         <Text>Loading...</Text>
@@ -157,7 +151,6 @@ export default function Signup2Screen(props) {
         </>
       )}
     </View>
-  </KeyboardAvoidingView>
   );
 }
 
@@ -168,9 +161,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "#03214a",
     paddingHorizontal: 20,
-  },
-  keyboardView: {
-    flex: 1,
   },
   title: {
     fontSize: 24,

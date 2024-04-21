@@ -28,7 +28,7 @@ import {
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-import { setUsername } from "../redux/actions/actions";
+import { setUsername } from "../redux/actions";
 import LottieView from "lottie-react-native";
 
 type Post = {

@@ -1,7 +1,0 @@
-node_modules
-myenv/
-*.pyc
-Backend/static/images/posts/*
-Backend/static/images/users/*
-.env
-venv

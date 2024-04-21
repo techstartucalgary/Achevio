@@ -23,7 +23,7 @@ from schemas.post import PostSchema, CreatePostSchema, PostDTO, CreatePostDTO, C
 from models.user import User
 from models.community import Community
 from models.post import Post
-from crud.users import get_user_by_username, get_user_by_id,get_user_list, user_join_community, user_leave_community, transfer_community_ownership, get_user_communities, get_friends_by_id, get_user_community_association_by_id
+from crud.users import get_user_by_username, get_user_by_id,get_user_list, user_join_community, user_leave_community, transfer_community_ownership, get_user_communities, get_friends_by_id
 from crud.postday import get_postday_by_name
 from crud.tag import get_tag_by_name
 from .auth import oauth2_auth
@@ -76,10 +76,10 @@ class UserController(Controller):
         Returns:
             UserSchema: The user's information in UserSchema format.
         '''
-        return await get_user_by_id(session, request.user)
+        return UserSchema.model_validate(await get_user_by_id(session, request.user))
 
 
-    @get('/myCommunities', return_dto=ViewCommunityDTO)
+    @get('/myCommunities')
     async def get_my_communities(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> list[CommunitySchema]:
         '''
         Retrieves the communities associated with the current user. 
@@ -91,7 +91,7 @@ class UserController(Controller):
         Returns:
             list[CommunitySchema]: A list of communities in CommunitySchema format that the user belongs to.
         '''
-        return await get_user_communities(session, request.user)
+        return [CommunitySchema.model_validate(community) for community in await get_user_communities(session, request.user)]
 
 
     # DEPRECATED
@@ -217,9 +217,6 @@ class UserController(Controller):
         user = await get_user_by_id(session, request.user)
         image = await data.file.read()
         
-        user_community = await get_user_community_association_by_id(session, user.id, data.community_id)
-
-        user_community.streak += 1
 
         communities = data.communities_id.split(',')
 
@@ -254,8 +251,9 @@ class UserController(Controller):
         return str(user.username)
     
 
-    @get('/GetNames') # Wtf is this endpoint supposed to do?    -W
+    @get('/GetNames')
     async def get_names_by_id(self, session: AsyncSession, parameters: list[UUID]) -> list[str]:
+
         users = []
         for id in parameters:
             user = await get_user_by_id(session, id)

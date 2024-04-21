@@ -8,7 +8,7 @@ from models.user_community_association import UserCommunityAssociation
 from schemas.users import UserSchema
 from models.community import Community
 
-async def user_join_community(session: AsyncSession, community_id: UUID, user_id: User, goal_nb_of_days: int, role: str = "member") -> UserSchema:
+async def user_join_community(session: AsyncSession, communityID: UUID, user_id: User, role: str = "member") -> UserSchema:
     """
     Add a user to a community with a specified role.
 
@@ -22,11 +22,11 @@ async def user_join_community(session: AsyncSession, community_id: UUID, user_id
         UserSchema: The updated user object after joining the community.
     """
     # Retrieve the specified community and user.
-    community = await get_community_by_id(session, community_id)
+    community = await get_community_by_id(session, communityID)
     user = await get_user_by_id(session, user_id)
     
     # Create a new association between the user and community with the given role.
-    user_community_join = UserCommunityAssociation(user_id=user.id, community_id=community.id, role=role, community_name=community.name, goal_nb_of_days=goal_nb_of_days)
+    user_community_join = UserCommunityAssociation(user_id=user.id, community_id=community.id, role=role, community_name=community.name)
     user.communities.append(user_community_join)
     return user
 
@@ -174,30 +174,11 @@ async def transfer_community_ownership(session: AsyncSession, id: UUID, user: Us
 
 
 async def get_user_communities(session: AsyncSession, user_id: UUID):
-    query = select(Community).join(UserCommunityAssociation, Community.id == UserCommunityAssociation.community_id).filter(UserCommunityAssociation.user_id == user_id).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.tags))
+    query = select(Community).join(UserCommunityAssociation, Community.id == UserCommunityAssociation.community_id).filter(UserCommunityAssociation.user_id == user_id).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.postdays)).options(orm.selectinload(Community.tags))
     result = await session.execute(query)
     return result.scalars().all()
 
 
     query = select(Community)
-    result = await session.execute(query)
-    return result.scalars().all()
-
-
-async def get_user_community_association_by_id(session: AsyncSession, user_id: UUID, community_id: UUID):
-    query = select(UserCommunityAssociation).where(UserCommunityAssociation.user_id == user_id, UserCommunityAssociation.community_id == community_id)
-    result = await session.execute(query)
-    return result.scalar_one_or_none()
-
-
-
-async def get_all_timezones(session: AsyncSession):
-    query = select(User.timezone).distinct()
-    result = await session.execute(query)
-    return result.scalars().all()
-
-
-async def get_user_ids_for_timezone(session: AsyncSession, timezone: str):
-    query = select(User.id).where(User.timezone == timezone)
     result = await session.execute(query)
     return result.scalars().all()

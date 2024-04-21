@@ -295,6 +295,12 @@ class UserController(Controller):
         # return user.friends
     
 
+    @post('/doneTutorial', return_dto=BasicUserOutDTO)
+    async def done_tutorial(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> UserSchema:
+        user = await get_user_by_id(session, request.user)
+        user.done_tutorial = True
+        return user
+
 
 
     # @post('/featured-posts')

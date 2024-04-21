@@ -7,7 +7,7 @@ from uuid import UUID
 from litestar.dto import DTOConfig
 from litestar.contrib.pydantic import PydanticDTO
 # Initialize Argon2 for password hashing
-ph = argon2.PasswordHasher()
+from lib.hasher import ph
 from datetime import datetime
 from .schema import Schema
 
@@ -25,6 +25,7 @@ class UserSchema(Schema):
     updated_at: datetime
     is_active: bool
     last_login: datetime
+    done_tutorial: bool = False
     # friends: list[UserSchema]
 
     posts: "list[PostSchema]" = []
@@ -58,7 +59,7 @@ class CreateUserDTO(UserDTO):
 
 class UserOutDTO(UserDTO):
     config = DTOConfig(
-        include={'id', 'username', 'first_name', 'last_name', 'email', 'created_at', 'updated_at', 'is_active', 'last_login', 'communities'},
+        include={'id', 'username', 'done_tutorial', 'first_name', 'last_name', 'email', 'created_at', 'updated_at', 'is_active', 'last_login', 'communities'},
         max_nested_depth=2,
     )
 

@@ -24,7 +24,6 @@ from models.user import User
 from models.community import Community
 from models.post import Post
 from crud.users import get_user_by_username, get_user_by_id,get_user_list, user_join_community, user_leave_community, transfer_community_ownership, get_user_communities, get_friends_by_id
-from crud.postday import get_postday_by_name
 from crud.tag import get_tag_by_name
 from .auth import oauth2_auth
 
@@ -89,7 +88,7 @@ class UserController(Controller):
             session (AsyncSession): The database session for asynchronous operations.
 
         Returns:
-            list[CommunitySchema]: A list of communities in CommunitySchema format that the user belongs to.
+            list[CommunitySchema]: A list of communities in Schema format that the user belongs to.
         '''
         return [CommunitySchema.model_validate(community) for community in await get_user_communities(session, request.user)]
 

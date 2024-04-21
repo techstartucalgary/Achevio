@@ -17,6 +17,10 @@ class UserCommunityAssociationSchema(Schema):
     community_id: UUID
     role: str
 
+    goal_days: int
+    current_days: int
+    streak: int
+
 
 
 

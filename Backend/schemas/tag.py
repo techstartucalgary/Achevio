@@ -22,5 +22,4 @@ class TagDTO(PydanticDTO[TagSchema]):
 
 # from .user_community_association import UserCommunityAssociationSchema
 from .community import CommunitySchema
-from .postday import PostdaySchema
 TagSchema.model_rebuild()

@@ -17,7 +17,6 @@ from litestar.static_files.config import StaticFilesConfig
 
 from controllers.community import CommunityController
 from controllers.user import UserController
-from controllers.postday import PostdayController
 from controllers.initialize import InitializeController
 from controllers.tag import TagController
 from controllers.post import PostController
@@ -58,9 +57,9 @@ async def on_startup() -> None:
     async with db_config.get_engine().begin() as conn:
         # Drop and recreate tables (remove this line if persistence is needed)
 
-        # await conn.run_sync(Base.metadata.drop_all)        
-        # await conn.run_sync(UUIDBase.metadata.drop_all)
-        # await conn.run_sync(UUIDAuditBase.metadata.drop_all)
+        await conn.run_sync(Base.metadata.drop_all)        
+        await conn.run_sync(UUIDBase.metadata.drop_all)
+        await conn.run_sync(UUIDAuditBase.metadata.drop_all)
 
         await conn.run_sync(Base.metadata.create_all)
         await conn.run_sync(UUIDBase.metadata.create_all)
@@ -82,7 +81,7 @@ cors_config = CORSConfig(allow_origins=["*"]) # NOTE: Change it for production
 
 # Create the Litestar application instance
 app = Litestar(
-    [login_handler, logout_handler, UserController, CommunityController, PostdayController, InitializeController, TagController, PostController, AdminController],  # List of endpoint functions
+    [login_handler, logout_handler, UserController, CommunityController, InitializeController, TagController, PostController, AdminController],  # List of endpoint functions
     dependencies={"session": provide_transaction},  # Dependency to inject session into endpoints
     plugins=[SQLAlchemyPlugin(db_config)],  # Plugin for SQLAlchemy support
     stores=StoreRegistry(default_factory=cache.redis_store_factory), # Redis setup

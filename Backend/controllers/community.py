@@ -15,11 +15,10 @@ from litestar.enums import RequestEncodingType
 import datetime
 import pytz
 from uuid_extensions import uuid7
-from crud.postday import *
 import shutil
 from litestar.contrib.jwt import OAuth2Login, Token
 from models.user import User
-from schemas.users import UserSchema
+from schemas.users import UserSchema, UserOutDTO
 from crud.tag import get_tag_by_name
 from crud.users import user_join_community, user_leave_community
 import aiofiles
@@ -43,7 +42,7 @@ class CommunityController(Controller):
     
 
     @post('/', dto=CreateCommunityDTO)
-    async def create_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: DTOData[CommunitySchema]) -> CommunitySchema:
+    async def create_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: DTOData[CommunitySchema], goalDays: int) -> CommunitySchema:
         '''
         Create a new community with the current user as the owner.
 
@@ -67,12 +66,6 @@ class CommunityController(Controller):
             community = Community(**validated_community_data.__dict__)
             session.add(community)
             
-            # Adds postdays to community
-            postdays = data.as_builtins()['postdays']
-            for i in range(len(postdays)):
-                postday = await get_postday_by_name(session, postdays[i].__dict__['day'])
-                community.postdays.append(postday)
-            
             # Adds tags to community
             tags = data.as_builtins()['tags']
             for i in range(len(tags)):
@@ -80,7 +73,7 @@ class CommunityController(Controller):
                 community.tags.append(tag)
 
             validated_community_data = CommunitySchema.model_validate(commiunity_data)
-            await user_join_community(session, validated_community_data.id, request.user, 'owner')
+            await user_join_community(session, validated_community_data.id, request.user, goalDays, 'owner')
             
             await session.commit()
             return validated_community_data
@@ -156,8 +149,8 @@ class CommunityController(Controller):
         return community
     
 
-    @put('/join/{communityID:str}')
-    async def join_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, communityID: str) -> UserSchema:
+    @put('/join/{communityID:str}', return_dto=UserOutDTO)
+    async def join_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, communityID: str, goalDays: str) -> UserSchema:
         '''
         Join a community.
 
@@ -170,9 +163,7 @@ class CommunityController(Controller):
             str: A message indicating success.
         '''
 
-        user = UserSchema.model_validate(await user_join_community(session, communityID, request.user))
-        await session.commit()
-        return user
+        return await user_join_community(session, communityID, request.user, goal_days=goalDays)
 
     ''' This endpoint has been deprecated, please use the user_create_community endpoint instead
     @post('/', dto=CreateCommunityDTO, exclude_from_auth=True)

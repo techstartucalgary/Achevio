@@ -8,7 +8,7 @@ from models.user_community_association import UserCommunityAssociation
 from schemas.users import UserSchema
 from models.community import Community
 
-async def user_join_community(session: AsyncSession, communityID: UUID, user_id: User, role: str = "member") -> UserSchema:
+async def user_join_community(session: AsyncSession, communityID: UUID, user_id: User, goal_days, role: str = "member") -> User:
     """
     Add a user to a community with a specified role.
 
@@ -26,7 +26,7 @@ async def user_join_community(session: AsyncSession, communityID: UUID, user_id:
     user = await get_user_by_id(session, user_id)
     
     # Create a new association between the user and community with the given role.
-    user_community_join = UserCommunityAssociation(user_id=user.id, community_id=community.id, role=role, community_name=community.name)
+    user_community_join = UserCommunityAssociation(user_id=user.id, community_id=community.id, role=role, community_name=community.name, goal_days=goal_days)
     user.communities.append(user_community_join)
     return user
 
@@ -174,7 +174,7 @@ async def transfer_community_ownership(session: AsyncSession, id: UUID, user: Us
 
 
 async def get_user_communities(session: AsyncSession, user_id: UUID):
-    query = select(Community).join(UserCommunityAssociation, Community.id == UserCommunityAssociation.community_id).filter(UserCommunityAssociation.user_id == user_id).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.postdays)).options(orm.selectinload(Community.tags))
+    query = select(Community).join(UserCommunityAssociation, Community.id == UserCommunityAssociation.community_id).filter(UserCommunityAssociation.user_id == user_id).options(orm.selectinload(Community.users)).options(orm.selectinload(Community.tags))
     result = await session.execute(query)
     return result.scalars().all()
 

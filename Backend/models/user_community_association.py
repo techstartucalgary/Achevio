@@ -1,5 +1,5 @@
 # Association.py
-from sqlalchemy import Column, ForeignKey, String, UUID
+from sqlalchemy import Column, ForeignKey, String, UUID, Integer
 from sqlalchemy.orm import relationship
 from litestar.contrib.sqlalchemy.base import UUIDBase
 import enum
@@ -19,6 +19,10 @@ class UserCommunityAssociation(UUIDBase):
 
     role = Column(String)
     community_name = Column(String)
+
+    goal_days = Column(Integer)
+    current_days = Column(Integer, default = 0)
+    streak = Column(Integer, default = 0)
 
     community = relationship('Community', back_populates='users')
     user = relationship('User', back_populates='communities')

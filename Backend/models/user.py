@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
-import datetime
+from datetime import datetime, UTC
 from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
 from .friend import friend_association
 
@@ -16,8 +16,8 @@ class User(UUIDAuditBase):
     last_name: Mapped[str] = mapped_column(String(100))
     email: Mapped[str] = mapped_column(String(100))
     profile_picture: Mapped[str] = mapped_column(String(100), nullable=True)
-    is_active: Mapped[bool] = mapped_column(Boolean)
-    last_login: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True))
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    last_login: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(UTC))
     password: Mapped[str] = mapped_column(String(255))
     done_tutorial: Mapped[bool] = mapped_column(Boolean, default=False)
 

@@ -7,7 +7,7 @@ from uuid import UUID
 from litestar.dto import DTOConfig
 from litestar.contrib.pydantic import PydanticDTO
 # Initialize Argon2 for password hashing
-ph = argon2.PasswordHasher()
+from lib.hasher import ph
 from datetime import datetime
 from .schema import Schema
 

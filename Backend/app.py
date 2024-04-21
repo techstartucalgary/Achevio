@@ -22,6 +22,7 @@ from controllers.tag import TagController
 from controllers.post import PostController
 from controllers.admin import AdminController
 from controllers.auth import oauth2_auth, login_handler, logout_handler
+from lib.seed import seed_data
 
 from models.base import Base
 
@@ -64,6 +65,12 @@ async def on_startup() -> None:
         await conn.run_sync(Base.metadata.create_all)
         await conn.run_sync(UUIDBase.metadata.create_all)
         await conn.run_sync(UUIDAuditBase.metadata.create_all)
+
+
+    async with db_config.get_session() as session:
+        # Seed the database with initial data
+        await seed_data(session)
+        await session.commit()
 
 
 

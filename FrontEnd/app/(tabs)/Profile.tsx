@@ -17,7 +17,7 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 import { AreYouSure } from "../../components/PopUpMessages";
-import { setUserId } from "../redux/actions";
+import { setUserId } from "../redux/actions/actions";
 import { Image } from 'expo-image';
 
 // Dummy fallback data

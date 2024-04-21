@@ -28,7 +28,6 @@ import {
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-import { setUsername } from "../redux/actions";
 import LottieView from "lottie-react-native";
 
 type Post = {
@@ -512,20 +511,14 @@ const CommunityPage: React.FC = () => {
   };
 
   const JoinCommunity = async () => {
-    console.log("Joining Community");
-    const res = await axios.put(`${url}/community/join/${communityId}`);
-    console.log(res.data);
-    if (res.status === 200) {
-      console.log("Community joined successfully:", res.data);
-      Alert.alert("Community joined successfully");
       router.push({
-        pathname: "/(tabs)/Communities",
+        pathname: "/(pages)/JoiningCommunity",
         params: {
           refresh: "true",
+          communityId: communityId,
         },
       });
     }
-  };
   const renderHeader = useCallback(
     () => (
       <Animated.View style={{ ...styles.headerContainer, opacity: fadeAnim }}>

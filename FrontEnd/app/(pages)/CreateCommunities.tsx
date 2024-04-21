@@ -17,26 +17,6 @@ import { useSelector } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
-
-// Dummy data for tags and days
-// const availableTags = [
-//   "Sports",
-//   "Music",
-//   "Technology",
-//   "Gaming",
-//   "News",
-//   "Health",
-// ];
-const daysOfWeek = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
-
 const CreateCommunity: React.FC = () => {
   const [communityName, setCommunityName] = useState("");
   const [description, setDescription] = useState("");

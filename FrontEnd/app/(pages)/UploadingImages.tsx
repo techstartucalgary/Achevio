@@ -20,22 +20,25 @@ import { Button } from "react-native-elements";
 
 const UploadingImages: React.FC = () => {
   const params = useLocalSearchParams();
-  const communityName = params.communityName; 
-  const description = params.description;
-  const selectedTags: string[] = Array.isArray(params.selectedTags) ? params.selectedTags : [params.selectedTags];
-  const postDays: string[] = Array.isArray(params.postDays) ? params.postDays : [params.postDays];
+  const { communityName, description, postFreq, selectedTags: rawSelectedTags } = params;
+
+  const parseTags = (tagsString: string) => {
+    return tagsString.split(",").map((tag) => {
+      const [name, color] = tag.trim().split(" #");
+      return { name, color: `#${color}` };
+    });
+  };
+  const selectedTags = Array.isArray(rawSelectedTags) ? rawSelectedTags[0] : rawSelectedTags;
+
   
   const { url } = useSelector((state: any) => state.user);
   const handleCreateCommunity = async (formData:any) => {
-    // Transform postDays and selectedTags into arrays of objects
-    const postDaysPayload = postDays.map((day) => ({ day }));
-    const tagsPayload = selectedTags.map((name) => ({ name, color:"" }));
-
+    const parsedTags = parseTags(selectedTags); // Make sure selectedTags is a string
+    const tagsPayload = parsedTags.map(tag => ({ name: tag.name, color: tag.color }));
     try {
-      const res = await axios.post(`${url}/community`, {
+      const res = await axios.post(`${url}/community?goalDays=${postFreq}`, {
         name: communityName,
         description,
-        postdays: postDaysPayload, // Send as an array of objects
         tags: tagsPayload, // Send as an array of objects
       });
       const uploadImg = await axios.put(`${url}/community/${res.data.id}/image`, formData, {

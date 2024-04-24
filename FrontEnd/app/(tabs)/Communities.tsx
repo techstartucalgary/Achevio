@@ -20,7 +20,6 @@ import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import uuid from "react-native-uuid";
 import { useSelector, useDispatch } from "react-redux";
-import { setUsername, setUrl } from "../redux/actions";
 import { ref } from "yup";
 import { Image } from 'expo-image';
 
@@ -188,6 +187,7 @@ const Communities = () => {
 
       if (response.status === 200) {
         setCommunities(response.data);
+        dispatch({ type: "SET_MY_COMMUNITIES", payload: response.data });
       } else {
         console.error("Failed to fetch communities:", response.status);
       }

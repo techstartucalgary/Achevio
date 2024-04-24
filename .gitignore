@@ -1,5 +1,5 @@
 node_modules
-myenv/
+/Backend/myenv/
 *.pyc
 Backend/static/images/posts/*
 Backend/static/images/users/*

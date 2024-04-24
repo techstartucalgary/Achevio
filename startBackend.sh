@@ -11,7 +11,7 @@ if [ -z "$PRIVATE_IP" ]; then
 fi
 
 # Assuming your Python virtual environment is located in "myenv"
-VENV_PATH="myenv"
+VENV_PATH="Backend/myenv"
 
 # Activate your virtual environment
 source "${VENV_PATH}/bin/activate"

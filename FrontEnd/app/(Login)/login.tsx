@@ -18,7 +18,7 @@ import GoogleLoginButton from "../../components/googleLoginButton";
 import { StackNavigationProp } from "@react-navigation/stack";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
-import { setUsername, setUrl } from "../redux/actions";
+import { setMe } from "../redux/actions/userActions";
 type RootStackParamList = {
   Signup: undefined;
   Login: undefined;
@@ -120,9 +120,8 @@ export default function LoginScreen() {
     setLoading(false);
     if (res && responseCheck(res)) {
       setErrorMessageVisible(false);
-      dispatch({ type: "SET_USERNAME", payload: inputUsername });
       const response = await axios.get(`${url}/user/me`);
-      dispatch({ type: "SET_USERID", payload: response.data.id });
+      dispatch({ type: "SET_ME", payload: response.data }); // Fix dispatch call
       router.push("/(tabs)/Camera");
     } else {
       resetInputsAndFocus(); // Reset inputs and focus if login fails

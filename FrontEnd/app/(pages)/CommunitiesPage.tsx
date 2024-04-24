@@ -25,7 +25,7 @@ import {
   faEllipsisV,
   faHeart,
 } from "@fortawesome/free-solid-svg-icons";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import LottieView from "lottie-react-native";
@@ -56,6 +56,7 @@ const CommunityPage: React.FC = () => {
   const [postData, setPostData] = useState<Post[]>([]);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const dispatch = useDispatch();
   const {
     communityId,
     communityName,
@@ -249,6 +250,7 @@ const CommunityPage: React.FC = () => {
           })
         );
         setPostData(postsWithUsernames);
+        dispatch({ type: "SET_POSTS", payload: postsWithUsernames });
         const rows = prepareRows(
           postsWithUsernames.map((post) => post.imageUrl)
         );

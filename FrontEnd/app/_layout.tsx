@@ -49,7 +49,7 @@ function RootLayoutNav() {
   return (
     <Provider store={store}>
 
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    {/* <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}> */}
       
       <Stack>
         <Stack.Screen name="(Login)" options={{ headerShown: false }} />
@@ -70,7 +70,7 @@ function RootLayoutNav() {
           }}
         />
       </Stack>
-    </ThemeProvider>
+    {/* </ThemeProvider> */}
     </Provider>
 
   );

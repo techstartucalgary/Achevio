@@ -6,16 +6,17 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
+    "platforms": ["ios", "android", "web"],
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#000"
+      "resizeMode": "contain"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.Techstart.achievio"
+      "bundleIdentifier": "com.Techstart.achievio",
+      "jsEngine":"jsc"
     },
     "android": {
       "package": "com.Techstart.achievio",

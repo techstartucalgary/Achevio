@@ -37,7 +37,6 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 // Composing enhancers and middleware together
 const enhancers = composeEnhancers(
   applyMiddleware(loggerMiddleware, asyncMiddleware),
-  devToolsEnhancer({ realtime: true, hostname: '10.0.0.215', port: 8002 }) // Make sure hostname and port are correctly set
 );
 
 // Create Store with persistedReducer and enhancers

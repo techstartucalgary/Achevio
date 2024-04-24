@@ -3,12 +3,19 @@ export const SET_USERNAME = "SET_USERNAME";
 export const SET_THEME = "SET_THEME";
 export const SET_USERID = "SET_USERID";
 export const SET_ACCESS_TOKEN = "SET_ACCESS_TOKEN";
+export const SET_ME = "SET_ME";
 
 enum Theme {
   Light = "light",
   Dark = "dark",
 }
 
+export const setMe = (me: string) => (dispatch) => {
+  dispatch({
+    type: SET_ME,
+    payload: me,
+  });
+}
 export const setAccessToken = (accessToken: string) => (dispatch) => {
   dispatch({
     type: SET_ACCESS_TOKEN,

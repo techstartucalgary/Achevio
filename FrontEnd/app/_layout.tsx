@@ -49,12 +49,13 @@ function RootLayoutNav() {
   return (
     <Provider store={store}>
 
-    {/* <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}> */}
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       
       <Stack>
         <Stack.Screen name="(Login)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: "modal" }} />
         <Stack.Screen name="(Settings)" options={{ headerShown: false }} />
+        <Stack.Screen name="(Tutorial)" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen
           name="(tabs)"
           options={{
@@ -70,7 +71,7 @@ function RootLayoutNav() {
           }}
         />
       </Stack>
-    {/* </ThemeProvider> */}
+    </ThemeProvider>
     </Provider>
 
   );

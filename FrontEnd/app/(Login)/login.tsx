@@ -122,7 +122,13 @@ export default function LoginScreen() {
       setErrorMessageVisible(false);
       const response = await axios.get(`${url}/user/me`);
       dispatch({ type: "SET_ME", payload: response.data }); // Fix dispatch call
-      router.push("/(tabs)/Camera");
+      dispatch({ type: "UPDATE_USERNAME", userName: inputUsername });
+      dispatch({ type: "UPDATE_PASSWORD", passWord: password });
+      if (response.data.done_tutorial === false) {
+        router.push("/(Tutorial)/yourProfile");
+      } else {
+        router.push("/(tabs)/Camera");
+      }
     } else {
       resetInputsAndFocus(); // Reset inputs and focus if login fails
     }

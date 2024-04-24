@@ -19,6 +19,7 @@ import * as ImagePicker from "expo-image-picker";
 import { AreYouSure } from "../../components/PopUpMessages";
 import { setUserId } from "../redux/actions/userActions";
 import { Image } from 'expo-image';
+import { persistor, resetAndFlushStore } from "../redux/store/store";
 
 // Dummy fallback data
 const fallbackData = {
@@ -72,6 +73,7 @@ const ProfilePage: React.FC = () => {
   const { url, userId, username, theme } = useSelector(
     (state: any) => state.user
   );
+  const { me } = useSelector((state: any) => state.user);
   const [profileData, setProfileData] = useState(fallbackData);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [userIDAgain, setUserIDAgain] = useState("");
@@ -87,6 +89,7 @@ const ProfilePage: React.FC = () => {
     dispatch({ type: "SET_THEME", payload: isDarkMode ? "dark" : "light" });
     console.log(`Theme is now ${theme}`);
   };
+
   const handleNotificationsToggle = async () => {
     try {
       const response = await updateNotificationSettings(!notificationsEnabled);
@@ -98,37 +101,35 @@ const ProfilePage: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      const configurationObject = {
-        method: "get",
-        url: `${url}/user/me`,
-        headers: {
-          accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      };
-      const response = await axios(configurationObject);
-      const data = response.data;
-      console.log("API call success:", data);
+      // const configurationObject = {
+      //   method: "get",
+      //   url: `${url}/user/me`,
+      //   headers: {
+      //     accept: "application/json",
+      //     "Content-Type": "application/json",
+      //   },
+      // };
+      // const response = await axios(configurationObject);
+      // const data = response.data;
+      // console.log("API call success:", data);
       setProfileData((prevState) => ({
         ...prevState,
-        username: data.username || prevState.username,
-        settings: data.settings || prevState.settings,
-        preferences: data.preferences || prevState.preferences,
-        More: data.More || prevState.More,
+        username: me.username || prevState.username,
+        settings: me.settings || prevState.settings,
+        preferences: me.preferences || prevState.preferences,
+        More: me.More || prevState.More,
       }));
-      dispatch({ type: "SET_USERNAME", payload: response.data.username });
-      dispatch({ type: "SET_USERID", payload: response.data.id });
-      console.log("UserID:", response.data.id);
-      setUserId(response.data.id);
-      setUserIDAgain(response.data.id);
+      setUserId(me.id);
+      setUserIDAgain(me.id);
       console.log("user_id:", userId);
 
-      if (response.data.id) {
-        setAvatarUri(
-          `${url}/user/image/${response.data.id}.jpg?cacheBust=${new Date().getTime()}`
-        );
+      if (me) {
+
         console.log(
-          `${url}/user/image/${response.data.id}.jpg?cacheBust=${new Date().getTime()}`
+          `${url}/user/image/${me.id}.jpg?cacheBust=${new Date().getTime()}`
+        );
+        setAvatarUri(
+          `${url}/user/image/${me.id}.jpg?cacheBust=${new Date().getTime()}`
         );
       } else {
         setAvatarUri(
@@ -293,7 +294,13 @@ const ProfilePage: React.FC = () => {
       <View style={styles.sectionContainer}>
         <TouchableOpacity
           style={styles.option}
-          onPress={() => router.push("/(Login)/home")}
+          onPress={async() => {
+            resetAndFlushStore();
+            dispatch({ type: "UPDATE_USERNAME", userName: "" });
+            dispatch({ type: "UPDATE_PASSWORD", passWord: "" });
+            router.push("/(Login)/home");
+          }
+          }
         >
           <Text style={styles.optionText}>Logout</Text>
         </TouchableOpacity>

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import Home from "./home";
-import { StatusBar } from "react-native";
+import { Platform, StatusBar } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import NativeDevSettings from 'react-native/Libraries/NativeModules/specs/NativeDevSettings';
 if (__DEV__) {
@@ -18,11 +18,13 @@ const index = () => {
     NativeDevSettings.setIsDebuggingRemotely(true);
   };
   useEffect(() => {
+    if (Platform.OS === "ios") {
     connectToRemoteDebugger();
+    }
   }
   , []);
   return (
-    <View style={{ flex: 1, backgroundColor: "#000" }}>
+    <View style={{ flex: 1, backgroundColor: "#000", paddingTop: Platform.OS === "ios" ? 0 : StatusBar.currentHeight }}>
       <StatusBar barStyle="light-content" />
       <Home />
     </View>

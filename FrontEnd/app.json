@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
-    "platforms": ["ios", "android", "web"],
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -16,7 +15,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.Techstart.achievio",
-      "jsEngine":"jsc"
+      "jsEngine":"jsc",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#000"
+      }
     },
     "android": {
       "package": "com.Techstart.achievio",

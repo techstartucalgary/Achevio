@@ -163,15 +163,15 @@ const Search: React.FC = () => {
 
     // Filter by search query
     if (searchQuery) {
-      filtered = filtered.filter(item =>
+      filtered = filtered.filter((item) =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-  
+
     // Filter by selected tags
     if (selectedTags.length > 0) {
-      filtered = filtered.filter(item =>
-        item.tags.some(tag => selectedTags.includes(tag.name))
+      filtered = filtered.filter((item) =>
+        item.tags.some((tag) => selectedTags.includes(tag.name))
       );
     }
   }, [searchQuery]);
@@ -276,7 +276,6 @@ const Search: React.FC = () => {
               {filteredData.map((item, index) => (
                 <TouchableOpacity
                   style={styles.communityItem}
-                  key={item.id || index} // Using item.id or index as a fallback
                   onPress={() => {
                     router.push({
                       pathname: "/(pages)/CommunitiesPage", // The route name
@@ -285,7 +284,7 @@ const Search: React.FC = () => {
                         communityName: item.name,
                         communityStreak: item.streak,
                         communityTags: item.tags.map((tag) => {
-                          return tag.name + " ";
+                          return tag.name + " " + tag.color;
                         }),
                         communityImage: `${url}/community/image/${item.id}.jpg`,
                       }, // Parameters as an object
@@ -300,11 +299,24 @@ const Search: React.FC = () => {
                     <Text style={styles.communityTitle}>{item.name}</Text>
                     <View style={styles.textOverlay}>
                       <Text style={styles.communityStreak}>{item.streak}</Text>
-                      <Text style={styles.communityTags}>
-                        {item.tags.map((tag) => {
-                          return tag.name + " ";
-                        })}
-                      </Text>
+                      <View style={{ flexDirection: "row" }}>
+                        {item.tags.map((tag, index) => (
+                          <Text
+                            style={[
+                              styles.communityTags,
+                              {
+                                backgroundColor: tag.color,
+                                borderRadius: 10,
+                                padding: 2,
+                                marginHorizontal: 2,
+                              },
+                            ]}
+                            key={`${tag.name}_${index}`}
+                          >
+                            {tag.name + " "}
+                          </Text> // Use a combination of name and index
+                        ))}
+                      </View>
                     </View>
                   </ImageBackground>
                 </TouchableOpacity>
@@ -346,7 +358,7 @@ const styles = StyleSheet.create({
   textOverlay: {
     // Semi-transparent overlay for improved text readability
     backgroundColor: "rgba(0,0,0,0.3)",
-    padding: 20,
+    padding: 10,
   },
   communityItem: {
     height: 120, // Set a fixed height for your community item
@@ -378,13 +390,8 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   communityTags: {
-    position: "absolute",
-    bottom: 5,
-    left: 10,
-    padding: 5,
-    width: "15%",
-    height: 30,
     color: "#fff",
+    fontSize: 12,
   },
   closeIcon: {
     padding: 5,

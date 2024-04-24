@@ -83,6 +83,11 @@ async def seed_data(session: AsyncSession):
         color = "#C0CA33"  # Lime green
     )
 
+    painting_tag = Tag(
+        name = "Painting",
+        color = "#00897B"  # Teal green
+    )
+
     drawing_tag = Tag(
         name = "Drawing",
         color = "#3949AB"  # Indigo
@@ -103,10 +108,6 @@ async def seed_data(session: AsyncSession):
         color = "#5E35B1"  # Deep purple
     )
 
-    painting_tag = Tag(
-        name = "Painting",
-        color = "#00897B"  # Teal green
-    )
 
     baking_tag = Tag(
         name = "Baking",
@@ -138,6 +139,11 @@ async def seed_data(session: AsyncSession):
         color = "#AD1457"  # Wine
     )
 
+    gaming_tag = Tag(
+        name = "Gaming",
+        color = "#FFD600"  # Yellow
+    )
+
     session.add_all([
         running_tag,
         swimming_tag,
@@ -154,17 +160,18 @@ async def seed_data(session: AsyncSession):
         skateboarding_tag,
         singing_tag,
         dancing_tag,
+        painting_tag,
         drawing_tag,
         violin_tag,
         sculpting_tag,
         photography_tag,
-        painting_tag,
         baking_tag,
         sewing_tag,
         studying_tag,
         gardening_tag,
         meditation_tag,
-        yoga_tag
+        yoga_tag,
+        gaming_tag
     ])
 
 

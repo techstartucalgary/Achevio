@@ -75,7 +75,7 @@ class UserController(Controller):
         Returns:
             UserSchema: The user's information in UserSchema format.
         '''
-        return UserSchema.model_validate(await get_user_by_id(session, request.user))
+        return await get_user_by_id(session, request.user)
 
 
     @get('/myCommunities')
@@ -90,7 +90,7 @@ class UserController(Controller):
         Returns:
             list[CommunitySchema]: A list of communities in Schema format that the user belongs to.
         '''
-        return [CommunitySchema.model_validate(community) for community in await get_user_communities(session, request.user)]
+        return await get_user_communities(session, request.user)
 
 
     # DEPRECATED
@@ -198,41 +198,7 @@ class UserController(Controller):
 
 
 
-    @post('/post', media_type=MediaType.TEXT)
-    async def create_post(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[CreateMultiplePostSchema, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
-        '''
-        Creates one or multiple posts with images associated with communities.
 
-        Args:
-            request (Request): The request object containing user and token information.
-            session (AsyncSession): The database session for performing database transactions.
-            data (CreateMultiplePostSchema): The data received in the request payload, expected to be in multipart form-data format.
-
-        Returns:
-            str: A message indicating the path where the image file associated with the posts has been saved.
-
-
-        '''
-        user = await get_user_by_id(session, request.user)
-        image = await data.file.read()
-        
-
-        communities = data.communities_id.split(',')
-
-
-
-        for community_id in communities:
-            post = Post(id=uuid7(), title=data.title, caption=data.caption, user_id=user.id, community_id=UUID(community_id))
-            session.add(post)
-
-            image_dir = "static/images/posts"
-            os.makedirs(image_dir, exist_ok=True)
-            filename = f'{post.id}.jpg'
-
-            file_path = os.path.join(image_dir, filename)
-            async with aiofiles.open(file_path, 'wb') as outfile:
-                await outfile.write(image)
-        return f"File created"
 
     
 

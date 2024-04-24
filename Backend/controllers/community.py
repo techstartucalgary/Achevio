@@ -97,6 +97,7 @@ class CommunityController(Controller):
         '''
         await user_leave_community(session, communityID, request.user)
       
+      
     @get('/{id:str}', exclude_from_auth=True)
     async def get_community(self, session: AsyncSession, id: str) -> CommunitySchema:
         return await get_community_by_id(session, id)
@@ -106,10 +107,8 @@ class CommunityController(Controller):
     @get("/{id:str}/getAllUsers", exclude_from_auth=True)
     async def get_community_users(self, session: AsyncSession, id: str, limit: int = 100, offset: int = 0) -> list[UserSchema]:
 
-        users = await get_community_users(session, id, limit, offset)
-        return [UserSchema.model_validate(user) for user in users]
-    # @post('/')
-    # async def search_community(self, request: Request, session: AsyncSession, session: AsyncSession, data: CommunitySearchSchema) -> CommunitySchema:
+        return await get_community_users(session, id, limit, offset)
+    
     @put('/{community_id:str}/image', media_type=MediaType.TEXT)
     async def upload_community_image(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[UploadFile, Body(media_type=RequestEncodingType.MULTI_PART)], community_id: str) -> str:
         user = await get_user_by_id(session, request.user)
@@ -130,7 +129,7 @@ class CommunityController(Controller):
 
     @get('/images')
     async def get_background_images(self) -> list[str]:
-        return [f.name for f in Path('static/images/backgrounds').iterdir() if f.is_file()]
+        return os.listdir('static/images/background')
 
 
     @patch('/{community_id:str}/image/{image_id:str}')
@@ -179,3 +178,6 @@ class CommunityController(Controller):
     '''
 
     
+    # @get('/images')
+    # async def get_background_images(self) -> list[str]:
+    #     return os.listdir('Backend/static/images/background')

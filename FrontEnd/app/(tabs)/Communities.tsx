@@ -324,7 +324,7 @@ const Communities = () => {
           <Text style={styles.communityStreak}>{item.streak}</Text>
           <View style={{ flexDirection: "row" }}>
           {item.tags.map((tag, index) => (
-            <Text style={[styles.communityTags, { backgroundColor: tag.color, borderRadius: 10, padding: 2, marginHorizontal:2 }]}
+            <Text style={[styles.communityTags, { backgroundColor: tag.color, borderRadius: 10, textAlign:"center", padding: 2, marginHorizontal:2 }]}
             key={`${tag.name}_${index}`}>{tag.name + " "}</Text> // Use a combination of name and index
           ))}
           </View>
@@ -355,6 +355,8 @@ const Communities = () => {
           index,
         })}
       />
+      { postData?.length > 0 && 
+      <>
       <Text style={styles.sectionTitle}>What you missed</Text>
       <FlatList
         horizontal
@@ -364,6 +366,8 @@ const Communities = () => {
         showsHorizontalScrollIndicator={false}
         style={styles.postsList}
       />
+      </>
+      }
     </>
   );
 

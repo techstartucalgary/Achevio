@@ -7,7 +7,30 @@ const TutorialLayout = () => {
     <Stack>
       <Stack.Screen
         name="yourProfile"
-        options={{ headerShown: false }}
+        options={{
+          headerShown: false,
+          presentation: 'card',
+          animationTypeForReplace: 'push',
+          animation:'slide_from_right'
+        }}        
+      />
+      <Stack.Screen
+        name="pickIntrest"
+        options={{
+          headerShown: false,
+          presentation: 'card',
+          animationTypeForReplace: 'push',
+          animation:'slide_from_right'
+        }}
+      />
+      <Stack.Screen
+        name="AddFriendsPage"
+        options={{
+          headerShown: false,
+          presentation: 'card',
+          animationTypeForReplace: 'push',
+          animation:'slide_from_right'
+        }}
       />
      
     </Stack>

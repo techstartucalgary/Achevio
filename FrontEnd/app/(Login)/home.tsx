@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, StyleSheet, Alert } from "react-native";
 import Swiper from "react-native-swiper";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { router } from "expo-router";
 import { setMe } from "../redux/actions/userActions";
@@ -30,6 +30,7 @@ export default function TabLayout() {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const params = useLocalSearchParams();
+  const dispatch = useDispatch();
   const slider = params.slider || 0;
   const { username, first_name, last_name } = params;
   console.log(slider);
@@ -51,6 +52,8 @@ export default function TabLayout() {
       console.log(response);
       if (response.status === 201) {
         const response = await axios.get(`${url}/user/me`);
+        console.log(response);
+        dispatch({ type: "SET_ME", payload: response.data });
         router.push("/(tabs)/Camera");
       }
     }
@@ -59,7 +62,6 @@ export default function TabLayout() {
       Alert.alert("Error", "Invalid username or password");
     }
   }
-
   useFocusEffect(
     useCallback(() => {
       setLoading(true); // Start loading

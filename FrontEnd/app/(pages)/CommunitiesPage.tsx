@@ -24,6 +24,7 @@ import {
   faComment,
   faEllipsisV,
   faHeart,
+  faTrophy,
 } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -540,6 +541,22 @@ const CommunityPage: React.FC = () => {
 
         <View style={styles.overlayContent}>
           <TouchableOpacity
+            onPress={() => {
+              router.push({
+                pathname: "/(pages)/LeaderBoard", // The route name
+                params: {
+                  communityId: communityId,
+                }, // Parameters as an object
+              });
+            }
+            }
+
+            style={{ position: "absolute", top: 50, left: 30 }}
+          >
+            <FontAwesomeIcon icon={faTrophy} size={24} color="white" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
             onPress={() => setIsMenuVisible(!isMenuVisible)}
             style={{ position: "absolute", top: 50, right: 30 }}
           >
@@ -720,6 +737,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     paddingVertical: 10,
+    flexWrap: "wrap",
   },
   tag: {
     backgroundColor: "rgba(255, 255, 255, 0.6)",

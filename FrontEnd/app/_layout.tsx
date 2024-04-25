@@ -49,7 +49,7 @@ function RootLayoutNav() {
   return (
     <Provider store={store}>
 
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={DarkTheme}>
       
       <Stack>
         <Stack.Screen name="(Login)" options={{ headerShown: false }} />

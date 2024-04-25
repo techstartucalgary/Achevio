@@ -8,6 +8,7 @@ import {
   Modal,
   ScrollView,
   Dimensions,
+  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "expo-router";
@@ -21,7 +22,15 @@ const Collage = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [userId, setUserId] = useState(null);
   const { url } = useSelector((state: any) => state.user);
+  const fadeAnim = new Animated.Value(0);  // Initial value for opacity: 0
 
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 2000,
+      useNativeDriver: true
+    }).start();
+  }, []);
   const fetchPostsForCommunity = async (communityId, userId) => {
     try {
       const response = await axios.get(`${url}/posts/community/${communityId}`);
@@ -124,30 +133,37 @@ const Collage = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+    {postsData ? (
+      <Animated.View style={[styles.noPostsContainer, { opacity: fadeAnim }]}>
+        <Text style={styles.noPostsText}>It looks empty here</Text>
+        <Text style={styles.noPostsText}>Why dont you create posts!</Text>
+      </Animated.View>
+    ) : (
       <ScrollView>
-        {groupImagesByDate(postsData).map((section, index) => (
+        {postsData.map((section, index) => (
           <View key={index}>{renderSection({ section })}</View>
         ))}
       </ScrollView>
-      {selectedImage && (
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={isModalVisible}
-          onRequestClose={() => setIsModalVisible(false)}
-        >
-          <View style={styles.modalView}>
-            <Image source={{ uri: selectedImage }} style={styles.fullImage} />
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setIsModalVisible(false)}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </Modal>
-      )}
-    </SafeAreaView>
+    )}
+    {selectedImage && (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={styles.modalView}>
+          <Image source={{ uri: selectedImage }} style={styles.fullImage} />
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setIsModalVisible(false)}
+          >
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    )}
+  </SafeAreaView>
   );
 };
 
@@ -167,6 +183,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginLeft: 10,
     color: "#fff", // Dark color for contrast and readability
+  },
+  noPostsContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noPostsText: {
+    color: "white",
+    fontSize: 20,
+    fontWeight: "bold",
+    opacity: 0.8,
   },
 
   horizontalListContent: {

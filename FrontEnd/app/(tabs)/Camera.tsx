@@ -3,27 +3,9 @@ import { View, TouchableOpacity, StyleSheet, Text, StatusBar, Dimensions, Activi
 import { Camera, CameraType, FlashMode } from 'expo-camera';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons'; // Make sure to install @expo/vector-icons
-import { StackNavigationProp, createStackNavigator } from '@react-navigation/stack';
 import { manipulateAsync, FlipType, SaveFormat } from 'expo-image-manipulator';
 import { Link, router, useFocusEffect} from "expo-router";
-import { Image } from 'expo-image';
 
-
-type RootStackParamList = {
-    Signup: undefined;
-    Login: undefined;
-    Preview: { photoUri: string };  // Define the parameters expected by the Preview screen
-    // ... other screen definitions
-  };
-  
-  const Stack = createStackNavigator<RootStackParamList>();
-  
-// Define the type for the navigation prop specific to this stack
-type NavigationProp = StackNavigationProp<RootStackParamList>;
-
-function useTypedNavigation() {
-  return useNavigation<NavigationProp>();
-}
 export default function CameraPage() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [type, setType] = useState(CameraType.back);
@@ -58,7 +40,7 @@ export default function CameraPage() {
 
       return () => {
         isActive = false; // Cleanup: Mark component as inactive
-        // Additional cleanup logic if needed
+
       };
     }, [])
   );

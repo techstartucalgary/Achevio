@@ -20,6 +20,7 @@ import { AreYouSure } from "../../components/PopUpMessages";
 import { setUserId } from "../redux/actions/userActions";
 import { Image } from 'expo-image';
 import { persistor, resetAndFlushStore } from "../redux/store/store";
+import { Icon } from "react-native-elements";
 
 // Dummy fallback data
 const fallbackData = {
@@ -215,6 +216,7 @@ const ProfilePage: React.FC = () => {
       showsVerticalScrollIndicator={false}
     >
       <View style={{ alignItems: "center" }}>
+
         <ImageBackground source={{ uri: avatarUri }}style={styles.headerContainer}>
         <Text style={styles.title}>Profile</Text>
         <Text style={styles.username}>{username}</Text>
@@ -226,85 +228,16 @@ const ProfilePage: React.FC = () => {
             )
           }
         >
-          <Image source={{ uri: avatarUri }} style={styles.avatar} />
+          <Image source={{ uri: avatarUri }} style={styles.avatar} cachePolicy="memory-disk"/>
+
         </TouchableOpacity>
+        <TouchableOpacity style={{ position:"absolute", top: 50, right: 10, zIndex:100 }} onPress={() => router.push("/(Settings)/MainSettingsPage")}>
+        <Icon name="settings" size={40} color="white"/>
+          </TouchableOpacity>
         </ImageBackground>
       </View>
 
-      <View style={styles.sectionContainerTop}>
-        <Text style={styles.sectionTitle}>Account settings</Text>
-        {profileData.settings?.map((setting, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.option}
-            onPress={() =>
-              router.push(`/(Settings)/${setting.navigateTo}` as any)
-            }
-          >
-            <Text style={styles.optionText}>{setting.title}</Text>
-            <MaterialIcons name={setting.icon as any} size={24} color="black" />
-          </TouchableOpacity>
-        ))}
-        <View style={styles.option}>
-          <Text style={styles.optionText}>Dark mode</Text>
-          <Switch value={isDarkMode} onValueChange={handleDarkModeToggle} />
-        </View>
-        <View style={styles.option}>
-          <Text style={styles.optionText}>Push notifications</Text>
-          <Switch
-            value={notificationsEnabled}
-            onValueChange={handleNotificationsToggle}
-          />
-        </View>
-      </View>
 
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Preferences</Text>
-        {profileData.preferences?.map((preference, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.option}
-            onPress={() =>
-              router.push(`/(Settings)/${preference.navigateTo}` as any)
-            }
-          >
-            <Text style={styles.optionText}>{preference.title}</Text>
-
-            <MaterialIcons
-              name={preference.icon as any}
-              size={24}
-              color="black"
-            />
-          </TouchableOpacity>
-        ))}
-      </View>
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>More</Text>
-        {profileData.More?.map((More, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.option}
-            onPress={() => router.push(`/(Settings)/${More.navigateTo}` as any)}
-          >
-            <Text style={styles.optionText}>{More.title}</Text>
-            <MaterialIcons name={More.icon as any} size={24} color="black" />
-          </TouchableOpacity>
-        ))}
-      </View>
-      <View style={styles.sectionContainer}>
-        <TouchableOpacity
-          style={styles.option}
-          onPress={async() => {
-            resetAndFlushStore();
-            dispatch({ type: "UPDATE_USERNAME", userName: "" });
-            dispatch({ type: "UPDATE_PASSWORD", passWord: "" });
-            router.push("/(Login)/home");
-          }
-          }
-        >
-          <Text style={styles.optionText}>Logout</Text>
-        </TouchableOpacity>
-      </View>
     </ScrollView>
   );
 };
@@ -324,7 +257,7 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: "bold",
     color: "#ffffff", // White color for better readability
-    paddingVertical: 20,
+    paddingVertical: 30,
   },
   avatar: {
     width: 150,

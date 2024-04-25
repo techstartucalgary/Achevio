@@ -306,8 +306,8 @@ const Search: React.FC = () => {
                               styles.communityTags,
                               {
                                 backgroundColor: tag.color,
-                                borderRadius: 10,
                                 padding: 2,
+                                textAlign: "center",
                                 marginHorizontal: 2,
                               },
                             ]}

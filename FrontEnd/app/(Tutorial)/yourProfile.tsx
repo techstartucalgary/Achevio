@@ -1,61 +1,35 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, Alert, Animated } from 'react-native';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 
-interface Tag {
-  name: string;
-  color: string;
-  category?: string;
-}
-
-const categories = {
-  Sports: ["Running", "Swimming", "Cycling", "Soccer", "Basketball", "Golf", "Surfing", "Skateboarding"],
-  Music: ["Guitar", "Piano", "Singing", "Dancing", "Violin"],
-  Art: ["Drawing", "Painting", "Sculpting"],
-  Lifestyle: ["Cooking", "Hiking", "Reading", "Baking", "Sewing", "Studying", "Gardening", "Meditation", "Yoga", "Photography"]
-};
-
 const YourProfile = () => {
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const { url } = useSelector((state: any) => state.user);
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-  }, [fadeAnim]);
+  const scaleAnim = useRef(new Animated.Value(1)).current;  // Initial scale value
 
   const pickImage = async () => {
-    let permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      alert("Permission to access camera roll is required!");
+    let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      Alert.alert("Permission Required", "Permission to access camera roll is required!");
       return;
     }
 
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [1, 1],
       quality: 1,
     });
 
-    if (pickerResult.canceled) {
-      console.log("Image picker canceled");
-      return;
+    if (!pickerResult.canceled) {
+      setAvatarUri(pickerResult.assets[0].uri as string);
+      animateImage();
+      uploadImage(pickerResult.assets[0].uri as string);
     }
-
-    setAvatarUri(pickerResult.assets[0].uri as string);
-    uploadImage(pickerResult.assets[0].uri as string);
   };
 
   const uploadImage = async (uri: string) => {
@@ -68,76 +42,60 @@ const YourProfile = () => {
     } as any);
 
     try {
-      const response = await axios.patch(url_extension, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      await axios.patch(url_extension, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log("Image uploaded successfully:", response);
     } catch (error) {
       console.error("Error uploading image:", error);
       Alert.alert("Upload Failed", "Failed to upload profile image.");
     }
   };
 
-  useEffect(() => {
-    const options = {
-      method: "GET",
-      url: `${url}/tag`,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: "",
-      },
-    };
-    async function fetchData() {
-      try {
-        const { data } = await axios.request(options);
-        console.log("Fetched tags:", data);
-        setTags(data);
-      } catch (error) {
-        console.error(error);
-        Alert.alert("Error", "Failed to fetch tags");
-      }
-    }
-    fetchData();
-  }, []);
-
-  const handleSelectTag = (tag: Tag) => {
-    setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t.name !== tag.name) : [...prev, tag]);
-  };
-
-  const navigateToNext = () => {
-    router.push("/(tabs)/Camera");
-  };
-  const renderTagsByCategory = (category: string) => {
-    return tags.filter(tag => tag.category === category).map(tag => (
-        console.log(tag),
-      <TouchableOpacity key={tag.name} style={[styles.tagItem, { backgroundColor: selectedTags.includes(tag) ? '#4CAF50' : tag.color }]}
-        onPress={() => handleSelectTag(tag)}>
-        <Text style={styles.tagText}>{tag.name}</Text>
-      </TouchableOpacity>
-    ));
+  const animateImage = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 0.95,
+        duration: 150,
+        useNativeDriver: true
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 3,
+        useNativeDriver: true
+      })
+    ]).start();
   };
 
   return (
-    <LinearGradient colors={['#0f0c29', '#302b63', '#24243e']} style={styles.container}>
-      <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-        <TouchableOpacity onPress={pickImage} style={styles.button}>
-          <Text style={styles.buttonText}>Set Profile Picture</Text>
+    <LinearGradient colors={['#3a1c71', '#d76d77', '#ffaf7b']} style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.title}>Set Your Profile Picture</Text>
+        <TouchableOpacity onPress={pickImage} style={styles.avatarPlaceholder}>
+          {avatarUri ? (
+            <Animated.Image
+              source={{ uri: avatarUri }}
+              style={[styles.avatar, { transform: [{ scale: scaleAnim }] }]}
+            />
+          ) : (
+            <Text style={styles.avatarText}>Tap to select image</Text>
+          )}
         </TouchableOpacity>
-        {avatarUri && <Image source={{ uri: avatarUri }} style={styles.avatar} />}
-        <Text style={styles.title}>Select Interests:</Text>
-        {Object.keys(categories).map(category => (
-          <View key={category}>
-            <Text style={styles.categoryTitle}>{category}</Text>
-            {renderTagsByCategory(category)}
-          </View>
-        ))}
-        <TouchableOpacity onPress={navigateToNext} style={styles.button}>
-          <Text style={styles.buttonText}>Go Next</Text>
+        {avatarUri ? (
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.push('/(Tutorial)/pickIntrest')} // Navigate to next screen (pickIntrest
+          >
+            <Text style={styles.buttonText}>Go next</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity onPress={pickImage} style={styles.button}>
+          <Text style={styles.buttonText}>Upload Image</Text>
         </TouchableOpacity>
-      </Animated.View>
+        )
+          
+        }
+
+      </View>
     </LinearGradient>
   );
 };
@@ -145,50 +103,43 @@ const YourProfile = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 20,
-  },
-  content: {
-    width: '100%',
     alignItems: 'center',
+    paddingTop: 50,
     paddingHorizontal: 20,
   },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 20,
+  content: {
+    alignItems: 'center',
+    width: '100%',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
-    marginBottom: 10,
+    marginBottom: 20,
   },
-  categoryTitle: {
-    fontSize: 20,
-    fontWeight: '500',
-    color: '#DDD',
-    marginTop: 20,
-  },
-  tagItem: {
-    padding: 10,
-    marginVertical: 5,
-    borderRadius: 5,
-    width: 250,
-    alignItems: 'center',
+  avatarPlaceholder: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: '#ffffff30',
     justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
   },
-  tagText: {
+  avatar: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+  },
+  avatarText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 16,
   },
   button: {
-    marginTop: 20,
-    backgroundColor: '#1e90ff',
+    backgroundColor: '#ff6347',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 20,
   },
   buttonText: {
     color: 'white',

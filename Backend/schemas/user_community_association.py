@@ -27,14 +27,15 @@ class UserCommunityAssociationSchema(Schema):
 
     tier: str
 
-class UserCommunityAssociationSchemaWithTags(UserCommunityAssociationSchema):
+class UserCommunityAssociationSchemaView(UserCommunityAssociationSchema):
     tags: list[TagSchema] = []
+    name: str
 
 
 class UserCommunityAssociationDTO(PydanticDTO[UserCommunityAssociationSchema]):
     pass
 
-class UserCommunityAssociationWithTagsDTO(PydanticDTO[UserCommunityAssociationSchemaWithTags]):
+class UserCommunityAssociationSchemaViewDTO(PydanticDTO[UserCommunityAssociationSchemaView]):
     pass
 
 from .tag import TagSchema

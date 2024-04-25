@@ -169,5 +169,78 @@ async def get_community_users(session: AsyncSession, id: UUID, limit: int = 100,
 
 
 
+async def get_user_community_association(session: AsyncSession, user_id: UUID, community_id: UUID) -> UserCommunityAssociation:
+    """
+    Retrieve a single user community association by user and community UUID.
+
+    Args:
+        session (AsyncSession): The database session for executing queries.
+        user_id (UUID): The unique identifier of the user.
+        community_id (UUID): The unique identifier of the community.
+
+    Returns:
+        UserCommunityAssociation: The UserCommunityAssociation object with the specified user and community UUIDs.
+
+    Raises:
+        HTTPException: If there's an error retrieving the user community association or if the association doesn't exist.
+    """
+    # Create a query to find the user community association by user and community UUIDs and execute it.
+    query = select(UserCommunityAssociation).where(UserCommunityAssociation.user_id == user_id, UserCommunityAssociation.community_id == community_id)
+    result = await session.execute(query)
+    try:
+        # Return the single user community association or None if not found.
+        return result.scalar_one_or_none()
+    except:
+        # Raise an HTTP exception if there's an issue retrieving the user community association.
+        raise HTTPException(status_code=401, detail="Error retrieving user community association")
 
 
+async def get_user_community_association_by_user_id(session: AsyncSession, user_id: UUID) -> list[UserCommunityAssociation]:
+    """
+    Retrieve a list of user community associations by user UUID.
+
+    Args:
+        session (AsyncSession): The database session for executing queries.
+        user_id (UUID): The unique identifier of the user.
+
+    Returns:
+        list[UserCommunityAssociation]: A list of UserCommunityAssociation objects with the specified user UUID.
+
+    Raises:
+        HTTPException: If there's an error retrieving the user community associations or if the associations don't exist.
+    """
+    # Create a query to find the user community associations by user UUID and execute it.
+    query = select(UserCommunityAssociation).where(UserCommunityAssociation.user_id == user_id)
+    result = await session.execute(query)
+    try:
+        # Return the list of user community associations or an empty list if not found.
+        return result.scalars().all()
+    except:
+        # Raise an HTTP exception if there's an issue retrieving the user community associations.
+        raise HTTPException(status_code=401, detail="Error retrieving user community associations")
+
+
+async def get_users_by_tier(session, community_id):
+    # Query for users in the 'bronze' tier
+    bronze_users_query = select(UserCommunityAssociation).filter(
+        UserCommunityAssociation.community_id == community_id,
+        UserCommunityAssociation.tier == 'bronze'
+    ).all()
+
+    # Query for users in the 'silver' tier
+    silver_users_query = select(UserCommunityAssociation).filter(
+        UserCommunityAssociation.community_id == community_id,
+        UserCommunityAssociation.tier == 'silver'
+    ).all()
+
+    # Query for users in the 'gold' tier
+    gold_users_query = select(UserCommunityAssociation).filter(
+        UserCommunityAssociation.community_id == community_id,
+        UserCommunityAssociation.tier == 'gold'
+    ).all()
+
+    bronze_users = (await session.execute(bronze_users_query)).scalars().all()
+    silver_users = (await session.execute(silver_users_query)).scalars().all()
+    gold_users = (await session.execute(gold_users_query)).scalars().all()
+
+    return bronze_users_query, silver_users_query, gold_users_query

@@ -6,8 +6,11 @@ from datetime import datetime, UTC
 from litestar.contrib.sqlalchemy.base import UUIDAuditBase, UUIDBase
 from .friend import friend_association
 
+from .tag import Tag
 from .post import Post
+from .user_tag import user_tag_association
 
+from typing import List
 
 class User(UUIDAuditBase):
     __tablename__ = 'user_table'
@@ -21,9 +24,17 @@ class User(UUIDAuditBase):
     password: Mapped[str] = mapped_column(String(255))
     done_tutorial: Mapped[bool] = mapped_column(Boolean, default=False)
 
+    interests: Mapped[list['Tag']] = relationship(
+        secondary=user_tag_association,
+        lazy='selectin',
+    )
+
+    xp: Mapped[int] = mapped_column(Integer, default=0)
+    
+
     communities = relationship('UserCommunityAssociation', back_populates='user')
 
-    posts: Mapped[list['Post']] = relationship(lazy='selectin')
+    posts: Mapped[List['Post']] = relationship(lazy='selectin')
     
     # friends: Mapped[list["User"]] = relationship(
     #     "User",

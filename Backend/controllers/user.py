@@ -26,7 +26,9 @@ from models.post import Post
 from crud.users import get_user_by_username, get_user_by_id,get_user_list, user_join_community, user_leave_community, transfer_community_ownership, get_user_communities, get_friends_by_id
 from crud.tag import get_tag_by_name
 from .auth import oauth2_auth
-
+from crud.community import get_user_community_association_by_user_id
+from schemas.tag import TagSchema, TagDTO
+from schemas.user_community_association import UserCommunityAssociationSchema, UserCommunityAssociationDTO
 
 from schemas.login import CustomLoginSchema, CustomLoginDTO
 
@@ -75,11 +77,11 @@ class UserController(Controller):
         Returns:
             UserSchema: The user's information in UserSchema format.
         '''
-        return UserSchema.model_validate(await get_user_by_id(session, request.user))
+        return await get_user_by_id(session, request.user)
 
 
-    @get('/myCommunities')
-    async def get_my_communities(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> list[CommunitySchema]:
+    @get('/myCommunities', return_dto=UserCommunityAssociationDTO)
+    async def get_my_communities(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> list[UserCommunityAssociationSchema]:
         '''
         Retrieves the communities associated with the current user. 
 
@@ -90,7 +92,7 @@ class UserController(Controller):
         Returns:
             list[CommunitySchema]: A list of communities in Schema format that the user belongs to.
         '''
-        return [CommunitySchema.model_validate(community) for community in await get_user_communities(session, request.user)]
+        return await get_user_community_association_by_user_id(session, request.user)
 
 
     # DEPRECATED
@@ -198,41 +200,7 @@ class UserController(Controller):
 
 
 
-    @post('/post', media_type=MediaType.TEXT)
-    async def create_post(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[CreateMultiplePostSchema, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
-        '''
-        Creates one or multiple posts with images associated with communities.
 
-        Args:
-            request (Request): The request object containing user and token information.
-            session (AsyncSession): The database session for performing database transactions.
-            data (CreateMultiplePostSchema): The data received in the request payload, expected to be in multipart form-data format.
-
-        Returns:
-            str: A message indicating the path where the image file associated with the posts has been saved.
-
-
-        '''
-        user = await get_user_by_id(session, request.user)
-        image = await data.file.read()
-        
-
-        communities = data.communities_id.split(',')
-
-
-
-        for community_id in communities:
-            post = Post(id=uuid7(), title=data.title, caption=data.caption, user_id=user.id, community_id=UUID(community_id))
-            session.add(post)
-
-            image_dir = "static/images/posts"
-            os.makedirs(image_dir, exist_ok=True)
-            filename = f'{post.id}.jpg'
-
-            file_path = os.path.join(image_dir, filename)
-            async with aiofiles.open(file_path, 'wb') as outfile:
-                await outfile.write(image)
-        return f"File created"
 
     
 
@@ -303,6 +271,12 @@ class UserController(Controller):
 
 
 
-    # @post('/featured-posts')
-
-
+    @post('/setInterests', dto=TagDTO, return_dto=None)
+    async def set_interests(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: list[TagSchema]) -> str:
+        user = await get_user_by_id(session, request.user)
+        # tags = data
+        for tag in data:
+            new_tag = await get_tag_by_name(session, tag.name)
+            user.interests.append(new_tag)
+        await session.commit()
+        return "Interests Set!"

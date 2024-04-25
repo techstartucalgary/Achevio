@@ -97,6 +97,7 @@ class CommunityController(Controller):
         '''
         await user_leave_community(session, communityID, request.user)
       
+      
     @get('/{id:str}', exclude_from_auth=True)
     async def get_community(self, session: AsyncSession, id: str) -> CommunitySchema:
         return await get_community_by_id(session, id)
@@ -106,10 +107,8 @@ class CommunityController(Controller):
     @get("/{id:str}/getAllUsers", exclude_from_auth=True)
     async def get_community_users(self, session: AsyncSession, id: str, limit: int = 100, offset: int = 0) -> list[UserSchema]:
 
-        users = await get_community_users(session, id, limit, offset)
-        return [UserSchema.model_validate(user) for user in users]
-    # @post('/')
-    # async def search_community(self, request: Request, session: AsyncSession, session: AsyncSession, data: CommunitySearchSchema) -> CommunitySchema:
+        return await get_community_users(session, id, limit, offset)
+    
     @put('/{community_id:str}/image', media_type=MediaType.TEXT)
     async def upload_community_image(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[UploadFile, Body(media_type=RequestEncodingType.MULTI_PART)], community_id: str) -> str:
         user = await get_user_by_id(session, request.user)
@@ -128,9 +127,10 @@ class CommunityController(Controller):
         return f"Community image updated at: {file_path}"
     
 
-    @get('/images')
+    @get('/backgroundImages')
     async def get_background_images(self) -> list[str]:
-        return [f.name for f in Path('static/images/backgrounds').iterdir() if f.is_file()]
+        return [filename for filename in os.listdir('static/images/background') if filename[0] == '0']
+
 
 
     @patch('/{community_id:str}/image/{image_id:str}')
@@ -178,4 +178,11 @@ class CommunityController(Controller):
             raise HTTPException(status_code=409, detail=f'Error creating community: {e}')
     '''
 
-    
+    @get('{communityID:str}/tiers', exclude_from_auth=True)
+    def get_users_by_tier(self, session: AsyncSession, communityID: str) -> tuple[list[UserCommunityAssociation], list[UserCommunityAssociation], list[UserCommunityAssociation]]:
+        return get_users_by_tier(session, communityID)
+    # @get('/images')
+    # async def get_background_images(self) -> list[str]:
+    #     return os.listdir('Backend/static/images/background')
+
+

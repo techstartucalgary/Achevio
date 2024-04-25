@@ -32,6 +32,15 @@ const TutorialLayout = () => {
           animation:'slide_from_right'
         }}
       />
+      <Stack.Screen
+        name="settingUpPage"
+        options={{
+          headerShown: false,
+          presentation: 'card',
+          animationTypeForReplace: 'push',
+          animation:'slide_from_right'
+        }}
+      />
      
     </Stack>
   );

@@ -125,7 +125,7 @@ export default function LoginScreen() {
       dispatch({ type: "UPDATE_USERNAME", userName: inputUsername });
       dispatch({ type: "UPDATE_PASSWORD", passWord: password });
       if (response.data.done_tutorial === false) {
-        router.push("/(Tutorial)/yourProfile");
+        router.push("/(Tutorial)/settingupPage");
       } else {
         router.push("/(tabs)/Camera");
       }

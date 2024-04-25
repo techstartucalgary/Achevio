@@ -104,7 +104,7 @@ class CommunityController(Controller):
     
 
 
-    @get("/{id:str}/getAllUsers", exclude_from_auth=True)
+    @get("/{id:str}/getAllUsers", exclude_from_auth=True, return_dto=BasicUserOutDTO)
     async def get_community_users(self, session: AsyncSession, id: str, limit: int = 100, offset: int = 0) -> list[UserSchema]:
         return await get_community_users(session, id, limit, offset)
     

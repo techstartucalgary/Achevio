@@ -26,9 +26,9 @@ from models.post import Post
 from crud.users import get_user_by_username, get_user_by_id,get_user_list, user_join_community, user_leave_community, transfer_community_ownership, get_user_communities, get_friends_by_id
 from crud.tag import get_tag_by_name
 from .auth import oauth2_auth
-
+from crud.community import get_user_community_association_by_user_id
 from schemas.tag import TagSchema, TagDTO
-
+from schemas.user_community_association import UserCommunityAssociationSchema, UserCommunityAssociationDTO
 
 from schemas.login import CustomLoginSchema, CustomLoginDTO
 
@@ -80,8 +80,8 @@ class UserController(Controller):
         return await get_user_by_id(session, request.user)
 
 
-    @get('/myCommunities', return_dto=ViewCommunityDTO)
-    async def get_my_communities(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> Any:
+    @get('/myCommunities', return_dto=UserCommunityAssociationDTO)
+    async def get_my_communities(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> list[UserCommunityAssociationSchema]:
         '''
         Retrieves the communities associated with the current user. 
 
@@ -92,7 +92,7 @@ class UserController(Controller):
         Returns:
             list[CommunitySchema]: A list of communities in Schema format that the user belongs to.
         '''
-        return await get_user_communities(session, request.user)
+        return await get_user_community_association_by_user_id(session, request.user)
 
 
     # DEPRECATED

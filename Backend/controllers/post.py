@@ -109,4 +109,5 @@ class PostController(Controller):
             user_community = await get_user_community_association(session, user.id, UUID(community_id))
             user_community.streak += 1
             user_community.current_days += 1
+            user_community.season_xp += 10
         return f"File created"

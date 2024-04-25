@@ -24,7 +24,7 @@ class UserCommunityAssociation(UUIDBase):
     current_days = Column(Integer, default = 0)
     streak = Column(Integer, default = 0)
 
-    tier = Column(String, default='Space Cadet')
+    tier = Column(String, default='Earth')
 
     community = relationship('Community', back_populates='users')
     user = relationship('User', back_populates='communities')

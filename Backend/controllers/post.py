@@ -15,6 +15,8 @@ from models.post import Post
 from schemas.post import CreateMultiplePostSchema, PostSchema, PostDTO, CreateMultiplePostDTO
 from crud.post import get_posts_list, get_posts_by_user_id, get_posts_by_community_id, delete_post_by_id, get_post_by_id, get_posts_from_id_list, get_posts_by_multiple_user_id
 from crud.users import get_friends_by_id, get_user_by_id
+from crud.community import get_user_community_association
+
 class PostController(Controller):
     path = '/posts'
     dto = PostDTO
@@ -81,18 +83,18 @@ class PostController(Controller):
         image = await data.file.read()
 
         extension = data.file.filename.split('.')[-1]
-        
-
         communities = data.communities_id.split(',')
+
+        user.xp += 10
+
+        # user_community = await get_user_community_association(session, user.id, UUID(communities[0]))
+
 
 
 
         for community_id in communities:
             post = Post(id=uuid7(), title=data.title, caption=data.caption, user_id=user.id, community_id=UUID(community_id))
             session.add(post)
-
-
-
             image_dir = "static/images/posts"
             os.makedirs(image_dir, exist_ok=True)
             if extension:
@@ -103,4 +105,8 @@ class PostController(Controller):
             file_path = os.path.join(image_dir, filename)
             async with aiofiles.open(file_path, 'wb') as outfile:
                 await outfile.write(image)
+
+            user_community = await get_user_community_association(session, user.id, UUID(community_id))
+            user_community.streak += 1
+            user_community.current_days += 1
         return f"File created"

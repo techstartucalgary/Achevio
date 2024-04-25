@@ -28,6 +28,8 @@ class User(UUIDAuditBase):
         secondary=user_tag_association,
         lazy='selectin',
     )
+
+    xp: Mapped[int] = mapped_column(Integer, default=0)
     
 
     communities = relationship('UserCommunityAssociation', back_populates='user')

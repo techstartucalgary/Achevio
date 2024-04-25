@@ -29,6 +29,8 @@ class UserSchema(Schema):
 
     interests: list[TagSchema] = []
 
+    xp: int
+
     # friends: list[UserSchema]
 
     posts: "list[PostSchema]" = []
@@ -62,13 +64,13 @@ class CreateUserDTO(UserDTO):
 
 class UserOutDTO(UserDTO):
     config = DTOConfig(
-        include={'id', 'username', 'done_tutorial', 'first_name', 'last_name', 'email', 'created_at', 'updated_at', 'is_active', 'last_login', 'communities', 'interests'},
+        include={'id', 'username', 'done_tutorial', 'first_name', 'last_name', 'email', 'created_at', 'updated_at', 'is_active', 'last_login', 'communities', 'interests', 'xp'},
         max_nested_depth=2,
     )
 
 class BasicUserOutDTO(UserDTO):
     config = DTOConfig(
-        include={'id', 'done_tutorial', 'username', 'first_name', 'last_name', 'email', 'created_at', 'updated_at', 'is_active', 'last_login'},
+        include={'id', 'done_tutorial', 'username', 'first_name', 'last_name', 'email', 'created_at', 'updated_at', 'is_active', 'last_login', 'xp'},
         max_nested_depth=2,
     )
 

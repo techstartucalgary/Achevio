@@ -320,3 +320,12 @@ async def get_community_tags(session: AsyncSession, id: UUID) -> list[str]:
     if community is None:
         raise HTTPException(status_code=404, detail="Community not found")
     return community.tags
+
+
+async def get_community_name_by_id(session: AsyncSession, community_id: UUID):
+    query = select(Community).where(Community.id == community_id)
+    result = await session.execute(query)
+    community = result.scalar_one_or_none()
+    if community is None:
+        raise HTTPException(status_code=404, detail="Community not found")
+    return community.name

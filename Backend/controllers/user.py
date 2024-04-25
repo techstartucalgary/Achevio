@@ -26,9 +26,9 @@ from models.post import Post
 from crud.users import get_user_by_username, get_user_by_id,get_user_list, user_join_community, user_leave_community, transfer_community_ownership, get_user_communities, get_friends_by_id
 from crud.tag import get_tag_by_name
 from .auth import oauth2_auth
-from crud.community import get_user_community_association_by_user_id, get_community_tags
+from crud.community import get_user_community_association_by_user_id, get_community_tags, get_community_by_id
 from schemas.tag import TagSchema, TagDTO
-from schemas.user_community_association import UserCommunityAssociationSchema, UserCommunityAssociationDTO, UserCommunityAssociationSchemaWithTags, UserCommunityAssociationWithTagsDTO
+from schemas.user_community_association import UserCommunityAssociationSchema, UserCommunityAssociationDTO, UserCommunityAssociationSchemaView, UserCommunityAssociationSchemaViewDTO
 
 from schemas.login import CustomLoginSchema, CustomLoginDTO
 
@@ -80,7 +80,7 @@ class UserController(Controller):
         return await get_user_by_id(session, request.user)
 
 
-    @get('/myCommunities', return_dto=UserCommunityAssociationWithTagsDTO)
+    @get('/myCommunities', return_dto=UserCommunityAssociationSchemaViewDTO)
     async def get_my_communities(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> list[UserCommunityAssociationSchema]:
         '''
         Retrieves the communities associated with the current user. 
@@ -93,9 +93,7 @@ class UserController(Controller):
             list[CommunitySchema]: A list of communities in Schema format that the user belongs to.
         '''
         user_communities = await get_user_community_association_by_user_id(session, request.user)
-        return_stuff = [UserCommunityAssociationSchemaWithTags(**user_community.__dict__, tags=(await get_community_tags(session, user_community.community_id))) for user_community in user_communities]
-
-        return return_stuff
+        return [UserCommunityAssociationSchemaView(**user_community.__dict__, name=(await get_community_by_id(session, user_community.community_id)).name, tags=(await get_community_tags(session, user_community.community_id))) for user_community in user_communities]
 
 
     # DEPRECATED

@@ -198,7 +198,7 @@ async def seed_data(session: AsyncSession):
     )
 
     user3 = User(
-        id = uuid7(),
+        id = "018f16f6-d2c1-797c-aee3-8afc04206318",
         username = "pupper0n1",
         first_name = "W",
         last_name = "Elbouni",
@@ -219,11 +219,71 @@ async def seed_data(session: AsyncSession):
         posts = []
     )
 
+    user5 = User(
+        id = "018f16f6-d2c1-797c-aee3-8afc04206619",
+        username = "nimnaW",
+        first_name = "Nimna",
+        last_name = "Wadjesida",
+        email = "nimna.Wadjesida@email.com",
+        password = ph.hash("password"),
+        communities = [],
+        posts = []
+    )
+
+    user6 = User(
+        id = "018f16f6-d2c1-797c-aee3-8afc04206620",
+        username = "Gian",
+        first_name = "Gian",
+        last_name = "Brylle",
+        email = "gian.brylle@email.com",
+        password = ph.hash("password"),
+        communities = [],
+        posts = []
+    )
+
+    user7 = User(
+        id = "018f16f6-d2c1-797c-aee3-8afc04206621",
+        username = "Ada",
+        first_name = "Ada",
+        last_name = "Lovelace",
+        email = "ada.lovelace@email.com",
+        password = ph.hash("password"),
+        communities = [],
+        posts = []
+    )
+
+    user8 = User(
+        id = "018f16f6-d2c1-797c-aee3-8afc04206622",
+        username = "Grace",
+        first_name = "Grace",
+        last_name = "Hopper",
+        email = "grace.hopper@email.com",
+        password = ph.hash("password"),
+        communities = [],
+        posts = []
+    )
+
+    user9 = User(
+        id = "018f16f6-d2c1-797c-aee3-8afc04206623",
+        username = "charlesB",
+        first_name = "Charles",
+        last_name = "Babbage",
+        email = "charles.babbage@email.com",
+        password = ph.hash("password"),
+        communities = [],
+        posts = []
+    )
+
     session.add_all([
         user1,
         user2,
         user3,
-        user4
+        user4,
+        user5,
+        user6,
+        user7,
+        user8,
+        user9
     ])
 
 
@@ -238,39 +298,43 @@ async def seed_data(session: AsyncSession):
     )
 
     fitness_fanatics = Community(
-        id = uuid7(),
+        id = "00000000-0000-0000-0000-000000000000",
         name = "Fitness Fanatics",
         description = "A community for fitness enthusiasts to share workout routines and progress.",
         public = True,
         users = [],
-        tags = [running_tag, swimming_tag, cycling_tag]
+        tags = [running_tag, swimming_tag, cycling_tag],
+        image = "00000000-0000-0000-0000-000000000000.jpg"
     )
 
     guitar_club = Community(
-        id = uuid7(),
+        id = "00000000-0000-0000-0000-000000000003",
         name = "Guitar Club",
         description = "A community for guitarists to share music and tips.",
         public = True,
         users = [],
-        tags = [guitar_tag]
+        tags = [guitar_tag],
+        image = "00000000-0000-0000-0000-000000000003.jpg"
     )
 
     cooking_corner = Community(
-        id = uuid7(),
+        id = "00000000-0000-0000-0000-000000000005",
         name = "Cooking Corner",
         description = "A community for foodies to share recipes and cooking techniques.",
         public = True,
         users = [],
-        tags = [cooking_tag]
+        tags = [cooking_tag],
+        image = "00000000-0000-0000-0000-000000000005.jpg"
     )
 
     hiking_club = Community(
-        id = uuid7(),
+        id = "00000000-0000-0000-0000-000000000006",
         name = "Hiking Club",
         description = "A community for hikers to share trails and experiences.",
         public = True,
         users = [],
-        tags = [hiking_tag]
+        tags = [hiking_tag],
+        image = "00000000-0000-0000-0000-000000000006.jpg"
     )
 
 

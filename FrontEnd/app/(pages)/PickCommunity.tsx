@@ -15,7 +15,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 
 interface Community {
-  id: string;
+  community_id: string;
   name: string;
 }
 
@@ -61,7 +61,7 @@ const SelectCommunities = () => {
     formData.append("caption", caption as string);
     formData.append("communities_id", selectedCommunities.join(","));
     axios
-      .post(`${url}/user/post`, formData, {
+      .post(`${url}/post`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -76,16 +76,16 @@ const SelectCommunities = () => {
   const renderItem = ({ item }: { item: Community }) => (
     <TouchableOpacity
       style={styles.item}
-      onPress={() => handleSelectCommunity(item.id)}
+      onPress={() => handleSelectCommunity(item.community_id)}
     >
       <ImageBackground
-        source={{ uri: `${url}/community/image/${item.id}.jpg` }}
+        source={{ uri: `${url}/community/image/${item.community_id}.jpg` }}
         style={styles.backgroundImage}
         imageStyle={styles.communityBackground}
       >
         <View style={styles.itemContent}>
           <Text style={styles.text}>{item.name}</Text>
-          {selectedCommunities.includes(item.id) && (
+          {selectedCommunities.includes(item.community_id) && (
             <MaterialIcons name="check-circle" size={24} color="#4CAF50" />
           )}
         </View>
@@ -98,7 +98,7 @@ const SelectCommunities = () => {
         <FlatList
           data={communities}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.community_id}
         />
       </View>
       <TouchableOpacity

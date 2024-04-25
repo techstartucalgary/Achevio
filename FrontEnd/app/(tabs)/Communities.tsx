@@ -297,25 +297,26 @@ const Communities = () => {
   };
   // Component for rendering community items
   const renderCommunityItem = ({ item }) => (
+    console.log("items", item),
     <TouchableOpacity
       style={styles.communityItem}
       onPress={() => {
         router.push({
           pathname: "/(pages)/CommunitiesPage", // The route name
           params: {
-            communityId: item.id,
+            communityId: item.community_id,
             communityName: item.name,
             communityStreak: item.streak,
             communityTags: item.tags.map((tag) => {
               return tag.name + " " + tag.color;
             }),
-            communityImage: `${url}/community/image/${item.id}.jpg`,
+            communityImage: `${url}/community/image/${item.community_id}.jpg`,
           }, // Parameters as an object
         });
       }}
     >
       <ImageBackground
-        source={{ uri: `${url}/community/image/${item.id}.jpg` }}
+        source={{ uri: `${url}/community/image/${item.community_id}.jpg` }}
         style={styles.communityItemBackground}
         imageStyle={styles.communityItemImageStyle}
       >

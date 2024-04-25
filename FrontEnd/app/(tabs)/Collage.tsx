@@ -72,7 +72,7 @@ const Collage = () => {
           if (communitiesResponse.status === 200) {
             const communities = communitiesResponse.data;
             const postsPromises = communities.map((community) =>
-              fetchPostsForCommunity(community.id, userId)
+              fetchPostsForCommunity(community.community_id, userId)
             );
             const postsArrays = await Promise.all(postsPromises);
             const aggregatedPosts = [].concat(...postsArrays); // Flatten the array of arrays

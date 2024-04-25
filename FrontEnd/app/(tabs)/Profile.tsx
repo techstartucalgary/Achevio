@@ -122,7 +122,7 @@ const ProfilePage: React.FC = () => {
       }));
       setUserId(me.id);
       setUserIDAgain(me.id);
-      console.log("user_id:", userId);
+      console.log("user_id:", me.id);
 
       if (me) {
 

@@ -64,7 +64,7 @@ class PostController(Controller):
 
 
 
-    @post('/post', media_type=MediaType.TEXT, dto=None)
+    @post('/', media_type=MediaType.TEXT, dto=None)
     async def create_post(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: Annotated[CreateMultiplePostSchema, Body(media_type=RequestEncodingType.MULTI_PART)]) -> str:
         '''
         Creates one or multiple posts with images associated with communities.

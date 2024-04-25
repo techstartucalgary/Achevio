@@ -4,6 +4,8 @@ from uuid import UUID
 from enum import Enum
 from .schema import Schema
 
+from litestar.contrib.pydantic import PydanticDTO
+
 
 
 class RoleEnum(str, Enum):
@@ -21,11 +23,13 @@ class UserCommunityAssociationSchema(Schema):
     current_days: int
     streak: int
 
+    season_xp: int
+
     tier: str
 
 
+class UserCommunityAssociationDTO(PydanticDTO[UserCommunityAssociationSchema]):
+    pass
 
-
-# from .users import UserSchema
-# from .community import CommunitySchema
-# UserCommunityAssociationSchema.model_rebuild()
+from .community import CommunitySchema
+UserCommunityAssociationSchema.model_rebuild()

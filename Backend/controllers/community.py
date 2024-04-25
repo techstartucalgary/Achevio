@@ -4,7 +4,7 @@ from typing import Optional, Any, Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from litestar import Response, Request, delete, get, post, put, patch, MediaType
 from litestar import Controller
-from schemas.users import UserSchema
+from schemas.users import BasicUserOutDTO, UserSchema
 from crud.users import get_user_by_id
 from litestar.datastructures import UploadFile
 from litestar.params import Body
@@ -18,7 +18,7 @@ from uuid_extensions import uuid7
 import shutil
 from litestar.contrib.jwt import OAuth2Login, Token
 from models.user import User
-from schemas.users import UserSchema, UserOutDTO
+from schemas.users import UserSchema, UserOutDTO, RequestUserOutDTO
 from crud.tag import get_tag_by_name
 from crud.users import user_join_community, user_leave_community
 import aiofiles
@@ -106,7 +106,6 @@ class CommunityController(Controller):
 
     @get("/{id:str}/getAllUsers", exclude_from_auth=True)
     async def get_community_users(self, session: AsyncSession, id: str, limit: int = 100, offset: int = 0) -> list[UserSchema]:
-
         return await get_community_users(session, id, limit, offset)
     
     @put('/{community_id:str}/image', media_type=MediaType.TEXT)
@@ -162,7 +161,6 @@ class CommunityController(Controller):
         Returns:
             str: A message indicating success.
         '''
-
         return await user_join_community(session, communityID, request.user, goal_days=goalDays)
 
     ''' This endpoint has been deprecated, please use the user_create_community endpoint instead
@@ -186,3 +184,59 @@ class CommunityController(Controller):
     #     return os.listdir('Backend/static/images/background')
 
 
+    @post('/{communityId:str}/request')
+    async def request_to_join_community(self, request: 'Request[User, Token, Any]', session: AsyncSession, communityId: str) -> str:
+        '''
+        Request to join a community.
+
+        Args:
+            request (Request): The HTTP request object.
+            session (AsyncSession): The database session.
+            communityId (str): The ID of the community to join.
+
+        Returns:
+            str: A message indicating success.
+        '''
+        user = await get_user_by_id(session, request.user)
+        community = await get_community_by_id(session, communityId)
+        community.requests.append(user)
+        await session.commit()
+        return 'Request sent to join community.'
+
+
+    @get('/{communityId:str}/requests', return_dto=RequestUserOutDTO)
+    async def get_community_requests(self, session: AsyncSession, communityId: str) -> list[UserSchema]:
+        '''
+        Get all requests to join a community.
+
+        Args:
+            session (AsyncSession): The database session.
+            communityId (str): The ID of the community.
+
+        Returns:
+            list[UserSchema]: A list of users who have requested to join the community.
+        '''
+        return await get_community_requests_by_id(session, communityId)
+
+
+    @post('/{communityId:str}/accept/{userId:str}')
+    async def accept_request(self, session: AsyncSession, communityId: str, userId: str) -> str:
+        '''
+        Accept a request to join a community.
+
+        Args:
+            session (AsyncSession): The database session.
+            communityId (str): The ID of the community.
+            userId (str): The ID of the user.
+
+        Returns:
+            str: A message indicating success.
+        '''
+        community = await get_community_by_id(session, communityId)
+
+        # user_community = UserCommunityAssociation(community_id=communityId, user_id=userId, tier='Earth', goal_days=0, current_days=0, streak=0, season_xp=0)
+        # community.users.append(user_community)
+        user = await get_user_by_id(session, userId)
+        # community.requests.remove(user)
+        await session.commit()
+        return "CHILL"

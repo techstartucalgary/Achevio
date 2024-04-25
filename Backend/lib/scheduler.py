@@ -7,16 +7,9 @@ from sqlalchemy import select
 from models.user import User
 from crud.users import get_user_list
 from sqlalchemy.ext.asyncio import AsyncSession
-from crud.community import get_user_community_association
+from crud.community import get_user_community_association, get_community_list, get_user_community_association_by_community_id, get_user_community_association_by_user_id
 from models.user_community_association import UserCommunityAssociation
 from schemas.user_community_association import UserCommunityAssociationSchema
-
-
-
-
-
-
-
 
 from datetime import UTC
 
@@ -38,14 +31,14 @@ async def weekly_reset(session: AsyncSession):
             
 
 async def season_reset(session: AsyncSession):
-    users = await get_user_list(session)
-    for user in users:
-        for user_community in user.communities:
-            user_community.season_xp = 0
-    await session.commit()
+    communities = await get_community_list(session)
+
+    for community in communities:
+        community_users = await get_user_community_association_by_community_id(session, community.id)
+        promote_users(community_users, session)
 
 
-async def promoted_users(user_community: list[UserCommunityAssociationSchema]):
+async def promote_users(user_community: list[UserCommunityAssociationSchema], session: AsyncSession):
     user_community.sort(key=lambda x: x.season_xp, reverse=True)
     promoted_users = user_community[:len(user_community) * 0.3]
     
@@ -61,3 +54,8 @@ async def promoted_users(user_community: list[UserCommunityAssociationSchema]):
             user.tier = 'Mars'
         elif user.tier == 'Mars':
             user.tier = 'Earth'
+
+    for user in user_community:
+        user.season_xp = 0
+
+    await session.commit()

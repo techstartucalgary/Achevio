@@ -16,7 +16,7 @@ from sqlalchemy import func
 from uuid_extensions import uuid7
 import asyncio
 from schemas.users import UserSchema
-
+from schemas.tag import TagSchema
 
 async def get_community_list(session: AsyncSession, limit: int = 100, offset: int = 0) -> list[Community]:
     """
@@ -298,4 +298,25 @@ async def get_users_by_tier(session, community_id):
     silver_users = (await session.execute(silver_users_query)).scalars().all()
     gold_users = (await session.execute(gold_users_query)).scalars().all()
 
-    return bronze_users_query, silver_users_query, gold_users_query
+    return bronze_users, silver_users, gold_users
+
+
+
+async def get_community_tags(session: AsyncSession, id: UUID) -> list[str]:
+    """
+    Retrieve a list of tags associated with a community by community UUID.
+
+    Args:
+        session (AsyncSession): The database session for executing queries.
+        id (UUID): The unique identifier of the community.
+
+    Returns:
+        list[str]: A list of strings representing the tags associated with the community.
+    """
+    # Create a query to find the tags associated with the community by its UUID and execute it.
+    query = select(Community).options(orm.selectinload(Community.tags)).where(Community.id == id)
+    result = await session.execute(query)
+    community = result.scalar_one_or_none()
+    if community is None:
+        raise HTTPException(status_code=404, detail="Community not found")
+    return community.tags

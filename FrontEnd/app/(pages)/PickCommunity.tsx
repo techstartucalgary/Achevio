@@ -61,7 +61,7 @@ const SelectCommunities = () => {
     formData.append("caption", caption as string);
     formData.append("communities_id", selectedCommunities.join(","));
     axios
-      .post(`${url}/post`, formData, {
+      .post(`${url}/posts`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

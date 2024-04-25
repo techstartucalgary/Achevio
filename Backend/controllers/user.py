@@ -26,9 +26,9 @@ from models.post import Post
 from crud.users import get_user_by_username, get_user_by_id,get_user_list, user_join_community, user_leave_community, transfer_community_ownership, get_user_communities, get_friends_by_id
 from crud.tag import get_tag_by_name
 from .auth import oauth2_auth
-from crud.community import get_user_community_association_by_user_id
+from crud.community import get_user_community_association_by_user_id, get_community_tags
 from schemas.tag import TagSchema, TagDTO
-from schemas.user_community_association import UserCommunityAssociationSchema, UserCommunityAssociationDTO
+from schemas.user_community_association import UserCommunityAssociationSchema, UserCommunityAssociationDTO, UserCommunityAssociationSchemaWithTags, UserCommunityAssociationWithTagsDTO
 
 from schemas.login import CustomLoginSchema, CustomLoginDTO
 
@@ -80,7 +80,7 @@ class UserController(Controller):
         return await get_user_by_id(session, request.user)
 
 
-    @get('/myCommunities', return_dto=UserCommunityAssociationDTO)
+    @get('/myCommunities', return_dto=UserCommunityAssociationWithTagsDTO)
     async def get_my_communities(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> list[UserCommunityAssociationSchema]:
         '''
         Retrieves the communities associated with the current user. 
@@ -92,7 +92,10 @@ class UserController(Controller):
         Returns:
             list[CommunitySchema]: A list of communities in Schema format that the user belongs to.
         '''
-        return await get_user_community_association_by_user_id(session, request.user)
+        user_communities = await get_user_community_association_by_user_id(session, request.user)
+        return_stuff = [UserCommunityAssociationSchemaWithTags(**user_community.__dict__, tags=(await get_community_tags(session, user_community.community_id))) for user_community in user_communities]
+
+        return return_stuff
 
 
     # DEPRECATED
@@ -256,7 +259,7 @@ class UserController(Controller):
         return "Added friend!"
     
 
-    @post('/friends', return_dto=BasicUserOutDTO) # WIP      -- Is it still WIP???
+    @post('/friends', return_dto=BasicUserOutDTO) # WIP      -- Is it still WIP??
     async def get_friends(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> list[UserSchema]:
         user = await get_user_by_id(session, request.user)
         return user.friends

@@ -27,9 +27,16 @@ class UserCommunityAssociationSchema(Schema):
 
     tier: str
 
+class UserCommunityAssociationSchemaWithTags(UserCommunityAssociationSchema):
+    tags: list[TagSchema] = []
+
 
 class UserCommunityAssociationDTO(PydanticDTO[UserCommunityAssociationSchema]):
     pass
 
+class UserCommunityAssociationWithTagsDTO(PydanticDTO[UserCommunityAssociationSchemaWithTags]):
+    pass
+
+from .tag import TagSchema
 from .community import CommunitySchema
 UserCommunityAssociationSchema.model_rebuild()

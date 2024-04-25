@@ -21,6 +21,8 @@ class UserCommunityAssociationSchema(Schema):
     current_days: int
     streak: int
 
+    tier: str
+
 
 
 

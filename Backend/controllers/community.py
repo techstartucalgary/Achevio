@@ -127,9 +127,10 @@ class CommunityController(Controller):
         return f"Community image updated at: {file_path}"
     
 
-    @get('/images')
+    @get('/backgroundImages')
     async def get_background_images(self) -> list[str]:
-        return os.listdir('static/images/background')
+        return [filename for filename in os.listdir('static/images/background') if filename[0] == '0']
+
 
 
     @patch('/{community_id:str}/image/{image_id:str}')
@@ -177,7 +178,11 @@ class CommunityController(Controller):
             raise HTTPException(status_code=409, detail=f'Error creating community: {e}')
     '''
 
-    
+    @get('{communityID:str}/tiers', exclude_from_auth=True)
+    def get_users_by_tier(self, session: AsyncSession, communityID: str) -> tuple[list[UserCommunityAssociation], list[UserCommunityAssociation], list[UserCommunityAssociation]]:
+        return get_users_by_tier(session, communityID)
     # @get('/images')
     # async def get_background_images(self) -> list[str]:
     #     return os.listdir('Backend/static/images/background')
+
+

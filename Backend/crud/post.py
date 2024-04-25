@@ -134,3 +134,14 @@ async def get_posts_from_id_list(session: AsyncSession, user_id: UUID) -> Post:
         return result.scalars().one_or_none()
     except:
         raise HTTPException(status_code=401, detail="Error retrieving post")
+    
+
+
+
+async def get_most_recent_user_post(session: AsyncSession, user_id: UUID) -> Post:
+    query = select(Post).where(Post.user_id == user_id).order_by(Post.created_at.desc())
+    result = await session.execute(query)
+    try:
+        return result.scalars().first()
+    except:
+        raise HTTPException(status_code=401, detail="Error retrieving post")

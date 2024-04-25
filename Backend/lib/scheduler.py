@@ -8,6 +8,8 @@ from models.user import User
 from crud.users import get_user_list
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from datetime import UTC
+
 
 scheduler = AsyncIOScheduler()
 

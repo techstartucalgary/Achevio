@@ -182,3 +182,6 @@ async def get_user_communities(session: AsyncSession, user_id: UUID):
     query = select(Community)
     result = await session.execute(query)
     return result.scalars().all()
+
+
+

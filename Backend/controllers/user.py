@@ -27,6 +27,8 @@ from crud.users import get_user_by_username, get_user_by_id,get_user_list, user_
 from crud.tag import get_tag_by_name
 from .auth import oauth2_auth
 
+from schemas.tag import TagSchema, TagDTO
+
 
 from schemas.login import CustomLoginSchema, CustomLoginDTO
 
@@ -78,8 +80,8 @@ class UserController(Controller):
         return await get_user_by_id(session, request.user)
 
 
-    @get('/myCommunities')
-    async def get_my_communities(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> list[CommunitySchema]:
+    @get('/myCommunities', return_dto=ViewCommunityDTO)
+    async def get_my_communities(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> Any:
         '''
         Retrieves the communities associated with the current user. 
 
@@ -269,6 +271,12 @@ class UserController(Controller):
 
 
 
-    # @post('/featured-posts')
-
-
+    @post('/setInterests', dto=TagDTO, return_dto=None)
+    async def set_interests(self, request: 'Request[User, Token, Any]', session: AsyncSession, data: list[TagSchema]) -> str:
+        user = await get_user_by_id(session, request.user)
+        # tags = data
+        for tag in data:
+            new_tag = await get_tag_by_name(session, tag.name)
+            user.interests.append(new_tag)
+        await session.commit()
+        return "Interests Set!"

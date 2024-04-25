@@ -10,7 +10,7 @@ from litestar.contrib.pydantic import PydanticDTO
 from lib.hasher import ph
 from datetime import datetime
 from .schema import Schema
-
+from .tag import TagSchema
 
 
 class UserSchema(Schema):
@@ -26,6 +26,9 @@ class UserSchema(Schema):
     is_active: bool
     last_login: datetime
     done_tutorial: bool = False
+
+    interests: list[TagSchema] = []
+
     # friends: list[UserSchema]
 
     posts: "list[PostSchema]" = []
@@ -59,13 +62,13 @@ class CreateUserDTO(UserDTO):
 
 class UserOutDTO(UserDTO):
     config = DTOConfig(
-        include={'id', 'username', 'done_tutorial', 'first_name', 'last_name', 'email', 'created_at', 'updated_at', 'is_active', 'last_login', 'communities'},
+        include={'id', 'username', 'done_tutorial', 'first_name', 'last_name', 'email', 'created_at', 'updated_at', 'is_active', 'last_login', 'communities', 'interests'},
         max_nested_depth=2,
     )
 
 class BasicUserOutDTO(UserDTO):
     config = DTOConfig(
-        include={'id', 'username', 'first_name', 'last_name', 'email', 'created_at', 'updated_at', 'is_active', 'last_login'},
+        include={'id', 'done_tutorial', 'username', 'first_name', 'last_name', 'email', 'created_at', 'updated_at', 'is_active', 'last_login'},
         max_nested_depth=2,
     )
 

@@ -171,3 +171,27 @@ async def get_community_users(session: AsyncSession, id: UUID, limit: int = 100,
 
 
 
+async def get_users_by_tier(session, community_id):
+    # Query for users in the 'bronze' tier
+    bronze_users_query = select(UserCommunityAssociation).filter(
+        UserCommunityAssociation.community_id == community_id,
+        UserCommunityAssociation.tier == 'bronze'
+    ).all()
+
+    # Query for users in the 'silver' tier
+    silver_users_query = select(UserCommunityAssociation).filter(
+        UserCommunityAssociation.community_id == community_id,
+        UserCommunityAssociation.tier == 'silver'
+    ).all()
+
+    # Query for users in the 'gold' tier
+    gold_users_query = select(UserCommunityAssociation).filter(
+        UserCommunityAssociation.community_id == community_id,
+        UserCommunityAssociation.tier == 'gold'
+    ).all()
+
+    bronze_users = (await session.execute(bronze_users_query)).scalars().all()
+    silver_users = (await session.execute(silver_users_query)).scalars().all()
+    gold_users = (await session.execute(gold_users_query)).scalars().all()
+
+    return bronze_users_query, silver_users_query, gold_users_query

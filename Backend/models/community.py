@@ -5,7 +5,8 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy import String
 from .community_tag import community_tag_association
 from .tag import Tag
-
+from .user import User
+from .community_request import community_request
 
 class Community(UUIDAuditBase):
     __tablename__ = 'community_table'
@@ -20,7 +21,12 @@ class Community(UUIDAuditBase):
 
     tags: Mapped[list['Tag']] = relationship(
         secondary=community_tag_association,
-        lazy='selectin'
+        lazy='selectin',
+    )
+
+    requests: Mapped[list['User']] = relationship(
+        secondary=community_request,
+        lazy='selectin',
     )
 
     public: Mapped[bool] = mapped_column(Boolean, default=False)

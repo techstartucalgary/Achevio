@@ -6,7 +6,6 @@ from uuid import UUID
 from litestar.dto import DTOConfig
 from litestar.contrib.pydantic import PydanticDTO
 from .schema import Schema
-
 from datetime import datetime
 
 
@@ -24,6 +23,8 @@ class CommunitySchema(CommunityBaseSchema):
     updated_at: datetime
     
     users: list[UserCommunityAssociationSchema] = None
+
+    requests: list['UserSchema'] = []
 
 
 
@@ -78,6 +79,7 @@ class SearchCommunityDTO(PydanticDTO[CommunitySchema]):
 class CommunityOutDTO(PydanticDTO[CommunitySchema]):
     config = DTOConfig(
         max_nested_depth=2,
+        exclude={'requests'},
     )
 
 
@@ -90,6 +92,7 @@ class ViewCommunityDTO(PydanticDTO[CommunitySchema]):
 
 from .tag import TagSchema
 from .user_community_association import UserCommunityAssociationSchema
+from .users import UserSchema
 CommunitySchema.model_rebuild()
 
 

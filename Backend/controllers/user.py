@@ -256,7 +256,7 @@ class UserController(Controller):
         return "Added friend!"
     
 
-    @post('/friends', return_dto=BasicUserOutDTO) # WIP
+    @post('/friends', return_dto=BasicUserOutDTO) # WIP      -- Is it still WIP???
     async def get_friends(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> list[UserSchema]:
         user = await get_user_by_id(session, request.user)
         return user.friends
@@ -268,7 +268,6 @@ class UserController(Controller):
         user = await get_user_by_id(session, request.user)
         user.done_tutorial = True
         return user
-
 
 
     @post('/setInterests', dto=TagDTO, return_dto=None)

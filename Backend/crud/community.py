@@ -76,6 +76,26 @@ async def get_community_by_id(session: AsyncSession, id: UUID) -> Community:
         raise HTTPException(status_code=401, detail="Error retrieving community")
 
 
+async def get_community_requests_by_id(session: AsyncSession, id: UUID) -> list[User]:
+    """
+    Retrieve a list of user requests to join a community by community UUID.
+
+    Args:
+        session (AsyncSession): The database session for executing queries.
+        id (UUID): The unique identifier of the community.
+
+    Returns:
+        list[User]: A list of User objects representing the users who have requested to join the community.
+    """
+    # Create a query to find the user requests to join the community by its UUID and execute it.
+    query = select(Community).options(orm.selectinload(Community.requests)).where(Community.id == id)
+    result = await session.execute(query)
+    community = result.scalar_one_or_none()
+    if community is None:
+        raise HTTPException(status_code=404, detail="Community not found")
+    return community.requests
+
+
 
 async def fetch_and_convert(session: AsyncSession, query):
     result = await session.execute(query)
@@ -88,13 +108,24 @@ async def search_communities(session: AsyncSession) -> CommunitySearchResultSche
         select(Community)
         .options(orm.selectinload(Community.tags))
         .options(orm.selectinload(Community.users))
+        .where(Community.public == True)
         .group_by(Community.id)
         .order_by(func.count().desc())
     )
-    trending_query = select(Community).options(orm.selectinload(Community.tags)).order_by(Community.created_at)
+    
+    trending_query = (
+        select(Community).
+        options(orm.selectinload(Community.tags)).
+        where(Community.public == True).
+        order_by(Community.created_at)
+    )
 
-
-    for_you_query = select(Community).options(orm.selectinload(Community.tags)).order_by(Community.created_at)
+    for_you_query = (
+        select(Community).
+        options(orm.selectinload(Community.tags)).
+        where(Community.public == True).
+        order_by(Community.created_at)
+    )
 
     popular = await fetch_and_convert(session, popular_query)
     trending = await fetch_and_convert(session, trending_query)
@@ -219,6 +250,30 @@ async def get_user_community_association_by_user_id(session: AsyncSession, user_
         # Raise an HTTP exception if there's an issue retrieving the user community associations.
         raise HTTPException(status_code=401, detail="Error retrieving user community associations")
 
+
+async def get_user_community_association_by_community_id(session: AsyncSession, community_id: UUID) -> list[UserCommunityAssociation]:
+    """
+    Retrieve a list of user community associations by community UUID.
+
+    Args:
+        session (AsyncSession): The database session for executing queries.
+        community_id (UUID): The unique identifier of the community.
+
+    Returns:
+        list[UserCommunityAssociation]: A list of UserCommunityAssociation objects with the specified community UUID.
+
+    Raises:
+        HTTPException: If there's an error retrieving the user community associations or if the associations don't exist.
+    """
+    # Create a query to find the user community associations by community UUID and execute it.
+    query = select(UserCommunityAssociation).where(UserCommunityAssociation.community_id == community_id)
+    result = await session.execute(query)
+    try:
+        # Return the list of user community associations or an empty list if not found.
+        return result.scalars().all()
+    except:
+        # Raise an HTTP exception if there's an issue retrieving the user community associations.
+        raise HTTPException(status_code=401, detail="Error retrieving user community associations")
 
 async def get_users_by_tier(session, community_id):
     # Query for users in the 'bronze' tier

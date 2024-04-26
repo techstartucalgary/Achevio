@@ -33,7 +33,6 @@ class PostController(Controller):
     @get('/myPosts', return_dto=CollageDTO)
     async def get_my_posts(self, session: AsyncSession, request: 'Request[User, Token, Any]') -> list[PostSchema]:
         return await get_posts_by_user_id(session, request.user)
-
    
     
     @get('/community/{community_id:str}')

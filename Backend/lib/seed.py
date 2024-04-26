@@ -176,7 +176,7 @@ async def seed_data(session: AsyncSession):
 
 
     user1 = User(
-        id = uuid7(),
+        id = "0662b340-97fa-7bea-8000-347f2ee608f7",
         username = "magdy",
         first_name = "Magdy",
         last_name = "Hafez",

@@ -105,7 +105,9 @@ class PostController(Controller):
                 filename = f'{post.id}.{extension}'
             else:
                 filename = f'{post.id}.jpg'
-
+            
+            post.file = filename
+            
             file_path = os.path.join(image_dir, filename)
             async with aiofiles.open(file_path, 'wb') as outfile:
                 await outfile.write(image)

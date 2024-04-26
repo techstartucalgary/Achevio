@@ -23,6 +23,8 @@ class PostSchema(Schema):
 
     user_id: UUID
     community_id: UUID
+
+    file: str
     
 
 
@@ -62,8 +64,6 @@ class CreateMultiplePostDTO(PostDTO):
     config = DTOConfig(
         include=['file', 'title', 'caption']
     )
-
-
 
 
 class CollageDTO(PostDTO):

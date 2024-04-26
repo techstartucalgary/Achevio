@@ -13,7 +13,7 @@ class CommunityBaseSchema(Schema):
     id: UUID    
     name: str
     tags: list[TagSchema] = []
-    public: str
+    public: bool
     
 
 

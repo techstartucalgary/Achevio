@@ -14,3 +14,5 @@ class Post(UUIDAuditBase):
     community_id: Mapped[UUID] = mapped_column(ForeignKey('community_table.id'))
     # user: Mapped['User'] = relationship('User', back_populates='posts')    
 
+    file: Mapped[str] = mapped_column(String(100))
+

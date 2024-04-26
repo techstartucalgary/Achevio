@@ -23,6 +23,7 @@ from crud.tag import get_tag_by_name
 from crud.users import user_join_community, user_leave_community
 import aiofiles
 from pathlib import Path
+from schemas.user_community_association import LeaderboardDTO, LeaderboardSchema
 
 import os
 
@@ -176,9 +177,7 @@ class CommunityController(Controller):
             raise HTTPException(status_code=409, detail=f'Error creating community: {e}')
     '''
 
-    @get('{communityID:str}/tiers', exclude_from_auth=True)
-    def get_users_by_tier(self, session: AsyncSession, communityID: str) -> tuple[list[UserCommunityAssociation], list[UserCommunityAssociation], list[UserCommunityAssociation]]:
-        return get_users_by_tier(session, communityID)
+
     # @get('/images')
     # async def get_background_images(self) -> list[str]:
     #     return os.listdir('Backend/static/images/background')
@@ -242,3 +241,8 @@ class CommunityController(Controller):
 
 
 
+
+
+    @get('{communityID:str}/leaderboard', exclude_from_auth=True, return_dto=LeaderboardDTO)
+    async def get_leaderboard(self, session: AsyncSession, communityID: str) -> list[LeaderboardSchema]:
+        return [LeaderboardSchema(**d.__dict__, username=(await get_user_by_id(session, d.user_id)).username) for d in await get_leaderboard(session, communityID)]

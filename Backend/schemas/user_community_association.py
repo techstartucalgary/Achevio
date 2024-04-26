@@ -5,6 +5,7 @@ from enum import Enum
 from .schema import Schema
 
 from litestar.contrib.pydantic import PydanticDTO
+from litestar.dto import DTOConfig
 
 
 
@@ -37,6 +38,19 @@ class UserCommunityAssociationDTO(PydanticDTO[UserCommunityAssociationSchema]):
 
 class UserCommunityAssociationSchemaViewDTO(PydanticDTO[UserCommunityAssociationSchemaView]):
     pass
+
+
+class LeaderboardSchema(UserCommunityAssociationSchema):
+    username: str
+
+
+class LeaderboardDTO(PydanticDTO[LeaderboardSchema]):
+    config = DTOConfig(
+        include={"user_id", "username", "season_xp", "tier"},
+        rename_fields={"user_id": "id", "season_xp":"score", "tier":"planet"},
+    )
+
+
 
 from .tag import TagSchema
 from .community import CommunitySchema

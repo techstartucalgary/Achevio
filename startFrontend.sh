@@ -2,7 +2,11 @@
 
 # Attempt to fetch the private IP address
 # This command works on Linux and might work on other Unix-like systems.
-PRIVATE_IP=$(ip route get 1.2.3.4 | awk '{print $7}' | head -n 1)
+# PRIVATE_IP=$(ip route get 1.2.3.4 | awk '{print $7}' | head -n 1)
+
+# This command works on macOS
+PRIVATE_IP=$(ifconfig | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | head -n 1)
+
 
 # Check if the IP address was successfully retrieved
 if [ -z "$PRIVATE_IP" ]; then

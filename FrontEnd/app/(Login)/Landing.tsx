@@ -2,31 +2,25 @@ import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
 import { platform } from "os";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  Pressable,
-  Animated,
-  Dimensions,
-  Easing,
-  Platform,
-} from "react-native";
+import { View, Text, Image, StyleSheet, Pressable, Animated, Dimensions, Easing, Platform } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
 const Landing = () => {
   const navigation = useNavigation();
 
-  const stars = useRef(
-    Array.from({ length: 10 }, (_, index) => ({
-      id: index,
-      left: Math.random() * width,
-      top: Math.random() * height,
-      opacity: new Animated.Value(1),
-    }))
-  );
+  const stars = useRef([
+    { id: 0, left: 10, top: 50, opacity: new Animated.Value(1) },
+    { id: 1, left: 350, top: 60, opacity: new Animated.Value(1) },
+    { id: 2, left: 150, top: 70, opacity: new Animated.Value(1) },
+    { id: 3, left: 300, top: 110, opacity: new Animated.Value(1) },
+    { id: 4, left: 20, top: 200, opacity: new Animated.Value(1) },
+    { id: 5, left: 310, top: 210, opacity: new Animated.Value(1) },
+    { id: 6, left: 30, top: 500, opacity: new Animated.Value(1) },
+    { id: 7, left: 300, top: 490, opacity: new Animated.Value(1) },
+    { id: 8, left: 15, top: 730, opacity: new Animated.Value(1) },
+    { id: 9, left: 310, top: 750, opacity: new Animated.Value(1) },
+  ]);
 
   const animatedValues = useRef(stars.current.map(() => new Animated.Value(0))).current;
 
@@ -54,7 +48,7 @@ const Landing = () => {
   }, [animatedValues]);
 
   // Filter stars to include only those in the top half of the screen
-  const topHalfStars = stars.current.filter((star) => star.top < height / 1.5);
+  const topHalfStars = stars.current.filter((star) => star.top < 1000);
 
   return (
     <View style={StyleSheet.compose(styles.container, { marginTop: Platform.OS === "android" ? 20 : 0 })}>
@@ -77,22 +71,28 @@ const Landing = () => {
       <Image source={require("../../assets/images/temp_icon_full.png")} style={styles.image} />
       <Text style={styles.title}>Achevio</Text>
       <Text style={styles.subheading}>Reach for the stars</Text>
-      <Pressable style={styles.navText} onPress={() =>  router.replace({
-                  pathname: "/(Login)/home",
-                  params: {
-                    slider: 1,
-                  },
-                }
-      )}>
+      <Pressable
+        style={styles.navText}
+        onPress={() =>
+          router.replace({
+            pathname: "/(Login)/home",
+            params: {
+              slider: 1,
+            },
+          })
+        }>
         <Text style={styles.navTextsize}>Login</Text>
       </Pressable>
-      <Pressable style={styles.navText} onPress={() => router.replace({
-                  pathname: "/(Login)/home",
-                  params: {
-                    slider: 2,
-                  },
-                }
-      )}>
+      <Pressable
+        style={styles.navText}
+        onPress={() =>
+          router.replace({
+            pathname: "/(Login)/home",
+            params: {
+              slider: 2,
+            },
+          })
+        }>
         <Text style={styles.navTextsize}>Signup</Text>
       </Pressable>
     </View>

@@ -42,6 +42,10 @@ const handleSelectTag = (selectedTag: Tag) => {
     if (selectedTags.some(tag => tag.name === selectedTag.name)) {
         setSelectedTags(selectedTags.filter(tag => tag.name !== selectedTag.name)); // Remove tag from selection
     } else {
+      if (selectedTags.length >= 4) {
+        Alert.alert('Error', 'You can only select up to 4 tags');
+        return;
+      }
         setSelectedTags([...selectedTags, selectedTag]); // Add tag to selection
     }
 };

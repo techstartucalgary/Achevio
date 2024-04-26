@@ -4,7 +4,6 @@ import {
   Text,
   View,
   FlatList,
-  ImageBackground,
   Dimensions,
   TouchableOpacity,
   Modal,
@@ -20,16 +19,17 @@ import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import uuid from "react-native-uuid";
 import { useSelector, useDispatch } from "react-redux";
-import { setUsername, setUrl } from "../redux/actions";
 import { ref } from "yup";
-import { Image } from 'expo-image';
+import { Image } from "expo-image";
+const fire = require("../../assets/images/Fire.png");
+import LottieView from "lottie-react-native";
+import { ScreenHeight, ScreenWidth } from "react-native-elements/dist/helpers";
 
-const ReactionMenu = ( { showReactionMenu, setShowReactionMenu }) => {
+const ReactionMenu = ({ showReactionMenu, setShowReactionMenu }) => {
   const handleReactionPress = (reaction) => {
     // Handle reaction press here
     console.log("Reaction pressed:", reaction);
     setShowReactionMenu(false);
-    
   };
   return (
     <View style={styles.reactionMenu}>
@@ -134,14 +134,17 @@ const PostDetailsModal = ({ post, isVisible, onClose, onComment }) => {
             </TouchableOpacity>
           </View>
           <Pressable onLongPress={handleLongPress}>
-
-          <Image
-            source={{ uri: post.imageUri }}
-            style={styles.modalPostImage}
-            cachePolicy="memory-disk"
-          >
-          </Image>
-          {showReactionMenu && <ReactionMenu showReactionMenu={showReactionMenu} setShowReactionMenu={setShowReactionMenu} />}
+            <Image
+              source={{ uri: post.imageUri }}
+              style={styles.modalPostImage}
+              cachePolicy="memory-disk"
+            ></Image>
+            {showReactionMenu && (
+              <ReactionMenu
+                showReactionMenu={showReactionMenu}
+                setShowReactionMenu={setShowReactionMenu}
+              />
+            )}
           </Pressable>
           <Text style={styles.postCaption}>{post.caption}</Text>
         </View>
@@ -188,6 +191,7 @@ const Communities = () => {
 
       if (response.status === 200) {
         setCommunities(response.data);
+        dispatch({ type: "SET_MY_COMMUNITIES", payload: response.data });
       } else {
         console.error("Failed to fetch communities:", response.status);
       }
@@ -196,50 +200,52 @@ const Communities = () => {
     } finally {
       setIsLoading(false);
     }
-  }
-  , [url]);
+  }, [url]);
   const fetchPosts = useCallback(async () => {
     try {
       // Fetch posts from your API
       const res = await axios.get(`${url}/posts/friends`);
       console.log("Posts:", res.data); // Adjust according to your API response
-  
-      const postsWithAdditionalDetails = await Promise.all(res.data.map(async (post) => {
-        try {
-          // Fetch username
-          const usernameResponse = await axios.get(`${url}/user/GetNameByID/${post.user_id}`);
-          const username = usernameResponse.data.name; // Adjust according to your API response
-  
-          // Construct post object with additional details
-          return {
-            key: post.id,
-            imageUri: `${url}/post/image/${post.id}.jpg`, // Assuming this is how you get the post image
-            userImage: `${url}/user/image/${post.user_id}.jpg`, // Assuming this is how you get the user image
-            user: username,
-            caption: post.caption,
-            comments: [] // Assuming you'll fill this later or adjust according to your needs
-          };
-        } catch (error) {
-          console.error("Error fetching additional post details:", error);
-          // Optionally handle the error, e.g., by setting default values
-          return {
-            key: post.id,
-            imageUri: '', // Default or error image URI
-            userImage: '', // Default or error user image URI
-            user: 'Unknown', // Default username
-            caption: post.caption,
-            comments: [] // Assuming you'll fill this later or adjust according to your needs
-          };
-        }
-      }));
-  
+
+      const postsWithAdditionalDetails = await Promise.all(
+        res.data.map(async (post) => {
+          try {
+            // Fetch username
+            const usernameResponse = await axios.get(
+              `${url}/user/GetNameByID/${post.user_id}`
+            );
+            const username = usernameResponse.data.name; // Adjust according to your API response
+
+            // Construct post object with additional details
+            return {
+              key: post.id,
+              imageUri: `${url}/post/image/${post.id}.jpg`, // Assuming this is how you get the post image
+              userImage: `${url}/user/image/${post.user_id}.jpg`, // Assuming this is how you get the user image
+              user: username,
+              caption: post.caption,
+              comments: [], // Assuming you'll fill this later or adjust according to your needs
+            };
+          } catch (error) {
+            console.error("Error fetching additional post details:", error);
+            // Optionally handle the error, e.g., by setting default values
+            return {
+              key: post.id,
+              imageUri: "", // Default or error image URI
+              userImage: "", // Default or error user image URI
+              user: "Unknown", // Default username
+              caption: post.caption,
+              comments: [], // Assuming you'll fill this later or adjust according to your needs
+            };
+          }
+        })
+      );
+
       // Update the state with the new posts
       setPosts(postsWithAdditionalDetails);
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
-  }
-  , [communities]);
+  }, [communities]);
 
   useFocusEffect(
     useCallback(() => {
@@ -247,12 +253,10 @@ const Communities = () => {
         await fetchCommunities();
         await fetchPosts();
       };
-  
-      fetchData();
-    }, []) 
-  );
-  
 
+      fetchData();
+    }, [])
+  );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -297,40 +301,66 @@ const Communities = () => {
   };
   // Component for rendering community items
   const renderCommunityItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.communityItem}
-      onPress={() => {
-        router.push({
-          pathname: "/(pages)/CommunitiesPage", // The route name
-          params: {
-            communityId: item.id,
-            communityName: item.name,
-            communityStreak: item.streak,
-            communityTags: item.tags.map((tag) => {
-              return tag.name + " " + tag.color;
-            }),
-            communityImage: `${url}/community/image/${item.id}.jpg`,
-          }, // Parameters as an object
-        });
-      }}
-    >
-      <ImageBackground
-        source={{ uri: `${url}/community/image/${item.id}.jpg` }}
-        style={styles.communityItemBackground}
-        imageStyle={styles.communityItemImageStyle}
+    console.log("items", item),
+    (
+      <TouchableOpacity
+        style={styles.communityItem}
+        onPress={() => {
+          router.push({
+            pathname: "/(pages)/CommunitiesPage", // The route name
+            params: {
+              communityId: item.community_id,
+              communityName: item.name,
+              communityStreak: item.streak,
+              communityTags: item.tags.map((tag) => {
+                return tag.name + " " + tag.color;
+              }),
+              communityImage: `${url}/community/image/${item.community_id}.jpg`,
+            }, // Parameters as an object
+          });
+        }}
       >
-        <Text style={styles.communityTitle}>{item.name}</Text>
-        <View style={styles.textOverlay}>
+        <Image
+          source={{ uri: `${url}/community/image/${item.community_id}.jpg` }}
+          style={styles.communityItemBackground}
+          cachePolicy="memory-disk"
+        >
+          {item.streak &&
+          <>
+          <LottieView
+            source={require("../../assets/images/fire.json")}
+            autoPlay
+            loop
+            style={{ width: 100, height:150, position: "absolute", top: -3, right: -8, zIndex:1}}
+          />
           <Text style={styles.communityStreak}>{item.streak}</Text>
-          <Text style={styles.communityTags}>
-          {item.tags.map((tag, index) => (
-            <Text key={`${tag.name}_${index}`}>{tag.name + " "}</Text> // Use a combination of name and index
-          ))}
-        </Text>
-
-        </View>
-      </ImageBackground>
-    </TouchableOpacity>
+          </>
+          }
+          <Text style={styles.communityTitle}>{item.name}</Text>
+          <View style={styles.textOverlay}>
+            <View style={{ flexDirection: "row" }}>
+              {item.tags.map((tag, index) => (
+                <Text
+                  style={[
+                    styles.communityTags,
+                    {
+                      backgroundColor: tag.color,
+                      borderRadius: 10,
+                      textAlign: "center",
+                      padding: 2,
+                      marginHorizontal: 2,
+                    },
+                  ]}
+                  key={`${tag.name}_${index}`}
+                >
+                  {tag.name + " "}
+                </Text> // Use a combination of name and index
+              ))}
+            </View>
+          </View>
+        </Image>
+      </TouchableOpacity>
+    )
   );
   const handleCreateCommunity = () => {
     router.push({
@@ -355,27 +385,41 @@ const Communities = () => {
           index,
         })}
       />
-      <Text style={styles.sectionTitle}>What you missed</Text>
-      <FlatList
-        horizontal
-        data={postData}
-        renderItem={renderPostItem}
-        keyExtractor={(item) => item.key}
-        showsHorizontalScrollIndicator={false}
-        style={styles.postsList}
-      />
+      {postData?.length > 0 && (
+        <>
+          <Text style={styles.sectionTitle}>What you missed</Text>
+          <FlatList
+            horizontal
+            data={postData}
+            renderItem={renderPostItem}
+            keyExtractor={(item) => item.key}
+            showsHorizontalScrollIndicator={false}
+            style={styles.postsList}
+          />
+        </>
+      )}
     </>
   );
-
-
 
   return (
     <>
       {isLoading ? (
         <ActivityIndicator />
       ) : (
-        <>
+<>
         <StatusBar barStyle="light-content" />
+        <LottieView
+          source={require("../../assets/background_space.json")}
+          autoPlay
+          loop
+          style={{
+            position: 'absolute', // Set position to absolute
+            width: ScreenWidth,    // Cover the entire width
+            height: ScreenHeight,  // Cover the entire height
+            zIndex: -1,            // Ensure it stays behind other components
+          }}
+        />
+        <View style={styles.container}>
           <FlatList
             ListHeaderComponent={ListHeader}
             data={communities}
@@ -405,34 +449,29 @@ const Communities = () => {
             isVisible={commentsModalVisible}
             onClose={() => setCommentsModalVisible(false)}
           />
-        </>
+        </View>
+      </>
       )}
     </>
   );
-};
-
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 40,
-    backgroundColor: "#000", // Set your background color
+    zIndex: 1,
   },
   datesList: {
     flexGrow: 0, // Ensure the FlatList does not expand
   },
   communityTags: {
-    position: "absolute",
-    bottom: 5,
-    left: 10,
-    padding: 5,
-    width: "15%",
-    height: 30,
     color: "#fff",
+    fontSize: 12,
   },
   textOverlay: {
     // Semi-transparent overlay for improved text readability
     backgroundColor: "rgba(0,0,0,0.3)",
-    padding: 20,
+    padding: 10,
   },
   dateItem: {
     width: DATE_ITEM_WIDTH,
@@ -465,7 +504,7 @@ const styles = StyleSheet.create({
     flexGrow: 0, // Ensure the FlatList does not expand
     paddingLeft: 10,
   },
-  
+
   postImage: {
     width: 120, // Set your desired size
     height: 164,
@@ -521,9 +560,13 @@ const styles = StyleSheet.create({
   },
   communityStreak: {
     position: "absolute",
-    top: 20,
-    left: 10,
+    top: 90,
+    right:15,
     color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    zIndex: 2,
+    textAlign: "center",
   },
   createCommunityButton: {
     backgroundColor: "#1e1e1e",
@@ -582,6 +625,11 @@ const styles = StyleSheet.create({
     color: "#333",
     paddingVertical: 4,
   },
+  animation: {
+    width: 500, // Set the width as needed
+    height: 300, // Set the height as needed
+    backgroundColor: "red",
+  },
   centeredView: {
     flex: 1,
     justifyContent: "center",
@@ -615,10 +663,10 @@ const styles = StyleSheet.create({
     marginRight: 10, // Add some space between buttons
   },
   reactionMenu: {
-    flexDirection: 'row',
-    position: 'absolute',
+    flexDirection: "row",
+    position: "absolute",
     bottom: 50, // Adjust based on your UI
-    backgroundColor: '#FFF',
+    backgroundColor: "#FFF",
     borderRadius: 20,
     padding: 5,
   },

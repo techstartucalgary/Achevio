@@ -2,7 +2,6 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import rootReducer from '../reducers/rootReducer';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage'; // Defaults to localStorage for web and AsyncStorage for React-Native
-import devToolsEnhancer from 'remote-redux-devtools';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Setup Redux DevTools Extension
@@ -20,7 +19,8 @@ const asyncMiddleware = store => next => action => {
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  blacklist: ['events', 'settings', 'user'], // Blacklist events, settings, and user from being persisted
+  whiteList: ['account'],
+  blacklist: ['communities', 'user'], // Blacklist events, settings, and user from being persisted
 };
 
 // Logger Middleware
@@ -37,7 +37,6 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 // Composing enhancers and middleware together
 const enhancers = composeEnhancers(
   applyMiddleware(loggerMiddleware, asyncMiddleware),
-  devToolsEnhancer({ realtime: true, hostname: '10.0.0.215', port: 8002 }) // Make sure hostname and port are correctly set
 );
 
 // Create Store with persistedReducer and enhancers
@@ -45,6 +44,15 @@ const store = createStore(persistedReducer, enhancers);
 
 // Persistor for the store
 const persistor = persistStore(store);
+const RESET_STORE = 'RESET_STORE';
 
+export const resetStore = () => ({
+  type: RESET_STORE,
+});
+
+export const resetAndFlushStore = async () => {
+  await persistor.purge(); // First, purge the persistor's store
+  store.dispatch(resetStore()); // Then, dispatch a reset action to clear the Redux state
+};
 export default store;
 export { persistor };

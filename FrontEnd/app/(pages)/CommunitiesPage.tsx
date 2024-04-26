@@ -8,7 +8,6 @@ import {
   Dimensions,
   TouchableOpacity,
   Modal,
-  ImageBackground,
   Button,
   Alert,
   Pressable,
@@ -24,8 +23,9 @@ import {
   faComment,
   faEllipsisV,
   faHeart,
+  faTrophy,
 } from "@fortawesome/free-solid-svg-icons";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import LottieView from "lottie-react-native";
@@ -56,6 +56,7 @@ const CommunityPage: React.FC = () => {
   const [postData, setPostData] = useState<Post[]>([]);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const dispatch = useDispatch();
   const {
     communityId,
     communityName,
@@ -249,6 +250,7 @@ const CommunityPage: React.FC = () => {
           })
         );
         setPostData(postsWithUsernames);
+        dispatch({ type: "SET_POSTS", payload: postsWithUsernames });
         const rows = prepareRows(
           postsWithUsernames.map((post) => post.imageUrl)
         );
@@ -522,9 +524,10 @@ const CommunityPage: React.FC = () => {
   const renderHeader = useCallback(
     () => (
       <Animated.View style={{ ...styles.headerContainer, opacity: fadeAnim }}>
-        <ImageBackground
+        <Image
           source={{ uri: communityImage as string }}
           style={{ width: "100%", height: "100%", position: "absolute" }}
+          cachePolicy="memory-disk"
         >
           <LinearGradient
             colors={["transparent", "rgba(0,0,0,2.0)"]}
@@ -534,16 +537,31 @@ const CommunityPage: React.FC = () => {
           >
             <Text style={styles.headerTitle}>{communityName}</Text>
           </LinearGradient>
-        </ImageBackground>
+        </Image>
 
         <View style={styles.overlayContent}>
+          <TouchableOpacity
+            onPress={() => {
+              router.push({
+                pathname: "/(pages)/LeaderBoard", // The route name
+                params: {
+                  communityId: communityId,
+                }, // Parameters as an object
+              });
+            }
+            }
+
+            style={{ position: "absolute", top: 50, left: 30 }}
+          >
+            <FontAwesomeIcon icon={faTrophy} size={24} color="white" />
+          </TouchableOpacity>
+
           <TouchableOpacity
             onPress={() => setIsMenuVisible(!isMenuVisible)}
             style={{ position: "absolute", top: 50, right: 30 }}
           >
             <FontAwesomeIcon icon={faEllipsisV} size={24} color="white" />
           </TouchableOpacity>
-          <Text style={styles.streakText}>{communityStreak}</Text>
           <View style={styles.tagContainer}>
             {communityTagArray.map(({ text, color }, index) => (
               <View
@@ -718,6 +736,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     paddingVertical: 10,
+    flexWrap: "wrap",
   },
   tag: {
     backgroundColor: "rgba(255, 255, 255, 0.6)",

@@ -14,7 +14,7 @@ import {
   Platform,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -88,9 +88,20 @@ export default function Signup2Screen(props) {
       );
       if (response.status === 201) {
         Alert.alert("Success", "Signup successful!");
-        dispatch({ type: "SET_USERNAME", payload: username });
+        const response = await axios.get(`${url}/user/me`);
+        dispatch({ type: "SET_ME", payload: response.data }); // Fix dispatch call
+        dispatch({ type: "UPDATE_USERNAME", userName: username });
+        dispatch({ type: "UPDATE_PASSWORD", passWord: password });
+        if (response.data.done_tutorial === false) {
+          router.push("/(Tutorial)/yourProfile");
+        } else {
+          router.push("/(tabs)/Camera");
+        }
       } else {
-        Alert.alert("Error", response.data.detail || "An unexpected error occurred.");
+        Alert.alert(
+          "Error",
+          response.data.detail || "An unexpected error occurred."
+        );
       }
     } catch (error) {
       console.error(error);
@@ -102,62 +113,64 @@ export default function Signup2Screen(props) {
 
   return (
     <KeyboardAvoidingView
-    behavior={Platform.OS === "ios" ? "padding" : "height"}
-    style={styles.keyboardView}
-  >
-    <View style={styles.container}>
-      {isLoading ? (
-        <Text>Loading...</Text>
-      ) : (
-        <>
-          <Text style={styles.title}>Signup</Text>
-          <Image
-            source={require("../../assets/images/temp_rocket.png")}
-            style={styles.image}
-          />
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.keyboardView}
+    >
+      <View style={styles.container}>
+        {isLoading ? (
+          <Text>Loading...</Text>
+        ) : (
+          <>
+            <Text style={styles.title}>Signup</Text>
+            <Image
+              source={require("../../assets/images/temp_rocket.png")}
+              style={styles.image}
+            />
 
-          <TextInput
-            style={styles.input}
-            onChangeText={setEmail}
-            value={email}
-            placeholder="Email"
-            placeholderTextColor="#343a40"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            onChangeText={setPassword}
-            value={password}
-            placeholder="Password"
-            placeholderTextColor="#343a40"
-            secureTextEntry
-          />
-          <TextInput
-            style={styles.input}
-            onChangeText={setConfirmPassword}
-            value={confirmPassword}
-            placeholder="Confirm Password"
-            placeholderTextColor="#343a40"
-            secureTextEntry
-          />
-          <TouchableOpacity
-            style={styles.signupBtn}
-            onPress={postSignupInfo}
-            disabled={isLoading}
-          >
-            <Text style={styles.signupText}>Signup</Text>
-          </TouchableOpacity>
-          <Text style={styles.navText}>---------------- OR ----------------</Text>
-          <Link href="/login" asChild>
-            <Pressable>
-              <Text style={styles.navText}>Go back to Login</Text>
-            </Pressable>
-          </Link>
-          <StatusBar backgroundColor="#000000" barStyle="light-content" />
-        </>
-      )}
-    </View>
-  </KeyboardAvoidingView>
+            <TextInput
+              style={styles.input}
+              onChangeText={setEmail}
+              value={email}
+              placeholder="Email"
+              placeholderTextColor="#343a40"
+              autoCapitalize="none"
+            />
+            <TextInput
+              style={styles.input}
+              onChangeText={setPassword}
+              value={password}
+              placeholder="Password"
+              placeholderTextColor="#343a40"
+              secureTextEntry
+            />
+            <TextInput
+              style={styles.input}
+              onChangeText={setConfirmPassword}
+              value={confirmPassword}
+              placeholder="Confirm Password"
+              placeholderTextColor="#343a40"
+              secureTextEntry
+            />
+            <TouchableOpacity
+              style={styles.signupBtn}
+              onPress={postSignupInfo}
+              disabled={isLoading}
+            >
+              <Text style={styles.signupText}>Signup</Text>
+            </TouchableOpacity>
+            <Text style={styles.navText}>
+              ---------------- OR ----------------
+            </Text>
+            <Link href="/login" asChild>
+              <Pressable>
+                <Text style={styles.navText}>Go back to Login</Text>
+              </Pressable>
+            </Link>
+            <StatusBar backgroundColor="#000000" barStyle="light-content" />
+          </>
+        )}
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 

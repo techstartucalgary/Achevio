@@ -12,8 +12,8 @@ function TabBarIcon(props: {
 
 const ScreenLayout = () => {
   // Determine the color scheme to apply appropriate colors
-  const colorScheme = useColorScheme();
-  const activeTintColor = colorScheme === 'dark' ? '#5C5CFF' : '#000'; // Example: white for dark mode, black for light mode
+  // const colorScheme = useColorScheme();
+  const activeTintColor =  '#000'; // Example: white for dark mode, black for light mode
   const inactiveTintColor = '#8e8e93'; // A neutral color for inactive icons
 
   return (
@@ -46,10 +46,10 @@ const ScreenLayout = () => {
         }}
       />
       <Tabs.Screen
-        name = "LeaderBoard"
+        name = "Collage"
         options={
           {
-            tabBarIcon: ({ color }) => <TabBarIcon name="trophy" color={color} />,
+            tabBarIcon: ({ color }) => <TabBarIcon name="picture-o" color={color} />,
             tabBarLabel: "",
           }
         }

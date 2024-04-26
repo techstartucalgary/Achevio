@@ -176,7 +176,7 @@ async def seed_data(session: AsyncSession):
 
 
     user1 = User(
-        id = uuid7(),
+        id = "0662b340-97fa-7bea-8000-347f2ee608f7",
         username = "magdy",
         first_name = "Magdy",
         last_name = "Hafez",
@@ -346,9 +346,10 @@ async def seed_data(session: AsyncSession):
         community_id = paint_pals.id,
         role = "admin",
         community_name = paint_pals.name,
-        current_days = 4,
+        current_days = 0,
         goal_days = 4,
-        streak = 400
+        streak = 16,
+        season_xp = 850
     )
 
     user_2_paintpals = UserCommunityAssociation(
@@ -357,12 +358,82 @@ async def seed_data(session: AsyncSession):
         role = "member",
         community_name = paint_pals.name,
         current_days = 0,
-        goal_days = 5
+        goal_days = 5,
+        season_xp = 150
+    )
+
+    user_3_paintpals = UserCommunityAssociation(
+        user_id = user3.id,
+        community_id = paint_pals.id,
+        role = "member",
+        community_name = paint_pals.name,
+        current_days = 0,
+        goal_days = 5,
+        season_xp = 200
+    )
+
+    user_4_paintpals = UserCommunityAssociation(
+        user_id = user4.id,
+        community_id = paint_pals.id,
+        role = "member",
+        community_name = paint_pals.name,
+        current_days = 0,
+        goal_days = 4,
+        season_xp = 300
+    )
+
+    user_5_paintpals = UserCommunityAssociation(
+        user_id = user5.id,
+        community_id = paint_pals.id,
+        role = "member",
+        community_name = paint_pals.name,
+        current_days = 0,
+        goal_days = 2,
+        season_xp = 200
+    )
+
+    user_6_paintpals = UserCommunityAssociation(
+        user_id = user6.id,
+        community_id = paint_pals.id,
+        role = "member",
+        community_name = paint_pals.name,
+        current_days = 0,
+        goal_days = 3,
+        season_xp = 100
+    )
+
+    user_7_paintpals = UserCommunityAssociation(
+        user_id = user7.id,
+        community_id = paint_pals.id,
+        role = "member",
+        community_name = paint_pals.name,
+        current_days = 0,
+        goal_days = 4,
+        season_xp = 500
     )
 
 
+    user_8_paintpals = UserCommunityAssociation(
+        user_id = user7.id,
+        community_id = paint_pals.id,
+        role = "member",
+        community_name = paint_pals.name,
+        current_days = 0,
+        goal_days = 4,
+        season_xp = 0
+    )
 
-    session.add_all([user_1_paintpals, user_2_paintpals])
+    user_9_paintpals = UserCommunityAssociation(
+        user_id = user7.id,
+        community_id = paint_pals.id,
+        role = "member",
+        community_name = paint_pals.name,
+        current_days = 2,
+        goal_days = 4,
+        season_xp = 100
+    )
+
+    session.add_all([user_1_paintpals, user_2_paintpals, user_3_paintpals, user_4_paintpals, user_5_paintpals])
     
 
 

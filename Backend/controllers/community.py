@@ -234,10 +234,11 @@ class CommunityController(Controller):
         '''
         community = await get_community_by_id(session, communityId)
 
-        # user_community = UserCommunityAssociation(community_id=communityId, user_id=userId, tier='Earth', goal_days=0, current_days=0, streak=0, season_xp=0)
-        # community.users.append(user_community)
+        session.add(UserCommunityAssociation(community_id=communityId, user_id=userId, tier='Earth', goal_days=0, current_days=0, streak=0, season_xp=0))
         user = await get_user_by_id(session, userId)
-        print(user.username)
-        # community.requests.remove(user)
-        # await session.commit()
+        community.requests.remove(user)
+        await session.commit()
         return "CHILL"
+
+
+

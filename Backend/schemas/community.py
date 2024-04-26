@@ -13,6 +13,7 @@ class CommunityBaseSchema(Schema):
     id: UUID    
     name: str
     tags: list[TagSchema] = []
+    public: str
     
 
 
@@ -61,8 +62,6 @@ class CommunityDTO(PydanticDTO[CommunitySchema]):
     )
 
 
-
-
 class CreateCommunityDTO(PydanticDTO[CommunitySchema]):
     config = DTOConfig(
         include={'name', 'description', 'tags'},
@@ -71,7 +70,7 @@ class CreateCommunityDTO(PydanticDTO[CommunitySchema]):
 
 class SearchCommunityDTO(PydanticDTO[CommunitySchema]):
     config = DTOConfig(
-        include={'id', 'name', 'tags'},
+        include={'id', 'name', 'tags', 'public'},
         max_nested_depth=1,
     )
 

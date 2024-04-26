@@ -65,3 +65,8 @@ class CreateMultiplePostDTO(PostDTO):
 
 
 
+
+class CollageDTO(PostDTO):
+    config = DTOConfig(
+        rename_fields={'created_at':'date'}
+    )

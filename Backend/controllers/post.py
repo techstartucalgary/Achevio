@@ -12,7 +12,7 @@ import os
 import aiofiles
 
 from models.post import Post
-from schemas.post import CreateMultiplePostSchema, PostSchema, PostDTO, CreateMultiplePostDTO
+from schemas.post import CreateMultiplePostSchema, PostSchema, PostDTO, CreateMultiplePostDTO, CollageDTO
 from crud.post import get_posts_list, get_posts_by_user_id, get_posts_by_community_id, delete_post_by_id, get_post_by_id, get_posts_from_id_list, get_posts_by_multiple_user_id
 from crud.users import get_friends_by_id, get_user_by_id
 from crud.community import get_user_community_association
@@ -29,6 +29,11 @@ class PostController(Controller):
     @get('/user/{user_id:str}')
     async def get_user_posts(self, session: AsyncSession, user_id: str) -> list[PostSchema]:
         return await get_posts_by_user_id(session, user_id)
+
+    @get('/myPosts', return_dto=CollageDTO)
+    async def get_my_posts(self, session: AsyncSession, request: 'Request[User, Token, Any]') -> list[PostSchema]:
+        return await get_posts_by_user_id(session, request.user)
+
    
     
     @get('/community/{community_id:str}')

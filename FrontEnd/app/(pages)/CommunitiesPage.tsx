@@ -8,7 +8,6 @@ import {
   Dimensions,
   TouchableOpacity,
   Modal,
-  ImageBackground,
   Button,
   Alert,
   Pressable,

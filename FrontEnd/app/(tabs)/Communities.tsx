@@ -4,7 +4,6 @@ import {
   Text,
   View,
   FlatList,
-  ImageBackground,
   Dimensions,
   TouchableOpacity,
   Modal,
@@ -326,7 +325,7 @@ const Communities = () => {
           style={styles.communityItemBackground}
           cachePolicy="memory-disk"
         >
-          {item.steak &&
+          {item.streak &&
           <>
           <LottieView
             source={require("../../assets/images/fire.json")}

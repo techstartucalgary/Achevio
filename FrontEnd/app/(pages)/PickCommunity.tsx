@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  ImageBackground,
 } from "react-native";
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import axios from "axios";
+import { Image } from "expo-image";
 import { useDispatch, useSelector } from "react-redux";
 
 interface Community {
@@ -78,18 +78,19 @@ const SelectCommunities = () => {
       style={styles.item}
       onPress={() => handleSelectCommunity(item.community_id)}
     >
-      <ImageBackground
+      <Image
         source={{ uri: `${url}/community/image/${item.community_id}.jpg` }}
         style={styles.backgroundImage}
-        imageStyle={styles.communityBackground}
-      >
+        cachePolicy="memory"
+
+        >
         <View style={styles.itemContent}>
           <Text style={styles.text}>{item.name}</Text>
           {selectedCommunities.includes(item.community_id) && (
             <MaterialIcons name="check-circle" size={24} color="#4CAF50" />
           )}
         </View>
-      </ImageBackground>
+      </Image>
     </TouchableOpacity>
   );
   return (

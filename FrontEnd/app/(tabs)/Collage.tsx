@@ -33,60 +33,19 @@ const Collage = () => {
       useNativeDriver: true
     }).start();
   }, []);
-  const fetchPostsForCommunity = async (communityId, userId) => {
-    try {
-      const response = await axios.get(`${url}/posts/community/${communityId}`);
-      if (response.status === 200) {
-        const userPosts = response.data.filter((post) => post.user_id === userId); // Filter posts by user ID
-        return userPosts.map((post) => ({
-          id: post.id,
-          uri: `${url}/post/image/${post.id}.jpg`,
-          date: new Date(post.created_at).toISOString(),
-        }));
-      } else {
-        console.error("Failed to fetch posts for community:", communityId);
-        return [];
-      }
-    } catch (error) {
-      console.error("Error fetching posts for community:", communityId, error);
-      return [];
-    }
-  };
-  const getUserID = async () => {
-    try {
-      const response = await axios.get(`${url}/user/me`);
-      if (response.status === 200) {
-        setUserId(response.data.id);
-      } else {
-        console.error("Failed to fetch user ID");
-        return null;
-      }
-    } catch (error) {
-      console.error("Error fetching user ID:", error);
-      return null;
-    }
-  }
+
   useFocusEffect(
     useCallback(() => {
       const fetchPosts = async () => {
-        try {
-          const communitiesResponse = await axios.get(`${url}/user/myCommunities`);
-          if (communitiesResponse.status === 200) {
-            const communities = communitiesResponse.data;
-            const postsPromises = communities.map((community) =>
-              fetchPostsForCommunity(community.community_id, userId)
-            );
-            const postsArrays = await Promise.all(postsPromises);
-            const aggregatedPosts = [].concat(...postsArrays); // Flatten the array of arrays
-            setPostsData(aggregatedPosts);
-          } else {
-            console.error("Failed to fetch communities");
-          }
-        } catch (error) {
-          console.error("Error fetching communities or posts:", error);
+        console.log("Fetching posts for user:", userId);
+        const response = await axios.get(`${url}/posts/myPosts`);
+        if (response.status === 200) {
+          console.log("Posts fetched successfully:", response.data);
+          setPostsData(groupImagesByDate(response.data));
+        } else {
+          console.error("Failed to fetch posts for user:", userId);
         }
-      };
-      getUserID();
+      }
       fetchPosts();
     }, [userId]) // Include userId in dependencies to refetch posts when it changes
   );
@@ -121,9 +80,9 @@ const Collage = () => {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.imageWrapper}
-            onPress={() => handleImagePress(item.uri)}
+            onPress={() => handleImagePress(`${url}/post/image/${item.id}.jpg`)}
           >
-            <Image source={{ uri: item.uri }} style={styles.image} />
+            <Image source={{ uri: `${url}/post/image/${item.id}.jpg` }} style={styles.image} />
           </TouchableOpacity>
         )}
         horizontal
@@ -147,16 +106,19 @@ const Collage = () => {
           }}
         />
     {postsData ? (
+      <ScrollView>
+      {postsData.map((section, index) => (
+        <View key={index}>{renderSection({ section })}</View>
+      ))}
+    </ScrollView>
+      
+    ) : (
+      console.log("Posts data:", postsData),
       <Animated.View style={[styles.noPostsContainer, { opacity: fadeAnim }]}>
         <Text style={styles.noPostsText}>It looks empty here</Text>
         <Text style={styles.noPostsText}>Why dont you create posts!</Text>
       </Animated.View>
-    ) : (
-      <ScrollView>
-        {postsData.map((section, index) => (
-          <View key={index}>{renderSection({ section })}</View>
-        ))}
-      </ScrollView>
+      
     )}
     {selectedImage && (
       <Modal

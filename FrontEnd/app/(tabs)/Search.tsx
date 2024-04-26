@@ -11,7 +11,6 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   RefreshControl,
-  ImageBackground,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";

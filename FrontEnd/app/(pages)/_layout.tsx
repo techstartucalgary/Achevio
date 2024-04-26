@@ -1,7 +1,5 @@
 import { Stack, Tabs } from "expo-router";
 import React from "react";
-import ScreenLayout from "../(tabs)/_layout";
-
 const PagesLayout = () => {
   return (
     <Stack>
@@ -16,6 +14,7 @@ const PagesLayout = () => {
       <Stack.Screen name="PickCommunity" options={{ headerShown: false }} />
       <Stack.Screen name="SelectTags" options={{ headerShown: false }} />
       <Stack.Screen name="JoiningCommunity" options={{ headerShown: false }} />
+      <Stack.Screen name="LeaderBoard" options={{ headerShown: false }} />
       <Stack.Screen
         name="CreateCommunities"
         options={{ headerShown: false, presentation: "modal" }}

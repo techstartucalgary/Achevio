@@ -11,13 +11,14 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   RefreshControl,
-  ImageBackground,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { router, useFocusEffect } from "expo-router";
 import { Image } from "expo-image";
+import LottieView from 'lottie-react-native';
+import { ScreenHeight, ScreenWidth } from "react-native-elements/dist/helpers";
 
 type TagProps = {
   text: string;
@@ -163,15 +164,15 @@ const Search: React.FC = () => {
 
     // Filter by search query
     if (searchQuery) {
-      filtered = filtered.filter(item =>
+      filtered = filtered.filter((item) =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-  
+
     // Filter by selected tags
     if (selectedTags.length > 0) {
-      filtered = filtered.filter(item =>
-        item.tags.some(tag => selectedTags.includes(tag.name))
+      filtered = filtered.filter((item) =>
+        item.tags.some((tag) => selectedTags.includes(tag.name))
       );
     }
   }, [searchQuery]);
@@ -189,6 +190,17 @@ const Search: React.FC = () => {
   return (
     <>
       <StatusBar barStyle="dark-content" />
+      <LottieView
+          source={require("../../assets/background_space.json")}
+          autoPlay
+          loop
+          style={{
+            position: 'absolute', // Set position to absolute
+            width: ScreenWidth,    // Cover the entire width
+            height: ScreenHeight,  // Cover the entire height
+            zIndex: -1,            // Ensure it stays behind other components
+          }}
+        />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <ScrollView
           style={styles.container}
@@ -276,7 +288,6 @@ const Search: React.FC = () => {
               {filteredData.map((item, index) => (
                 <TouchableOpacity
                   style={styles.communityItem}
-                  key={item.id || index} // Using item.id or index as a fallback
                   onPress={() => {
                     router.push({
                       pathname: "/(pages)/CommunitiesPage", // The route name
@@ -285,28 +296,41 @@ const Search: React.FC = () => {
                         communityName: item.name,
                         communityStreak: item.streak,
                         communityTags: item.tags.map((tag) => {
-                          return tag.name + " ";
+                          return tag.name + " " + tag.color;
                         }),
                         communityImage: `${url}/community/image/${item.id}.jpg`,
                       }, // Parameters as an object
                     });
                   }}
                 >
-                  <ImageBackground
+                  <Image
                     source={{ uri: `${url}/community/image/${item.id}.jpg` }}
                     style={styles.communityItemBackground}
-                    imageStyle={styles.communityItemImageStyle}
+                    cachePolicy="memory-disk"
                   >
                     <Text style={styles.communityTitle}>{item.name}</Text>
                     <View style={styles.textOverlay}>
                       <Text style={styles.communityStreak}>{item.streak}</Text>
-                      <Text style={styles.communityTags}>
-                        {item.tags.map((tag) => {
-                          return tag.name + " ";
-                        })}
-                      </Text>
+                      <View style={{ flexDirection: "row" }}>
+                        {item.tags.map((tag, index) => (
+                          <Text
+                            style={[
+                              styles.communityTags,
+                              {
+                                backgroundColor: tag.color,
+                                padding: 2,
+                                textAlign: "center",
+                                marginHorizontal: 2,
+                              },
+                            ]}
+                            key={`${tag.name}_${index}`}
+                          >
+                            {tag.name + " "}
+                          </Text> // Use a combination of name and index
+                        ))}
+                      </View>
                     </View>
-                  </ImageBackground>
+                  </Image>
                 </TouchableOpacity>
               ))}
             </View>
@@ -346,7 +370,7 @@ const styles = StyleSheet.create({
   textOverlay: {
     // Semi-transparent overlay for improved text readability
     backgroundColor: "rgba(0,0,0,0.3)",
-    padding: 20,
+    padding: 10,
   },
   communityItem: {
     height: 120, // Set a fixed height for your community item
@@ -378,13 +402,8 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   communityTags: {
-    position: "absolute",
-    bottom: 5,
-    left: 10,
-    padding: 5,
-    width: "15%",
-    height: 30,
     color: "#fff",
+    fontSize: 12,
   },
   closeIcon: {
     padding: 5,

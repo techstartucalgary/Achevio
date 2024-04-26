@@ -5,7 +5,6 @@ import {
   FlatList,
   Dimensions,
   Text,
-  ImageBackground,
   Pressable,
   Animated,
 } from "react-native";
@@ -15,6 +14,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome } from "@expo/vector-icons";
 import CachedImage from "react-native-expo-cached-image";
 import index from "../(Login)";
+import { useSelector } from "react-redux";
 
 const { width, height } = Dimensions.get("window");
 const ITEM_HEIGHT = height; // Change this to match the height of your items
@@ -24,6 +24,8 @@ const PostPage: React.FC = () => {
   const { communityId, url, selectedIndex } = params;
   console.log("selectedPostId", selectedIndex);
   const [posts, setPosts] = useState<Post[]>([]);
+  const { CommunityPosts } = useSelector((state: any) => state.communities);
+
   const scrollOffsetAnimated = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef(null);
     const jumpToIndex = (index) => {
@@ -118,7 +120,9 @@ const PostPage: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchPosts();
+    // fetchPosts();
+    console.log("CommunityPosts: ", CommunityPosts);
+    setPosts(CommunityPosts);
 
     console.log("Posts: ", posts);
   

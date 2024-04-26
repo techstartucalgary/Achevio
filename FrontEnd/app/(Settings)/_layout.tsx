@@ -16,6 +16,7 @@ const PagesLayout = () => {
       <Stack.Screen name="PrivacyPolicy" options={{ headerShown: false }} />
       <Stack.Screen name="AddFriends" options={{ headerShown: false }} />
       <Stack.Screen name="YourFriends" options={{ headerShown: false }} />
+      <Stack.Screen name="MainSettingsPage" options={{ headerShown: false }} />
     </Stack>
   );
 };

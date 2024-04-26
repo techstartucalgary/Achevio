@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,12 +9,15 @@ import {
   ScrollView,
   FlatList,
 } from "react-native";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useSelector } from "react-redux";
+import axios from "axios";
 
 // Images path should be replaced with the actual paths to your assets
 const IMAGES = {
-  earth: require("../../assets/images/earth.jpeg"),
-  mars: require("../../assets/images/mars.jpeg"),
-  jupiter: require("../../assets/images/jupiter.jpeg"),
+  Earth: require("../../assets/images/earth.jpeg"),
+  Mars: require("../../assets/images/mars.jpeg"),
+  Jupiter: require("../../assets/images/jupiter.jpeg"),
   crown: require("../../assets/images/crown.jpg"),
   userAvatar: require("../../assets/images/dummyuser.png"),
 };
@@ -45,37 +48,64 @@ const LEADERBOARD_DATA = [
 
 const LeaderboardScreen = () => {
   const [selectedPlanet, setSelectedPlanet] = useState("earth");
+  const {url} = useSelector((state: any) => state.user);
+  const params = useLocalSearchParams();
+  const communityId = params.communityId;
+  const [LEADERBOARD_DATA, setLeaderboardData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [topUsers, setTopUsers] = useState([]);
+  const [topThreeUsers, setTopThreeUsers] = useState([])
+  const [otherUsers, setOtherUsers] = useState([])
 
-  const planetTabs = ["earth", "mars", "jupiter"];
+  const planetTabs = ["Earth", "Mars", "Jupiter"];
 
-  // Filter and sort data
-  let filteredData = LEADERBOARD_DATA.filter(
-    (user) => user.planet === selectedPlanet
-  ).sort((a, b) => b.score - a.score);
-
-  // Get the top three users after sorting
-  const topUsers = filteredData.slice(0, 3);
-
-  // Reorder the top three users so the highest score is in the middle
-  const topThreeUsers = [
-    topUsers[1], // Second highest score
-    topUsers[0], // Highest score
-    topUsers[2], // Third highest score
-  ];
-
-  const otherUsers = filteredData.slice(3);
+  
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        try {
+          const res = await axios.get(`${url}/community/${communityId}/leaderboard`);
+          if (res.status === 200) {
+            const data = res.data;
+            console.log("Leaderboard Data: ", data);
+            const filteredData = data.filter(user => user.planet.toLowerCase() === selectedPlanet.toLowerCase()).sort((a, b) => b.score - a.score);
+            console.log("Filtered Data: ", filteredData);
+            const topUsers = filteredData.slice(0, 3);
+            console.log("Top Users: ", topUsers);
+            const otherUsers = filteredData.slice(3);
+            console.log("Other Users: ", otherUsers);
+            setLeaderboardData(data);
+            setFilteredData(filteredData);
+            setTopUsers(topUsers);
+            setTopThreeUsers([
+              topUsers[1], // Second highest score
+              topUsers[0], // Highest score
+              topUsers[2]  // Third highest score
+            ]);
+            setOtherUsers(otherUsers);
+          }
+        } catch (error) {
+          console.error("Failed to fetch leaderboard data", error);
+        }
+      };
+      fetchData();
+    }, [url, communityId, selectedPlanet]) // Add selectedPlanet to ensure updates when it changes
+  );
+  
+  
 
   const renderTopUser = (user, index) => {
     const userStyles = [styles.userLeft, styles.userMiddle, styles.userRight];
+    console.log("User: ", user);
 
     return (
-      <View key={user.id} style={[styles.topUserContainer, userStyles[index]]}>
+      <View key={user?.id} style={[styles.topUserContainer, userStyles[index]]}>
         <View style={[styles.userAvatarBorder, index === 1 ? styles.userAvatarBorderFirst :null, index === 0 ? {borderColor: "silver"} : null]}>
           <Image source={require('../../assets/images/dummyuser.png')} style={styles.userAvatar} />
           {index === 1 && <Image source={require('../../assets/images/crown.png')} style={styles.crownIcon} />}
         </View>
-        <Text style={styles.username}>{user.username}</Text>
-        <Text style={[styles.score,  index === 1 ? {color: "#FFD700"} : null, index === 0? {color: "silver"} : null, index === 2? {color: "#cd7f32"} : null]}>{user.score}</Text>
+        <Text style={styles.username}>{user?.username}</Text>
+        <Text style={[styles.score,  index === 1 ? {color: "#FFD700"} : null, index === 0? {color: "silver"} : null, index === 2? {color: "#cd7f32"} : null]}>{user?.score}</Text>
       </View>
     );
   }; 
@@ -89,16 +119,20 @@ const LeaderboardScreen = () => {
       </View>
     );
   };
-  useEffect(() => {
-    console.log("Other users: ", otherUsers);
-    console.log("Top users: ", topThreeUsers);
-    console.log("Selected planet: ", selectedPlanet);
-    console.log("Filtered data: ", filteredData);
-  }, [selectedPlanet]);
+
 
   return (
+    console.log(topThreeUsers),
     <View style={styles.container}>
-      <Text style={styles.headerText}>Leaderboard</Text>
+      {
+        LEADERBOARD_DATA.length <=2 ? (
+          <>
+          <Text style={styles.header}>Leaderboard</Text>
+          <Text style={styles.header}>Add at least 3 users to see the leaderboard</Text>
+          </>
+        ) : (
+          <>
+<Text style={styles.headerText}>Leaderboard</Text>
       <View style={styles.planetTabsContainer}>
         {planetTabs.map((planet) => (
           <TouchableOpacity
@@ -106,7 +140,13 @@ const LeaderboardScreen = () => {
             onPress={() => setSelectedPlanet(planet)}
             style={styles.planetTab}
           >
-            <Image source={IMAGES[planet]} style={styles.planetIcon} />
+<Image 
+  source={IMAGES[planet]} 
+  style={[
+    styles.planetIcon, 
+    { tintColor: selectedPlanet === planet ? undefined : "#grey" } // Apply grey tint color when not selected
+  ]} 
+/>
             <Text style={styles.planetName}>{planet.charAt(0).toUpperCase() + planet.slice(1)}</Text>
             {selectedPlanet === planet && <View style={styles.indicatorBar} />}
           </TouchableOpacity>
@@ -122,6 +162,9 @@ const LeaderboardScreen = () => {
         keyExtractor={(item) => item.id}
         style={styles.fullList}
       />
+      </>
+        )
+      }
     </View>
   );
 };
@@ -252,9 +295,11 @@ const styles = StyleSheet.create({
   },
   planetIcon: {
     width: 50,
-    height: 49,
-    borderRadius: 30,
-  },
+    height: 50,
+    borderRadius: 25, // Optional: if you want rounded icons
+    borderWidth: 2, // Optional: border to highlight when selected
+    borderColor: 'transparent', // Initial borderColor, overridden by inline style
+  },  
 
   topUsersContainer: {
     flexDirection: "row",

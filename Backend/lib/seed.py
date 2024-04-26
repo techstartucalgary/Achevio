@@ -369,7 +369,7 @@ async def seed_data(session: AsyncSession):
         community_name = paint_pals.name,
         current_days = 0,
         goal_days = 5,
-        season_xp = 200
+        season_xp = 200,
     )
 
     user_4_paintpals = UserCommunityAssociation(
@@ -379,7 +379,9 @@ async def seed_data(session: AsyncSession):
         community_name = paint_pals.name,
         current_days = 0,
         goal_days = 4,
-        season_xp = 300
+        season_xp = 300,
+        tier = "Mars"
+
     )
 
     user_5_paintpals = UserCommunityAssociation(
@@ -389,7 +391,8 @@ async def seed_data(session: AsyncSession):
         community_name = paint_pals.name,
         current_days = 0,
         goal_days = 2,
-        season_xp = 200
+        season_xp = 200,
+        tier = "Mars"
     )
 
     user_6_paintpals = UserCommunityAssociation(
@@ -399,7 +402,8 @@ async def seed_data(session: AsyncSession):
         community_name = paint_pals.name,
         current_days = 0,
         goal_days = 3,
-        season_xp = 100
+        season_xp = 100,
+        tier = "Mars"
     )
 
     user_7_paintpals = UserCommunityAssociation(
@@ -409,31 +413,34 @@ async def seed_data(session: AsyncSession):
         community_name = paint_pals.name,
         current_days = 0,
         goal_days = 4,
-        season_xp = 500
+        season_xp = 500,
+        tier = "Jupiter"
     )
 
 
     user_8_paintpals = UserCommunityAssociation(
-        user_id = user7.id,
+        user_id = user8.id,
         community_id = paint_pals.id,
         role = "member",
         community_name = paint_pals.name,
         current_days = 0,
         goal_days = 4,
-        season_xp = 0
+        season_xp = 0,
+        tier = "Jupiter"
     )
 
     user_9_paintpals = UserCommunityAssociation(
-        user_id = user7.id,
+        user_id = user9.id,
         community_id = paint_pals.id,
         role = "member",
         community_name = paint_pals.name,
         current_days = 2,
         goal_days = 4,
         season_xp = 100
+        tier = "Jupiter"
     )
 
-    session.add_all([user_1_paintpals, user_2_paintpals, user_3_paintpals, user_4_paintpals, user_5_paintpals])
+    session.add_all([user_1_paintpals, user_2_paintpals, user_3_paintpals, user_4_paintpals, user_5_paintpals, user_6_paintpals, user_7_paintpals, user_8_paintpals, user_9_paintpals])
     
 
 

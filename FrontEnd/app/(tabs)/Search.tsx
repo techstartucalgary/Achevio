@@ -18,6 +18,8 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { router, useFocusEffect } from "expo-router";
 import { Image } from "expo-image";
+import LottieView from 'lottie-react-native';
+import { ScreenHeight, ScreenWidth } from "react-native-elements/dist/helpers";
 
 type TagProps = {
   text: string;
@@ -189,6 +191,17 @@ const Search: React.FC = () => {
   return (
     <>
       <StatusBar barStyle="dark-content" />
+      <LottieView
+          source={require("../../assets/background_space.json")}
+          autoPlay
+          loop
+          style={{
+            position: 'absolute', // Set position to absolute
+            width: ScreenWidth,    // Cover the entire width
+            height: ScreenHeight,  // Cover the entire height
+            zIndex: -1,            // Ensure it stays behind other components
+          }}
+        />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <ScrollView
           style={styles.container}
@@ -291,10 +304,10 @@ const Search: React.FC = () => {
                     });
                   }}
                 >
-                  <ImageBackground
+                  <Image
                     source={{ uri: `${url}/community/image/${item.id}.jpg` }}
                     style={styles.communityItemBackground}
-                    imageStyle={styles.communityItemImageStyle}
+                    cachePolicy="memory-disk"
                   >
                     <Text style={styles.communityTitle}>{item.name}</Text>
                     <View style={styles.textOverlay}>
@@ -318,7 +331,7 @@ const Search: React.FC = () => {
                         ))}
                       </View>
                     </View>
-                  </ImageBackground>
+                  </Image>
                 </TouchableOpacity>
               ))}
             </View>

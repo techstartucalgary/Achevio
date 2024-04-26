@@ -9,18 +9,19 @@ import {
   Alert,
   Animated,
   Image,
+  Easing,
+  InteractionManager,
 } from "react-native";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { ScreenWidth } from "react-native-elements/dist/helpers";
+import { ScreenHeight, ScreenWidth } from "react-native-elements/dist/helpers";
 interface User {
   id: string;
   username: string;
 }
-
 const categories = {
   Sports: [
     "Running",
@@ -66,6 +67,7 @@ const settingUpPage = () => {
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current; // Initial scale value
   const [currentScreen, setCurrentScreen] = useState("YourProfile");
+  const [goingBack, setGoingBack] = useState(false);
 
   const pickImage = async () => {
     let permissionResult =
@@ -203,7 +205,7 @@ const settingUpPage = () => {
       </View>
     );
   };
-  const onButtonPress = () => {
+  const onButtonPress = (nextPage) => {
     Animated.sequence([
       Animated.timing(scaleValue, {
         toValue: 0.95,
@@ -216,7 +218,7 @@ const settingUpPage = () => {
         useNativeDriver: true,
       }),
     ]).start(() => {
-      router.push("/(Tutorial)/AddFriendsPage");
+      navigateTo(nextPage);
     });
   };
   const fetchMe = async () => {
@@ -245,6 +247,7 @@ const settingUpPage = () => {
       );
       setFriends([...friendIds]);
       setUsers(allUsers.filter((user: User) => !friendIds.includes(user.id)));
+      setSearchText("");
     } catch (error) {
       console.error("Error fetching users or friends:", error);
       Alert.alert("Error", "Unable to fetch users or friends.");
@@ -254,7 +257,21 @@ const settingUpPage = () => {
   useEffect(() => {
     fetchUsersAndFriends();
   }, []);
-
+  const handleSubmitTags = async (selectedTags: Tag[]) => {
+    const body = selectedTags.map(tag => ({
+      name: tag.name,
+      color: tag.color,
+    }));
+  
+    try {
+      await axios.post(`${url}/user/setInterests`, body);
+      Alert.alert("Success", "Tags added successfully.");
+    } catch (error) {
+      console.error("Error adding tags:", error);
+      Alert.alert("Error", "Unable to add tags.");
+    }
+  };
+  
   const handleSearch = useCallback(
     (text: string) => {
       setSearchText(text);
@@ -290,7 +307,7 @@ const settingUpPage = () => {
     </View>
   );
   // For animations
-  const screenAnim = useRef(new Animated.Value(0)).current; // Initial value for vertical offset
+  const screenAnim = useRef(new Animated.Value(0)).current; // 0: Current screen is visible, 1: Next screen is visible
 
   // Trigger screen transitions
   useEffect(() => {
@@ -302,9 +319,42 @@ const settingUpPage = () => {
   }, [currentScreen]);
 
   const navigateTo = (screenName) => {
-    // Set the screen to the top initially
-    screenAnim.setValue(100); // Start the screen off below the view
-    setCurrentScreen(screenName);
+    // Start with the current screen sliding up
+    Animated.timing(screenAnim, {
+      toValue: 1, // Slide up
+      duration: 400,
+      useNativeDriver: true,
+    }).start(() => {
+      InteractionManager.runAfterInteractions(() => {
+        setCurrentScreen(screenName);
+        screenAnim.setValue(0); // Reset for the next transition
+      });
+    });
+  };
+
+  const navigateBack = (screenName) => {
+    // Start with the current screen sliding down
+    Animated.timing(screenAnim, {
+      toValue: -1, // Slide down
+      duration: 400,
+      useNativeDriver: true,
+    }).start(() => {
+      InteractionManager.runAfterInteractions(() => {
+        setCurrentScreen(screenName);
+        screenAnim.setValue(0); // Reset for the next transition
+      });
+    });
+  };
+
+  const screenTransitionStyle = {
+    transform: [
+      {
+        translateY: screenAnim.interpolate({
+          inputRange: [-1, 1], // Handle both negative and positive values
+          outputRange: [-1000, 1000], // Corresponding movement distance
+        }),
+      },
+    ],
   };
 
   const renderYourProfile = () => {
@@ -329,11 +379,14 @@ const settingUpPage = () => {
             )}
           </TouchableOpacity>
           {avatarUri ? (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => router.push("/(Tutorial)/pickIntrest")} // Navigate to next screen (pickIntrest
+        <TouchableOpacity onPress={() => onButtonPress("pickInterest")}
+
+              style={[
+                styles.nextButton,
+                { position:"relative", bottom: -270, width: 150 }
+              ]}
             >
-              <Text style={styles.buttonText}>Go next</Text>
+              <Text style={styles.buttonText}>Next</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity onPress={pickImage} style={styles.button}>
@@ -347,29 +400,26 @@ const settingUpPage = () => {
 
   const renderPickInterest = () => {
     return (
-      <View style={[styles.container]}>
+      <View style={styles.container}>
         <Text style={styles.title}>Select Your Interests</Text>
         <FlatList
           data={Object.keys(categories)}
           renderItem={renderCategory}
           keyExtractor={(item) => item}
         />
-        <View style={{ flex: 1 }}>
-          <TouchableOpacity onPress={onButtonPress}>
-            <Animated.View
-              style={{
-                backgroundColor: "#4CAF50",
-                padding: 15,
-                width: ScreenWidth - 20,
-                left: 10,
-                height: 60,
-                borderRadius: 25,
-                position: "relative",
-                top: 20,
-              }}
-            >
-              <Text style={styles.buttonText}>Next</Text>
-            </Animated.View>
+        {/* Navigation buttons container */}
+        <View style={styles.navigationButtonsContainer}>
+          <TouchableOpacity
+            onPress={() => navigateBack("YourProfile")}
+            style={styles.backButton}
+          >
+            <Text style={styles.buttonText}>Back</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {
+            handleSubmitTags(selectedTags);
+            onButtonPress("AddFriends")
+          }} style={styles.nextButton}>
+            <Text style={styles.buttonText}>Next</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -380,31 +430,42 @@ const settingUpPage = () => {
     return (
       <View style={styles.container}>
         <Text style={styles.headerText}>Add Friends</Text>
-        <Text style={styles.descriptionText}>
-          Connect with friends to see what they are up to and share your
-          experiences.
-        </Text>
-        <TextInput
-          style={styles.searchInput}
-          onChangeText={handleSearch}
-          value={searchText}
-          placeholder="Search by name or username"
-          placeholderTextColor="#666"
-        />
-        <FlatList
-          data={searchText ? filteredUsers : users}
-          renderItem={renderUser}
-          keyExtractor={(item) => item.id}
-          style={styles.usersList}
-        />
+      <Text style={styles.descriptionText}>
+        Connect with friends to see what they are up to and share your experiences.
+      </Text>
+      <TextInput
+        style={styles.searchInput}
+        onChangeText={handleSearch}
+        value={searchText}
+        placeholder="Search by name or username"
+        placeholderTextColor="#666"
+      />
+      <FlatList
+        data={searchText ? filteredUsers : users}
+        renderItem={renderUser}
+        keyExtractor={(item) => item.id}
+        style={styles.usersList}
+      />
+      <View style={styles.navigationButtonsContainer}>
+        <TouchableOpacity
+          onPress={() => navigateBack("pickInterest")}
+          style={styles.backButton}
+        >
+          <Text style={styles.buttonText}>Back</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push("/(tabs)/Camera")
+
+        } style={styles.nextButton}>
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
       </View>
+    </View>
+    
     );
   };
 
   return (
-    <Animated.View
-      style={[styles.container, { transform: [{ translateY: screenAnim }] }]}
-    >
+    <Animated.View style={[styles.container, screenTransitionStyle]}>
       {currentScreen === "YourProfile" && renderYourProfile()}
       {currentScreen === "pickInterest" && renderPickInterest()}
       {currentScreen === "AddFriends" && renderAddFriends()}
@@ -417,6 +478,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    width: ScreenWidth,
+    height: ScreenHeight,
+    paddingTop: 20,
+    paddingHorizontal: 10,
   },
   screenContainer: {
     width: "100%",
@@ -425,6 +490,7 @@ const styles = StyleSheet.create({
   },
   usersList: {
     width: "100%",
+    color: "white",
   },
   content: {
     alignItems: "center",
@@ -434,6 +500,33 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
+  },
+  navigationButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+    position: "absolute",
+    bottom: 20,
+    left: 10,
+    right: 10,
+  },
+  backButton: {
+    backgroundColor: "#ff6347",
+    padding: 15,
+    borderRadius: 25,
+    marginEnd: 10,
+    width: ScreenWidth / 2 - 80, // Half the screen width minus some padding
+  },
+  nextButton: {
+    backgroundColor: "#4CAF50",
+    padding: 15,
+    borderRadius: 25,
+    width: ScreenWidth / 2 - 80, // Half the screen width minus some padding
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 18,
+    textAlign: "center",
   },
   avatarPlaceholder: {
     width: 150,
@@ -471,15 +564,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginTop: 20,
   },
-  buttonText: {
-    color: "white",
-    fontSize: 18,
-  },
   tagItem: {
     padding: 10,
     marginVertical: 5,
     backgroundColor: "#ddd",
     borderRadius: 10,
+    marginRight: 10,
   },
   tagText: {
     fontSize: 16,
@@ -495,7 +585,7 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 16,
-    color: "#000",
+    color: "white",
   },
   addButton: {
     backgroundColor: "#1e90ff",
@@ -509,6 +599,7 @@ const styles = StyleSheet.create({
   searchInput: {
     width: "100%",
     height: 40,
+    color: "#fff",
     borderColor: "#ccc",
     borderWidth: 1,
     paddingHorizontal: 10,

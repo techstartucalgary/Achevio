@@ -15,6 +15,8 @@ import { useFocusEffect } from "expo-router";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { Image } from "expo-image";
+import { ScreenHeight, ScreenWidth } from "react-native-elements/dist/helpers";
+import LottieView from "lottie-react-native";
 
 const Collage = () => {
   const [postsData, setPostsData] = useState([]);
@@ -133,6 +135,17 @@ const Collage = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <LottieView
+          source={require("../../assets/background_space.json")}
+          autoPlay
+          loop
+          style={{
+            position: 'absolute', // Set position to absolute
+            width: ScreenWidth,    // Cover the entire width
+            height: ScreenHeight,  // Cover the entire height
+            zIndex: -1,            // Ensure it stays behind other components
+          }}
+        />
     {postsData ? (
       <Animated.View style={[styles.noPostsContainer, { opacity: fadeAnim }]}>
         <Text style={styles.noPostsText}>It looks empty here</Text>
@@ -153,7 +166,7 @@ const Collage = () => {
         onRequestClose={() => setIsModalVisible(false)}
       >
         <View style={styles.modalView}>
-          <Image source={{ uri: selectedImage }} style={styles.fullImage} />
+          <Image source={{ uri: selectedImage }} style={styles.fullImage} cachePolicy="memory"/>
           <TouchableOpacity
             style={styles.closeButton}
             onPress={() => setIsModalVisible(false)}

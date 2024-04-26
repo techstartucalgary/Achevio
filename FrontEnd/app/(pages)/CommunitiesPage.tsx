@@ -525,9 +525,10 @@ const CommunityPage: React.FC = () => {
   const renderHeader = useCallback(
     () => (
       <Animated.View style={{ ...styles.headerContainer, opacity: fadeAnim }}>
-        <ImageBackground
+        <Image
           source={{ uri: communityImage as string }}
           style={{ width: "100%", height: "100%", position: "absolute" }}
+          cachePolicy="memory-disk"
         >
           <LinearGradient
             colors={["transparent", "rgba(0,0,0,2.0)"]}
@@ -537,7 +538,7 @@ const CommunityPage: React.FC = () => {
           >
             <Text style={styles.headerTitle}>{communityName}</Text>
           </LinearGradient>
-        </ImageBackground>
+        </Image>
 
         <View style={styles.overlayContent}>
           <TouchableOpacity
@@ -562,7 +563,6 @@ const CommunityPage: React.FC = () => {
           >
             <FontAwesomeIcon icon={faEllipsisV} size={24} color="white" />
           </TouchableOpacity>
-          <Text style={styles.streakText}>{communityStreak}</Text>
           <View style={styles.tagContainer}>
             {communityTagArray.map(({ text, color }, index) => (
               <View

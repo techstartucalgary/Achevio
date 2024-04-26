@@ -71,10 +71,23 @@ const updateNotificationSettings = async (isEnabled) => {
   console.log(`API call to update notifications: ${isEnabled}`);
 };
 const ProfilePage: React.FC = () => {
-  const { url, userId, username, theme } = useSelector(
-    (state: any) => state.user
-  );
-  const { me } = useSelector((state: any) => state.user);
+  const { url, userId, username, theme, me } = useSelector((state: any) => state.user);
+  const xp = me.xp; // Assuming XP is directly accessible from 'me' object
+
+  // Ensure XP is above the base level of 200 to proceed with calculations
+  const baseXP = 200;
+  const xpForCalculation = xp - baseXP;
+
+  let currentLevel = 0;
+  let xpNextLevel = 100;
+  let progress = 0;
+
+  if (xpForCalculation > 0) {
+    currentLevel = Math.log(xpForCalculation / 100) / Math.log(1.05);
+    xpNextLevel = 100 * Math.pow(1.05, Math.floor(currentLevel) + 2) + baseXP;
+    const xpCurrentLevel = 100 * Math.pow(1.05, Math.floor(currentLevel) + 1) + baseXP;
+    progress = (xp - xpCurrentLevel) / (xpNextLevel - xpCurrentLevel);
+  }
   const [profileData, setProfileData] = useState(fallbackData);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [userIDAgain, setUserIDAgain] = useState("");
@@ -90,6 +103,11 @@ const ProfilePage: React.FC = () => {
     dispatch({ type: "SET_THEME", payload: isDarkMode ? "dark" : "light" });
     console.log(`Theme is now ${theme}`);
   };
+  useEffect(() => {
+    console.log("your xp is ", xp);
+
+  }
+  , []);
 
   const handleNotificationsToggle = async () => {
     try {
@@ -102,17 +120,17 @@ const ProfilePage: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      // const configurationObject = {
-      //   method: "get",
-      //   url: `${url}/user/me`,
-      //   headers: {
-      //     accept: "application/json",
-      //     "Content-Type": "application/json",
-      //   },
-      // };
-      // const response = await axios(configurationObject);
-      // const data = response.data;
-      // console.log("API call success:", data);
+      const configurationObject = {
+        method: "get",
+        url: `${url}/user/me`,
+        headers: {
+          accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await axios(configurationObject);
+      const data = response.data;
+      dispatch({ type: "SET_ME", payload: data });
       setProfileData((prevState) => ({
         ...prevState,
         username: me.username || prevState.username,
@@ -228,13 +246,20 @@ const ProfilePage: React.FC = () => {
             )
           }
         >
-          <Image source={{ uri: avatarUri }} style={styles.avatar} cachePolicy="memory-disk"/>
+          <Image source={{ uri: avatarUri }} style={styles.avatar} cachePolicy="memory"/>
 
         </TouchableOpacity>
         <TouchableOpacity style={{ position:"absolute", top: 50, right: 10, zIndex:100 }} onPress={() => router.push("/(Settings)/MainSettingsPage")}>
-        <Icon name="settings" size={40} color="white"/>
+        <Icon name="settings" size={30} color="white"/>
           </TouchableOpacity>
         </ImageBackground>
+        <View style={styles.progressContainer}>
+          <View style={styles.progressBar}>
+            <View style={[styles.progress, { width: `${100 * Math.max(0, Math.min(1, progress))}%` }]}>
+            </View>
+            <Text style={styles.progressLabel}>{`Level ${Math.floor(currentLevel) + 1}: ${Math.floor(progress * 100)}%`}</Text>
+          </View>
+        </View>
       </View>
 
 
@@ -252,6 +277,38 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     width: "100%",
 
+  },
+  progressContainer: {
+    width: "90%",
+    height: 45, // Adjust height to ensure text fits
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    alignSelf: "center",
+    marginTop: 30,
+    justifyContent: "center", // Centers the label vertically
+  },
+  progressBar: {
+    position: "absolute",
+    height: "100%",
+    width: "100%",
+    backgroundColor: "#555",
+    borderRadius: 10,
+    right: 10,
+    overflow: 'hidden',
+  },
+  progress: {
+    height: "100%",
+    backgroundColor: "#1e90ff",
+  },
+  progressLabel: {
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "bold",
+    padding: 5,
+    zIndex: 1, // Make sure the text is above the progress bar
+    position: "absolute",
+    width: "100%",
   },
   title: {
     fontSize: 26,

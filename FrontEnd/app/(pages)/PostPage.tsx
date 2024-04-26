@@ -5,7 +5,6 @@ import {
   FlatList,
   Dimensions,
   Text,
-  ImageBackground,
   Pressable,
   Animated,
 } from "react-native";

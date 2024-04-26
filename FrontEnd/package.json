@@ -36,6 +36,7 @@
     "expo": "~49.0.18",
     "expo-auth-session": "~5.0.2",
     "expo-av": "^13.10.3",
+    "expo-cached-image-background": "^1.0.1",
     "expo-camera": "~13.4.4",
     "expo-crypto": "~12.4.1",
     "expo-dev-client": "~2.4.12",

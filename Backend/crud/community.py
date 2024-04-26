@@ -329,3 +329,22 @@ async def get_community_name_by_id(session: AsyncSession, community_id: UUID):
     if community is None:
         raise HTTPException(status_code=404, detail="Community not found")
     return community.name
+
+
+
+async def get_leaderboard(session: AsyncSession, community_id: UUID) -> list[UserCommunityAssociation]:
+    """
+    Retrieve a list of users in a community sorted by their XP.
+
+    Args:
+        session (AsyncSession): The database session for executing queries.
+        community_id (UUID): The unique identifier of the community.
+
+    Returns:
+        list[User]: A list of User objects.
+    """
+    # Create a query to find the users in the community sorted by their XP and execute it.
+    query = select(UserCommunityAssociation).options(orm.selectinload(UserCommunityAssociation.user)).where(UserCommunityAssociation.community_id == community_id).order_by(UserCommunityAssociation.season_xp.desc())
+    result = await session.execute(query)
+    user_associations = result.scalars().all()
+    return user_associations

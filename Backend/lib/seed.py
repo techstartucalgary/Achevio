@@ -1,3 +1,4 @@
+from models.post import Post
 from models.tag import Tag
 from models.user import User
 from models.community import Community
@@ -274,6 +275,28 @@ async def seed_data(session: AsyncSession):
         posts = []
     )
 
+    user10 = User(
+        id = "018f16f6-d2c1-797c-aee3-8afc04206624",
+        username = "BigAl",
+        first_name = "Alan",
+        last_name = "Turing",
+        email = "alan.turing@email.com",
+        password = ph.hash("password"),
+        communities = [],
+        posts = []
+    )
+
+    user11 = User(
+        id = "018f16f6-d2c1-797c-aee4-8afc04206625",
+        username = "Tim",
+        first_name = "Tim",
+        last_name = "Berners-Lee",
+        email = "tim.blee@email.com",
+        password = ph.hash("password"),
+        communities = [],
+        posts = []
+    )
+
     session.add_all([
         user1,
         user2,
@@ -309,7 +332,7 @@ async def seed_data(session: AsyncSession):
 
     guitar_club = Community(
         id = "00000000-0000-0000-0000-000000000003",
-        name = "Guitar Club",
+        name = "Guitar Gurus",
         description = "A community for guitarists to share music and tips.",
         public = True,
         users = [],
@@ -329,7 +352,7 @@ async def seed_data(session: AsyncSession):
 
     hiking_club = Community(
         id = "00000000-0000-0000-0000-000000000006",
-        name = "Hiking Club",
+        name = "Hiking Hangout",
         description = "A community for hikers to share trails and experiences.",
         public = True,
         users = [],
@@ -443,8 +466,52 @@ async def seed_data(session: AsyncSession):
     session.add_all([user_1_paintpals, user_2_paintpals, user_3_paintpals, user_4_paintpals, user_5_paintpals, user_6_paintpals, user_7_paintpals, user_8_paintpals, user_9_paintpals])
     
 
+    post_1_paintpals = Post(
+        id = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b5",
+        title = "My latest painting",
+        caption = "I'm really proud of how this one turned out!",
 
+        user_id = user1.id,
+        community_id = paint_pals.id,
+        file = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b5.jpg" # Image from Avi Richards on Unsplash
+    )
+
+    # post_2_paintpals = Post(
+    #     id = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b6",
+    #     title = "Finished my first painting!",
+    #     caption = "Very happy with the result. What do you think?",
+    #     user_id = user1.id,
+    #     community_id = paint_pals.id,
+    #     file = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b6.jpg" 
+    # )
+
+    # post_3_paintpals = Post(
+    #     id = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b7",
+    #     title = "My latest drawing",
+    #     caption = "I'm really proud of how this one turned out!",
+    #     user_id = user3.id,
+    #     community_id = paint_pals.id,
+    #     file = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b7.jpg"
+    # )
+
+    session.add_all([post_1_paintpals])
+
+
+
+# class Post(UUIDAuditBase):
+#     __tablename__ = 'post_table'
     
+#     title: Mapped[str] = mapped_column(String(100))
+#     caption: Mapped[str] = mapped_column(String(100))
+
+#     user_id: Mapped[UUID] = mapped_column(ForeignKey('user_table.id'))
+#     community_id: Mapped[UUID] = mapped_column(ForeignKey('community_table.id'))
+#     # user: Mapped['User'] = relationship('User', back_populates='posts')    
+
+#     file: Mapped[str] = mapped_column(String(100))
+
+
+
 # class Community(UUIDAuditBase):
 #     __tablename__ = 'community_table'
     

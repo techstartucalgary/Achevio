@@ -80,7 +80,9 @@ const UploadingImages: React.FC = () => {
       const response = await axios.post(
         `${url}/community?goalDays=${postFreq}`,
         {
-          payload,
+          name: communityName,
+          description,  
+          tags: tagsPayload,
           
         },
         {

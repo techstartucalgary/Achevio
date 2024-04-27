@@ -201,7 +201,7 @@ async def seed_data(session: AsyncSession):
     user3 = User(
         id = "018f16f6-d2c1-797c-aee3-8afc04206318",
         username = "pupper0n1",
-        first_name = "W",
+        first_name = "Wilbs",
         last_name = "Elbouni",
         email = "w.elbouni@email.com",
         password = ph.hash("password"),
@@ -375,7 +375,18 @@ async def seed_data(session: AsyncSession):
         season_xp = 850
     )
 
-    user_2_paintpals = UserCommunityAssociation(
+    user_1_fitness_fanatics = UserCommunityAssociation(
+        user_id = user1.id,
+        community_id = fitness_fanatics.id,
+        role = "admin",
+        community_name = fitness_fanatics.name,
+        current_days = 0,
+        goal_days = 5,
+        streak = 852,
+        season_xp = 16800
+    )
+
+    user_3_paintpals = UserCommunityAssociation(
         user_id = user2.id,
         community_id = paint_pals.id,
         role = "member",
@@ -383,6 +394,16 @@ async def seed_data(session: AsyncSession):
         current_days = 0,
         goal_days = 5,
         season_xp = 150
+    )
+
+    user_3_fitness_fanatics = UserCommunityAssociation(
+        user_id = user3.id,
+        community_id = fitness_fanatics.id,
+        role = "member",
+        community_name = fitness_fanatics.name,
+        current_days = 0,
+        goal_days = 2,
+        season_xp = 200
     )
 
     user_3_paintpals = UserCommunityAssociation(
@@ -463,7 +484,7 @@ async def seed_data(session: AsyncSession):
         tier = "Jupiter"
     )
 
-    session.add_all([user_1_paintpals, user_2_paintpals, user_3_paintpals, user_4_paintpals, user_5_paintpals, user_6_paintpals, user_7_paintpals, user_8_paintpals, user_9_paintpals])
+    session.add_all([user_1_paintpals, user_1_fitness_fanatics, user_3_fitness_fanatics, user_3_paintpals, user_4_paintpals, user_5_paintpals, user_6_paintpals, user_7_paintpals, user_8_paintpals, user_9_paintpals])
     
 
     post_1_paintpals = Post(
@@ -476,25 +497,34 @@ async def seed_data(session: AsyncSession):
         file = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b5.jpg" # Image from Avi Richards on Unsplash
     )
 
-    # post_2_paintpals = Post(
-    #     id = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b6",
-    #     title = "Finished my first painting!",
-    #     caption = "Very happy with the result. What do you think?",
-    #     user_id = user1.id,
-    #     community_id = paint_pals.id,
-    #     file = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b6.jpg" 
-    # )
+    post_2_paintpals = Post(
+        id = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b6",
+        title = "Finished my first painting!",
+        caption = "Very happy with the result. What do you think?",
+        user_id = user1.id,
+        community_id = paint_pals.id,
+        file = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b6.jpg" 
+    )
 
-    # post_3_paintpals = Post(
-    #     id = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b7",
-    #     title = "My latest drawing",
-    #     caption = "I'm really proud of how this one turned out!",
-    #     user_id = user3.id,
-    #     community_id = paint_pals.id,
-    #     file = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b7.jpg"
-    # )
+    post_3_paintpals = Post(
+        id = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b7",
+        title = "My latest drawing",
+        caption = "I'm really proud of how this one turned out!",
+        user_id = user1.id,
+        community_id = paint_pals.id,
+        file = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b7.jpg"
+    )
 
-    session.add_all([post_1_paintpals])
+    post_4_paintpals = Post(
+        id = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b8",
+        title = "My latest painting",
+        caption = "I'm really proud of how this one turned out!",
+        user_id = user2.id,
+        community_id = paint_pals.id,
+        file = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b8.jpg"
+    )
+
+    session.add_all([post_1_paintpals, post_2_paintpals, post_3_paintpals, post_4_paintpals])
 
 
 

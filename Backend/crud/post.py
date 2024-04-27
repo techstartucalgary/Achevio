@@ -7,6 +7,8 @@ import os
 
 from models.post import Post
 
+
+
 async def get_posts_list(session: AsyncSession, limit: int, offset: int) -> list[Post]:
     """
     Fetches a paginated list of Posts.
@@ -138,9 +140,29 @@ async def get_posts_from_id_list(session: AsyncSession, user_id: UUID) -> Post:
 
 
 
-async def get_most_recent_user_post(session: AsyncSession, user_id: UUID) -> Post:
+async def get_most_recent_post(session: AsyncSession, user_id: UUID) -> Post:
     query = select(Post).where(Post.user_id == user_id).order_by(Post.created_at.desc())
     result = await session.execute(query)
+    try:
+        return result.scalars().first()
+    except:
+        raise HTTPException(status_code=401, detail="Error retrieving post")
+
+
+
+async def get_most_recent_community_post(session: AsyncSession, community_id: UUID) -> Post:
+    query = select(Post).where(Post.community_id == community_id).order_by(Post.created_at.desc())
+    result = await session.execute(query)
+    try:
+        return result.scalars().first()
+    except:
+        raise HTTPException(status_code=401, detail="Error retrieving post")
+    
+
+async def get_most_recent_user_community_post(session: AsyncSession, user_id: UUID, community_id: UUID) -> Post:
+    query = select(Post).where(Post.user_id == user_id).where(Post.community_id == community_id).order_by(Post.created_at.desc())
+    result = await session.execute(query)
+    print("HEREEE")
     try:
         return result.scalars().first()
     except:

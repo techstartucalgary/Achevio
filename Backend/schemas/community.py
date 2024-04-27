@@ -89,6 +89,13 @@ class ViewCommunityDTO(PydanticDTO[CommunitySchema]):
     )
 
 
+class CanPostCommunityOutDTO(PydanticDTO[CommunitySchema]):
+    config = DTOConfig(
+        include={'id', 'name'},
+        max_nested_depth=2,
+    )
+
+
 from .tag import TagSchema
 from .user_community_association import UserCommunityAssociationSchema
 from .users import UserSchema

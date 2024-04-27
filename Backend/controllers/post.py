@@ -1,4 +1,5 @@
-from typing import Annotated, Any
+from datetime import datetime, UTC, timedelta
+from typing import Annotated, Any, TYPE_CHECKING
 from litestar.contrib.jwt import Token
 from models.user import User
 from litestar import MediaType, patch, post,get, delete, Controller, Request
@@ -13,9 +14,10 @@ import aiofiles
 
 from models.post import Post
 from schemas.post import CreateMultiplePostSchema, PostSchema, PostDTO, CreateMultiplePostDTO, CollageDTO
-from crud.post import get_posts_list, get_posts_by_user_id, get_posts_by_community_id, delete_post_by_id, get_post_by_id, get_posts_from_id_list, get_posts_by_multiple_user_id
+from schemas.user_community_association import UserCommunityAssociationSchema
+from crud.post import get_posts_list, get_posts_by_user_id, get_posts_by_community_id, delete_post_by_id, get_post_by_id, get_posts_from_id_list, get_posts_by_multiple_user_id, get_most_recent_community_post
 from crud.users import get_friends_by_id, get_user_by_id
-from crud.community import get_user_community_association
+from crud.community import get_user_community_association, get_user_community_association_by_user_id
 
 class PostController(Controller):
     path = '/posts'
@@ -93,9 +95,6 @@ class PostController(Controller):
 
         # user_community = await get_user_community_association(session, user.id, UUID(communities[0]))
 
-
-
-
         for community_id in communities:
             post = Post(id=uuid7(), title=data.title, caption=data.caption, user_id=user.id, community_id=UUID(community_id))
             session.add(post)
@@ -112,8 +111,12 @@ class PostController(Controller):
             async with aiofiles.open(file_path, 'wb') as outfile:
                 await outfile.write(image)
 
-            user_community = await get_user_community_association(session, user.id, UUID(community_id))
+            user_community = await get_user_community_association(session, user.id, community_id)
             user_community.streak += 1
             user_community.current_days += 1
             user_community.season_xp += 10
+        await session.commit()
         return f"File created"
+    
+
+

@@ -16,3 +16,5 @@ class Post(UUIDAuditBase):
 
     file: Mapped[str] = mapped_column(String(100))
 
+    location: Mapped[str] = mapped_column(String(100), nullable=True)
+

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from datetime import datetime
 from uuid import UUID
 
@@ -25,6 +27,8 @@ class PostSchema(Schema):
     community_id: UUID
 
     file: str
+
+    location: Optional[str] = None
     
 
 

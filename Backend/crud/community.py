@@ -348,3 +348,11 @@ async def get_leaderboard(session: AsyncSession, community_id: UUID) -> list[Use
     result = await session.execute(query)
     user_associations = result.scalars().all()
     return user_associations
+
+from datetime import datetime, UTC, timedelta
+from .post import get_most_recent_user_community_post
+async def user_can_post_community(session: AsyncSession, user_community: UserCommunityAssociation):
+    most_recent_post = await get_most_recent_user_community_post(session, user_community.user_id, user_community.community_id)
+    if most_recent_post and most_recent_post.created_at > datetime.now(UTC) - timedelta(days=1):
+        return False
+    return True

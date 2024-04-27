@@ -1,3 +1,4 @@
+from models.post import Post
 from models.tag import Tag
 from models.user import User
 from models.community import Community
@@ -200,7 +201,7 @@ async def seed_data(session: AsyncSession):
     user3 = User(
         id = "018f16f6-d2c1-797c-aee3-8afc04206318",
         username = "pupper0n1",
-        first_name = "W",
+        first_name = "Wilbs",
         last_name = "Elbouni",
         email = "w.elbouni@email.com",
         password = ph.hash("password"),
@@ -274,6 +275,28 @@ async def seed_data(session: AsyncSession):
         posts = []
     )
 
+    user10 = User(
+        id = "018f16f6-d2c1-797c-aee3-8afc04206624",
+        username = "BigAl",
+        first_name = "Alan",
+        last_name = "Turing",
+        email = "alan.turing@email.com",
+        password = ph.hash("password"),
+        communities = [],
+        posts = []
+    )
+
+    user11 = User(
+        id = "018f16f6-d2c1-797c-aee4-8afc04206625",
+        username = "Tim",
+        first_name = "Tim",
+        last_name = "Berners-Lee",
+        email = "tim.blee@email.com",
+        password = ph.hash("password"),
+        communities = [],
+        posts = []
+    )
+
     session.add_all([
         user1,
         user2,
@@ -309,7 +332,7 @@ async def seed_data(session: AsyncSession):
 
     guitar_club = Community(
         id = "00000000-0000-0000-0000-000000000003",
-        name = "Guitar Club",
+        name = "Guitar Gurus",
         description = "A community for guitarists to share music and tips.",
         public = True,
         users = [],
@@ -329,7 +352,7 @@ async def seed_data(session: AsyncSession):
 
     hiking_club = Community(
         id = "00000000-0000-0000-0000-000000000006",
-        name = "Hiking Club",
+        name = "Hiking Hangout",
         description = "A community for hikers to share trails and experiences.",
         public = True,
         users = [],
@@ -352,7 +375,18 @@ async def seed_data(session: AsyncSession):
         season_xp = 850
     )
 
-    user_2_paintpals = UserCommunityAssociation(
+    user_1_fitness_fanatics = UserCommunityAssociation(
+        user_id = user1.id,
+        community_id = fitness_fanatics.id,
+        role = "admin",
+        community_name = fitness_fanatics.name,
+        current_days = 0,
+        goal_days = 5,
+        streak = 852,
+        season_xp = 16800
+    )
+
+    user_3_paintpals = UserCommunityAssociation(
         user_id = user2.id,
         community_id = paint_pals.id,
         role = "member",
@@ -362,6 +396,16 @@ async def seed_data(session: AsyncSession):
         season_xp = 150
     )
 
+    user_3_fitness_fanatics = UserCommunityAssociation(
+        user_id = user3.id,
+        community_id = fitness_fanatics.id,
+        role = "member",
+        community_name = fitness_fanatics.name,
+        current_days = 0,
+        goal_days = 2,
+        season_xp = 200
+    )
+
     user_3_paintpals = UserCommunityAssociation(
         user_id = user3.id,
         community_id = paint_pals.id,
@@ -369,7 +413,7 @@ async def seed_data(session: AsyncSession):
         community_name = paint_pals.name,
         current_days = 0,
         goal_days = 5,
-        season_xp = 200
+        season_xp = 200,
     )
 
     user_4_paintpals = UserCommunityAssociation(
@@ -379,7 +423,9 @@ async def seed_data(session: AsyncSession):
         community_name = paint_pals.name,
         current_days = 0,
         goal_days = 4,
-        season_xp = 300
+        season_xp = 300,
+        tier = "Mars"
+
     )
 
     user_5_paintpals = UserCommunityAssociation(
@@ -389,7 +435,8 @@ async def seed_data(session: AsyncSession):
         community_name = paint_pals.name,
         current_days = 0,
         goal_days = 2,
-        season_xp = 200
+        season_xp = 200,
+        tier = "Mars"
     )
 
     user_6_paintpals = UserCommunityAssociation(
@@ -399,7 +446,8 @@ async def seed_data(session: AsyncSession):
         community_name = paint_pals.name,
         current_days = 0,
         goal_days = 3,
-        season_xp = 100
+        season_xp = 100,
+        tier = "Mars"
     )
 
     user_7_paintpals = UserCommunityAssociation(
@@ -409,35 +457,139 @@ async def seed_data(session: AsyncSession):
         community_name = paint_pals.name,
         current_days = 0,
         goal_days = 4,
-        season_xp = 500
+        season_xp = 500,
+        tier = "Jupiter"
     )
 
 
     user_8_paintpals = UserCommunityAssociation(
-        user_id = user7.id,
+        user_id = user8.id,
         community_id = paint_pals.id,
         role = "member",
         community_name = paint_pals.name,
         current_days = 0,
         goal_days = 4,
-        season_xp = 0
+        season_xp = 0,
+        tier = "Jupiter"
     )
 
     user_9_paintpals = UserCommunityAssociation(
-        user_id = user7.id,
+        user_id = user9.id,
         community_id = paint_pals.id,
         role = "member",
         community_name = paint_pals.name,
         current_days = 2,
         goal_days = 4,
-        season_xp = 100
+        season_xp = 100,
+        tier = "Jupiter"
     )
 
-    session.add_all([user_1_paintpals, user_2_paintpals, user_3_paintpals, user_4_paintpals, user_5_paintpals])
+    session.add_all([user_1_paintpals, user_1_fitness_fanatics, user_3_fitness_fanatics, user_3_paintpals, user_4_paintpals, user_5_paintpals, user_6_paintpals, user_7_paintpals, user_8_paintpals, user_9_paintpals])
     
 
+    post_1_paintpals = Post(
+        id = "10000000-0000-0000-0000-000000000000",
+        title = "My latest painting",
+        caption = "I'm really proud of how this one turned out!",
 
+        user_id = user1.id,
+        community_id = paint_pals.id,
+        file = "10000000-0000-0000-0000-000000000000.jpg" # Image from Avi Richards on Unsplash
+    )
+
+    post_2_paintpals = Post(
+        id = "10000000-0000-0000-0000-000000000001",
+        title = "Finished my first painting!",
+        caption = "Very happy with the result. What do you think?",
+        user_id = user1.id,
+        community_id = paint_pals.id,
+        file = "10000000-0000-0000-0000-000000000001.jpg" 
+    )
+
+    post_3_paintpals = Post(
+        id = "10000000-0000-0000-0000-000000000002",
+        title = "My latest drawing",
+        caption = "I'm really proud of how this one turned out!",
+        user_id = user1.id,
+        community_id = paint_pals.id,
+        file = "10000000-0000-0000-0000-000000000002.jpg"
+    )
+
+    post_4_paintpals = Post(
+        id = "10000000-0000-0000-0000-000000000003",
+        title = "My latest painting",
+        caption = "I'm really proud of how this one turned out!",
+        user_id = user2.id,
+        community_id = paint_pals.id,
+        file = "10000000-0000-0000-0000-000000000003.jpg"
+    )
+
+    post_5_paintpals = Post(
+        id = "10000000-0000-0000-0000-000000000004",
+        title = "My latest painting",
+        caption = "I'm really proud of how this one turned out!",
+        user_id = user3.id,
+        community_id = paint_pals.id,
+        file = "10000000-0000-0000-0000-000000000004.jpg"
+    )
+
+    post_6_paintpals = Post(
+        id = "10000000-0000-0000-0000-000000000005",
+        title = "My latest painting",
+        caption = "I'm really proud of how this one turned out!",
+        user_id = user3.id,
+        community_id = paint_pals.id,
+        file = "10000000-0000-0000-0000-000000000005.jpg"
+    )
+  
+
+    post_7_paintpals = Post(
+        id = "10000000-0000-0000-0000-000000000006",
+        title = "My latest painting",
+        caption = "I'm really proud of how this one turned out!",
+        user_id = user3.id,
+        community_id = paint_pals.id,
+        file = "10000000-0000-0000-0000-000000000006.jpg"
+    )
+
+
+    post_8_paintpals = Post(
+        id = "10000000-0000-0000-0000-000000000007",
+        title = "My latest painting",
+        caption = "I'm really proud of how this one turned out!",
+        user_id = user3.id,
+        community_id = paint_pals.id,
+        file = "10000000-0000-0000-0000-000000000007.jpg"
+    )
+
+
+    post_9_paintpals = Post(
+        id = "10000000-0000-0000-0000-000000000008",
+        title = "My latest painting",
+        caption = "I'm really proud of how this one turned out!",
+        user_id = user3.id,
+        community_id = paint_pals.id,
+        file = "10000000-0000-0000-0000-000000000008.jpg"
+    )
+
+    session.add_all([post_1_paintpals, post_2_paintpals, post_3_paintpals, post_4_paintpals, post_5_paintpals, post_6_paintpals, post_7_paintpals, post_8_paintpals, post_9_paintpals])
+
+
+
+# class Post(UUIDAuditBase):
+#     __tablename__ = 'post_table'
     
+#     title: Mapped[str] = mapped_column(String(100))
+#     caption: Mapped[str] = mapped_column(String(100))
+
+#     user_id: Mapped[UUID] = mapped_column(ForeignKey('user_table.id'))
+#     community_id: Mapped[UUID] = mapped_column(ForeignKey('community_table.id'))
+#     # user: Mapped['User'] = relationship('User', back_populates='posts')    
+
+#     file: Mapped[str] = mapped_column(String(100))
+
+
+
 # class Community(UUIDAuditBase):
 #     __tablename__ = 'community_table'
     

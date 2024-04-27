@@ -39,6 +39,11 @@ class UserCommunityAssociationDTO(PydanticDTO[UserCommunityAssociationSchema]):
 class UserCommunityAssociationSchemaViewDTO(PydanticDTO[UserCommunityAssociationSchemaView]):
     pass
 
+class UserCommunityAssociationCanPostSchema(UserCommunityAssociationSchema):
+    can_post: bool
+
+class UserCommunityAssociationCanPostDTO(PydanticDTO[UserCommunityAssociationCanPostSchema]):
+    pass
 
 class LeaderboardSchema(UserCommunityAssociationSchema):
     username: str

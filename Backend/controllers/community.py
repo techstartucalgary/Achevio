@@ -4,6 +4,7 @@ from typing import Optional, Any, Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from litestar import Response, Request, delete, get, post, put, patch, MediaType
 from litestar import Controller
+from crud.post import get_most_recent_community_post
 from schemas.users import BasicUserOutDTO, UserSchema
 from crud.users import get_user_by_id
 from litestar.datastructures import UploadFile
@@ -12,7 +13,7 @@ from schemas.community import *
 from crud.community import * 
 from litestar.dto import DTOData
 from litestar.enums import RequestEncodingType
-import datetime
+from datetime import datetime, UTC, timedelta
 import pytz
 from uuid_extensions import uuid7
 import shutil
@@ -24,7 +25,6 @@ from crud.users import user_join_community, user_leave_community
 import aiofiles
 from pathlib import Path
 from schemas.user_community_association import LeaderboardDTO, LeaderboardSchema
-
 import os
 
 class CommunityController(Controller):
@@ -58,7 +58,7 @@ class CommunityController(Controller):
         Raises:
             HTTPException: If there's an error in creating the community.
         '''
-        current_time = datetime.datetime.now(pytz.utc)
+        current_time = datetime.now(pytz.utc)
 
         commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time, postdays=[], tags=[])
         validated_community_data = CommunitySchema.model_validate(commiunity_data)
@@ -246,3 +246,17 @@ class CommunityController(Controller):
     @get('{communityID:str}/leaderboard', exclude_from_auth=True, return_dto=LeaderboardDTO)
     async def get_leaderboard(self, session: AsyncSession, communityID: str) -> list[LeaderboardSchema]:
         return [LeaderboardSchema(**d.__dict__, username=(await get_user_by_id(session, d.user_id)).username) for d in await get_leaderboard(session, communityID)]
+    
+
+    @get('/canPost', return_dto=CanPostCommunityOutDTO)
+    async def can_post(self, request: 'Request[User, Token, Any]', session: AsyncSession) -> list[CommunitySchema]:
+        user = await get_user_by_id(session, request.user)
+        user_communities = await get_user_community_association_by_user_id(session, user.id)
+        can_post_user_communities = [user_community for user_community in user_communities if await user_can_post_community(session, user_community)]
+        can_post_communities = select(Community).options(orm.selectinload(Community.tags)).where(Community.id.in_([user_community.community_id for user_community in can_post_user_communities]))
+        result = await session.execute(can_post_communities)
+        can_post_communities = result.scalars().all()
+        print(can_post_communities)
+        return can_post_communities
+            
+    

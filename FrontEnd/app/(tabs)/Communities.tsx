@@ -14,16 +14,16 @@ import {
 } from "react-native";
 import { getDayOfYear, getISODay, set } from "date-fns";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import uuid from "react-native-uuid";
 import { useSelector, useDispatch } from "react-redux";
 import { ref } from "yup";
-import { Image } from "expo-image";
+import { Image, ImageBackground } from "expo-image";
 const fire = require("../../assets/images/Fire.png");
 import LottieView from "lottie-react-native";
 import { ScreenHeight, ScreenWidth } from "react-native-elements/dist/helpers";
+import TutorialSteps from "../../components/TutorialMode";
 
 const ReactionMenu = ({ showReactionMenu, setShowReactionMenu }) => {
   const handleReactionPress = (reaction) => {
@@ -138,7 +138,7 @@ const PostDetailsModal = ({ post, isVisible, onClose, onComment }) => {
               source={{ uri: post.imageUri }}
               style={styles.modalPostImage}
               cachePolicy="memory-disk"
-            ></Image>
+            />
             {showReactionMenu && (
               <ReactionMenu
                 showReactionMenu={showReactionMenu}
@@ -183,7 +183,16 @@ const Communities = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { url } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
-
+  const doneTutorial = useSelector((state: any) => state.user.me.done_tutorial);
+  const [showTutorial, setShowTutorial] = useState(!doneTutorial);
+  useEffect(() => {
+    if (doneTutorial) {
+      setShowTutorial(false);
+    }
+  }, [doneTutorial]);
+   const completeTutorial = () => {
+    setShowTutorial(false);
+  };
   const fetchCommunities = useCallback(async () => {
     try {
       const response = await axios.get(`${url}/user/myCommunities`);
@@ -200,7 +209,7 @@ const Communities = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [url]);
+  }, []);
   const fetchPosts = useCallback(async () => {
     try {
       // Fetch posts from your API
@@ -301,67 +310,72 @@ const Communities = () => {
   };
   // Component for rendering community items
   const renderCommunityItem = ({ item }) => (
-    console.log("items", item),
-    (
-      <TouchableOpacity
-        style={styles.communityItem}
-        onPress={() => {
-          router.push({
-            pathname: "/(pages)/CommunitiesPage", // The route name
-            params: {
-              communityId: item.community_id,
-              communityName: item.name,
-              communityStreak: item.streak,
-              communityTags: item.tags.map((tag) => {
-                return tag.name + " " + tag.color;
-              }),
-              communityImage: `${url}/community/image/${item.community_id}.jpg`,
-            }, // Parameters as an object
-          });
-        }}
-      >
-        <Image
-          source={{ uri: `${url}/community/image/${item.community_id}.jpg` }}
-          style={styles.communityItemBackground}
-          cachePolicy="memory-disk"
+    <TouchableOpacity
+      style={styles.communityItem}
+      onPress={() => {
+        router.push({
+          pathname: "/(pages)/CommunitiesPage", // The route name
+          params: {
+            communityId: item.community_id,
+            communityName: item.name,
+            communityStreak: item.streak,
+            communityTags: item.tags.map((tag) => {
+              return tag.name + " " + tag.color;
+            }),
+            communityImage: `${url}/community/image/${item.community_id}.jpg`,
+          }, // Parameters as an object
+        });
+      }}
+    >
+      <ImageBackground
+        source={{ uri: `${url}/community/image/${item.community_id}.jpg` }}
+        style={styles.communityItemBackground}
+        cachePolicy="memory-disk"
         >
-          {item.streak &&
+        {item.streak > 0 && (
           <>
-          <LottieView
-            source={require("../../assets/images/fire.json")}
-            autoPlay
-            loop
-            style={{ width: 100, height:150, position: "absolute", top: -3, right: -8, zIndex:1}}
-          />
-          <Text style={styles.communityStreak}>{item.streak}</Text>
+            <LottieView
+              source={require("../../assets/images/fire.json")}
+              autoPlay
+              loop
+              style={{
+                width: 100,
+                height: 150,
+                position: "absolute",
+                top: -3,
+                right: -8,
+                zIndex: 1,
+              }}
+            />
+            <Text style={styles.communityStreak}>{item.streak}</Text>
           </>
-          }
-          <Text style={styles.communityTitle}>{item.name}</Text>
-          <View style={styles.textOverlay}>
-            <View style={{ flexDirection: "row" }}>
-              {item.tags.map((tag, index) => (
-                <Text
-                  style={[
-                    styles.communityTags,
-                    {
-                      backgroundColor: tag.color,
-                      borderRadius: 10,
-                      textAlign: "center",
-                      padding: 2,
-                      marginHorizontal: 2,
-                    },
-                  ]}
-                  key={`${tag.name}_${index}`}
-                >
-                  {tag.name + " "}
-                </Text> // Use a combination of name and index
-              ))}
-            </View>
+        )}
+        <Text style={styles.communityTitle}>{item.name}</Text>
+        <View style={styles.textOverlay}>
+          <View style={{ flexDirection: "row" }}>
+            {item.tags.map((tag, index) => (
+              <Text
+                style={[
+                  styles.communityTags,
+                  {
+                    backgroundColor: tag.color,
+                    borderRadius: 10,
+                    textAlign: "center",
+                    padding: 2,
+                    marginHorizontal: 2,
+                  },
+                ]}
+                key={`${tag.name}_${index}`}
+              >
+                {tag.name + " "}
+              </Text> // Use a combination of name and index
+            ))}
           </View>
-        </Image>
-      </TouchableOpacity>
-    )
+        </View>
+      </ImageBackground>
+    </TouchableOpacity>
   );
+
   const handleCreateCommunity = () => {
     router.push({
       pathname: "/(pages)/CreateCommunities", // The route name
@@ -406,55 +420,58 @@ const Communities = () => {
       {isLoading ? (
         <ActivityIndicator />
       ) : (
-<>
-        <StatusBar barStyle="light-content" />
-        <LottieView
-          source={require("../../assets/background_space.json")}
-          autoPlay
-          loop
-          style={{
-            position: 'absolute', // Set position to absolute
-            width: ScreenWidth,    // Cover the entire width
-            height: ScreenHeight,  // Cover the entire height
-            zIndex: -1,            // Ensure it stays behind other components
-          }}
-        />
-        <View style={styles.container}>
-          <FlatList
-            ListHeaderComponent={ListHeader}
-            data={communities}
-            renderItem={renderCommunityItem}
-            keyExtractor={(item) => item.key}
-            style={styles.container}
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-          />
-          <TouchableOpacity
-            onPress={handleCreateCommunity}
-            style={styles.createCommunityButton}
-          >
-            <Text style={styles.communityTitle}>Create Community</Text>
-          </TouchableOpacity>
-          {selectedPost && (
-            <PostDetailsModal
-              post={selectedPost}
-              isVisible={modalVisible}
-              onComment={() => setCommentsModalVisible(!commentsModalVisible)}
-              onClose={() => setModalVisible(false)}
-            />
+        <>
+          <StatusBar barStyle="light-content" />
+          {showTutorial && (
+            <TutorialSteps visible={showTutorial} pageContext="community" />
           )}
-          <CommentModal
-            isVisible={commentsModalVisible}
-            onClose={() => setCommentsModalVisible(false)}
+          <LottieView
+            source={require("../../assets/background_space.json")}
+            autoPlay
+            loop
+            style={{
+              position: "absolute", // Set position to absolute
+              width: ScreenWidth, // Cover the entire width
+              height: ScreenHeight, // Cover the entire height
+              zIndex: -1, // Ensure it stays behind other components
+            }}
           />
-        </View>
-      </>
+          <View style={styles.container}>
+            <FlatList
+              ListHeaderComponent={ListHeader}
+              data={communities}
+              renderItem={renderCommunityItem}
+              keyExtractor={(item) => item.key}
+              style={styles.container}
+              showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              }
+            />
+            <TouchableOpacity
+              onPress={handleCreateCommunity}
+              style={styles.createCommunityButton}
+            >
+              <Text style={styles.communityTitle}>Create Community</Text>
+            </TouchableOpacity>
+            {selectedPost && (
+              <PostDetailsModal
+                post={selectedPost}
+                isVisible={modalVisible}
+                onComment={() => setCommentsModalVisible(!commentsModalVisible)}
+                onClose={() => setModalVisible(false)}
+              />
+            )}
+            <CommentModal
+              isVisible={commentsModalVisible}
+              onClose={() => setCommentsModalVisible(false)}
+            />
+          </View>
+        </>
       )}
     </>
   );
-}
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -559,14 +576,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   communityStreak: {
-    position: "absolute",
-    top: 90,
-    right:15,
+    position: "relative",
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
     zIndex: 2,
     textAlign: "center",
+    bottom: -25,
+    right: -169,
   },
   createCommunityButton: {
     backgroundColor: "#1e1e1e",

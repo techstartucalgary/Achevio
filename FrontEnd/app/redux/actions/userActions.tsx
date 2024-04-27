@@ -4,12 +4,25 @@ export const SET_THEME = "SET_THEME";
 export const SET_USERID = "SET_USERID";
 export const SET_ACCESS_TOKEN = "SET_ACCESS_TOKEN";
 export const SET_ME = "SET_ME";
+export const SET_DONE_TUTORIAL = "SET_DONE_TUTORIAL";
+export const SET_JOINED_COM = 'SET_JOINED_COM';
 
 enum Theme {
   Light = "light",
   Dark = "dark",
 }
-
+export const setDoneTutorial = (done: boolean) => (dispatch) => {
+  dispatch({
+    type: SET_DONE_TUTORIAL,
+    payload: done,
+  });
+};
+export const setJoinedCom = (joined: boolean) => (dispatch) => {
+  dispatch({
+    type: SET_JOINED_COM,
+    payload: joined,
+  });
+}
 export const setMe = (me: string) => (dispatch) => {
   dispatch({
     type: SET_ME,

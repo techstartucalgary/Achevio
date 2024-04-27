@@ -1,11 +1,14 @@
-import { SET_URL, SET_USERNAME, SET_THEME, SET_USERID, SET_ACCESS_TOKEN, SET_ME } from "../actions/userActions";
+import { SET_URL, SET_USERNAME, SET_THEME, SET_USERID, SET_ACCESS_TOKEN, SET_ME, SET_DONE_TUTORIAL,SET_JOINED_COM  } from "../actions/userActions";
 const initialState = {
-    url: "http://192.168.18.31:8002",
+    url: "http://192.168.120.31:8002",
     username: "",
     theme: "dark",  
     userId: "",
     accessToken: "",
-    me:"",
+    me: {
+        done_tutorial: false,
+        joined_com: false, // Default state
+    }
 };
 export interface UserState {
     url: string;
@@ -29,6 +32,22 @@ function userReducer(state = initialState, action) {
             return { ...state, accessToken: action.payload}
         case SET_ME:
             return { ...state, me: action.payload}
+        case SET_DONE_TUTORIAL:
+            return {
+                ...state,
+                me: {
+                ...state.me,
+                done_tutorial: action.payload as boolean
+                }
+            };
+            case SET_JOINED_COM:
+                return {
+                    ...state,
+                    me: {
+                        ...state.me,
+                        joined_com: action.payload as boolean
+                    }
+                };
         default:
             return state;
     }

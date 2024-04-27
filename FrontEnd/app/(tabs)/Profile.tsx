@@ -9,7 +9,6 @@ import {
   Alert,
   RefreshControl,
   Pressable,
-  ImageBackground,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -18,9 +17,13 @@ import { useSelector, useDispatch } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
 import { AreYouSure } from "../../components/PopUpMessages";
 import { setUserId } from "../redux/actions/userActions";
-import { Image } from 'expo-image';
+import { Image, ImageBackground } from "expo-image";
 import { persistor, resetAndFlushStore } from "../redux/store/store";
 import { Icon } from "react-native-elements";
+import ActivityGrid from "../../components/ActivityChart";
+import MyBarChart from "../../components/Progress";
+import MyProgressChart from "../../components/Progress";
+
 
 // Dummy fallback data
 const fallbackData = {
@@ -71,23 +74,17 @@ const updateNotificationSettings = async (isEnabled) => {
   console.log(`API call to update notifications: ${isEnabled}`);
 };
 const ProfilePage: React.FC = () => {
-  const { url, userId, username, theme, me } = useSelector((state: any) => state.user);
+  const { url, userId, username, theme, me } = useSelector(
+    (state: any) => state.user
+  );
   const xp = me.xp; // Assuming XP is directly accessible from 'me' object
+  // Example of an exponentially increasing requirement
+  let currentLevel = Math.floor(xp / 100);
+  let xpNextLevel = 100 * Math.pow(1.2, currentLevel); // Each level requires 20% more XP than the last
+  let xpCurrentLevel = (100 * (Math.pow(1.2, currentLevel) - 1)) / 0.2; // Sum of a geometric series
+  let progress = (xp - xpCurrentLevel) / (xpNextLevel - xpCurrentLevel);
+  progress = Math.min(progress, 1); // Ensure progress does not exceed 100%
 
-  // Ensure XP is above the base level of 200 to proceed with calculations
-  const baseXP = 200;
-  const xpForCalculation = xp - baseXP;
-
-  let currentLevel = 0;
-  let xpNextLevel = 100;
-  let progress = 0;
-
-  if (xpForCalculation > 0) {
-    currentLevel = Math.log(xpForCalculation / 100) / Math.log(1.05);
-    xpNextLevel = 100 * Math.pow(1.05, Math.floor(currentLevel) + 2) + baseXP;
-    const xpCurrentLevel = 100 * Math.pow(1.05, Math.floor(currentLevel) + 1) + baseXP;
-    progress = (xp - xpCurrentLevel) / (xpNextLevel - xpCurrentLevel);
-  }
   const [profileData, setProfileData] = useState(fallbackData);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [userIDAgain, setUserIDAgain] = useState("");
@@ -105,10 +102,93 @@ const ProfilePage: React.FC = () => {
   };
   useEffect(() => {
     console.log("your xp is ", xp);
+  }, []);
+  const [radarData, setRadarData] = useState([]);
 
-  }
-  , []);
+  const activityData = [
+    { date: "2024-04-1", count: 5 },
+    { date: "2024-04-23", count: 4 },
+    { date: "2024-04-29", count: 3 },
+    { date: "2024-04-3", count: 2 },
+    { date: "2024-04-5", count: 1 },
+    { date: "2024-04-6", count: 2 },
+    { date: "2024-04-7", count: 4 },
+    { date: "2024-04-8", count: 5 },
+    { date: "2024-04-9", count: 6 },
+    { date: "2024-04-10", count: 1 },
+    { date: "2024-04-11", count: 4 },
+    { date: "2024-04-12", count: 6 },
+    { date: "2024-04-13", count: 2 },
+    { date: "2024-04-14", count: 4 },
+    { date: "2024-04-15", count: 3 },
+    { date: "2024-04-16", count: 1 },
+    { date: "2024-04-17", count: 2 },
+    { date: "2024-04-18", count: 5 },
+    { date: "2024-04-19", count: 3 },
+    { date: "2024-04-20", count: 2 },
+    { date: "2024-03-2", count: 4 },
+    { date: "2024-03-3", count: 5 },
+    { date: "2024-03-4", count: 6 },
+    { date: "2024-03-5", count: 2 },
+    { date: "2024-03-6", count: 3 },
+    { date: "2024-03-7", count: 4 },
+    { date: "2024-03-8", count: 5 },
+    { date: "2024-03-9", count: 6 },
+    { date: "2024-03-10", count: 1 },
+    { date: "2024-03-11", count: 2 },
+    { date: "2024-03-12", count: 3 },
+    { date: "2024-03-13", count: 4 },
+    { date: "2024-03-14", count: 5 },
+    { date: "2024-03-15", count: 6 },
+    { date: "2024-03-16", count: 1 },
+    { date: "2024-03-17", count: 2 },
+    { date: "2024-03-18", count: 3 },
+    { date: "2024-03-19", count: 4 },
+    { date: "2024-03-20", count: 5 },
+    { date: "2024-03-21", count: 6 },
+    { date: "2024-03-22", count: 1 },
+    { date: "2024-03-23", count: 2 },
+    { date: "2024-03-24", count: 3 },
+    { date: "2024-03-25", count: 4 },
+    { date: "2024-03-26", count: 5 },
+    { date: "2024-03-27", count: 6 },
+    { date: "2024-03-28", count: 1 },
+    { date: "2024-03-29", count: 2 },
+    { date: "2024-03-30", count: 3 },
+    { date: "2024-02-01", count: 4 },
+    { date: "2024-02-02", count: 5 },
+    { date: "2024-02-03", count: 6 },
+    { date: "2024-02-04", count: 2 },
+    { date: "2024-02-05", count: 3 },
+    { date: "2024-02-06", count: 4 },
+    { date: "2024-02-07", count: 5 },
+    { date: "2024-02-08", count: 6 },
+    { date: "2024-02-09", count: 1 },
+    { date: "2024-02-10", count: 2 },
+    { date: "2024-02-11", count: 3 },
+    { date: "2024-02-12", count: 4 },
+    { date: "2024-02-13", count: 5 },
+    { date: "2024-02-14", count: 6 },
+    { date: "2024-02-15", count: 1 },
+    { date: "2024-02-16", count: 2 },
+    { date: "2024-02-17", count: 3 },
+    { date: "2024-02-18", count: 4 },
+    { date: "2024-02-19", count: 5 },
+    { date: "2024-02-20", count: 6 },
+    { date: "2024-02-21", count: 1 },
+    { date: "2024-02-22", count: 2 },
+    { date: "2024-02-23", count: 3 },
+    { date: "2024-02-24", count: 4 },
+    { date: "2024-02-25", count: 5 },
+    { date: "2024-02-26", count: 6 },
+    { date: "2024-02-27", count: 1 },
+    { date: "2024-02-28", count: 2 },
+    { date: "2024-02-29", count: 3 },
+    { date: "2024-01-01", count: 4 },
 
+    // more data
+  ];
+  
   const handleNotificationsToggle = async () => {
     try {
       const response = await updateNotificationSettings(!notificationsEnabled);
@@ -143,7 +223,6 @@ const ProfilePage: React.FC = () => {
       console.log("user_id:", me.id);
 
       if (me) {
-
         console.log(
           `${url}/user/image/${me.id}.jpg?cacheBust=${new Date().getTime()}`
         );
@@ -225,6 +304,42 @@ const ProfilePage: React.FC = () => {
     setAvatarUri(pickerResult.assets[0].uri as string);
     uploadImage(pickerResult.assets[0].uri as string);
   };
+
+  // Radar chart
+
+  const characterData = [
+    { strength: 1, intelligence: 250, luck: 1, stealth: 40, charisma: 50 },
+    { strength: 2, intelligence: 300, luck: 2, stealth: 80, charisma: 90 },
+    { strength: 5, intelligence: 225, luck: 3, stealth: 60, charisma: 120 },
+  ];
+
+  // Function to process data for the radar chart
+  const processData = (data) => {
+    const maxima = data.reduce(
+      (max, curr) => {
+        return {
+          strength: Math.max(max.strength, curr.strength),
+          intelligence: Math.max(max.intelligence, curr.intelligence),
+          luck: Math.max(max.luck, curr.luck),
+          stealth: Math.max(max.stealth, curr.stealth),
+          charisma: Math.max(max.charisma, curr.charisma),
+        };
+      },
+      { strength: 0, intelligence: 0, luck: 0, stealth: 0, charisma: 0 }
+    );
+
+    return data.map((datum) => {
+      return {
+        strength: datum.strength / maxima.strength,
+        intelligence: datum.intelligence / maxima.intelligence,
+        luck: datum.luck / maxima.luck,
+        stealth: datum.stealth / maxima.stealth,
+        charisma: datum.charisma / maxima.charisma,
+      };
+    });
+  };
+
+  const chartData = processData(characterData);
   return (
     <ScrollView
       style={styles.container}
@@ -234,35 +349,52 @@ const ProfilePage: React.FC = () => {
       showsVerticalScrollIndicator={false}
     >
       <View style={{ alignItems: "center" }}>
-
-        <ImageBackground source={{ uri: avatarUri }}style={styles.headerContainer}>
-        <Text style={styles.title}>Profile</Text>
-        <Text style={styles.username}>{username}</Text>
-        <TouchableOpacity
-          onPressIn={() =>
-            AreYouSure(
-              pickImage,
-              "Are you sure you want to change your profile picture?"
-            )
-          }
+        <ImageBackground
+          source={{ uri: avatarUri }}
+          style={styles.headerContainer}
+          cachePolicy="memory-disk"
         >
-          <Image source={{ uri: avatarUri }} style={styles.avatar} cachePolicy="memory"/>
-
-        </TouchableOpacity>
-        <TouchableOpacity style={{ position:"absolute", top: 50, right: 10, zIndex:100 }} onPress={() => router.push("/(Settings)/MainSettingsPage")}>
-        <Icon name="settings" size={30} color="white"/>
+          <Text style={styles.title}>Profile</Text>
+          <Text style={styles.username}>{username}</Text>
+          <TouchableOpacity
+            onPressIn={() =>
+              AreYouSure(
+                pickImage,
+                "Are you sure you want to change your profile picture?"
+              )
+            }
+          >
+            <Image
+              source={{ uri: avatarUri }}
+              style={styles.avatar}
+              cachePolicy="memory-disk"
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ position: "absolute", top: 50, right: 10, zIndex: 100 }}
+            onPress={() => router.push("/(Settings)/MainSettingsPage")}
+          >
+            <Icon name="settings" size={30} color="white" />
           </TouchableOpacity>
         </ImageBackground>
         <View style={styles.progressContainer}>
           <View style={styles.progressBar}>
-            <View style={[styles.progress, { width: `${100 * Math.max(0, Math.min(1, progress))}%` }]}>
-            </View>
-            <Text style={styles.progressLabel}>{`Level ${Math.floor(currentLevel) + 1}: ${Math.floor(progress * 100)}%`}</Text>
+            <View
+              style={[
+                styles.progress,
+                { width: `${100 * Math.max(0, Math.min(1, progress))}%` },
+              ]}
+            ></View>
+            <Text
+              style={styles.progressLabel}
+            >{`Level ${Math.floor(currentLevel) + 1}: ${Math.floor(progress * 100)}%`}</Text>
           </View>
         </View>
+        <Text style={styles.title}>User Activity Overview</Text>
+      <ActivityGrid activityData={activityData} />
+      <MyProgressChart/>
+      {/* <MyBarChart data={radarData}/> */}
       </View>
-
-
     </ScrollView>
   );
 };
@@ -276,7 +408,6 @@ const styles = StyleSheet.create({
     height: 220,
     marginBottom: 30,
     width: "100%",
-
   },
   progressContainer: {
     width: "90%",
@@ -295,7 +426,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#555",
     borderRadius: 10,
     right: 10,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   progress: {
     height: "100%",

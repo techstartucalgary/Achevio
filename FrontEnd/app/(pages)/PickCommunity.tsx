@@ -27,6 +27,7 @@ const SelectCommunities = () => {
   const photoUri = params.photoUri;
   const caption = params.caption;
   const title = params.title;
+  const location = params.location;
   const { url, username } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
 
@@ -59,7 +60,10 @@ const SelectCommunities = () => {
     } as any);
     formData.append("title", title as string);
     formData.append("caption", caption as string);
+    // formData.append("longitude", (location as any).coords.longitude.toString());
+    // formData.append("latitude", (location as any).coords.latitude.toString());
     formData.append("communities_id", selectedCommunities.join(","));
+    console.log("Form data:", formData);
     axios
       .post(`${url}/posts`, formData, {
         headers: {

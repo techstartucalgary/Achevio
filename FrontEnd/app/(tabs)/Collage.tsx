@@ -105,7 +105,8 @@ const Collage = () => {
             zIndex: -1,            // Ensure it stays behind other components
           }}
         />
-    {postsData ? (
+    {postsData.length>0 ? (
+      console.log("Posts data:", postsData),
       <ScrollView>
       {postsData.map((section, index) => (
         <View key={index}>{renderSection({ section })}</View>

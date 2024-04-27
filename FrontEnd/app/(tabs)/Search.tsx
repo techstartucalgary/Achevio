@@ -13,12 +13,14 @@ import {
   RefreshControl,
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { router, useFocusEffect } from "expo-router";
-import { Image } from "expo-image";
-import LottieView from 'lottie-react-native';
+import { Image, ImageBackground } from "expo-image";
+import LottieView from "lottie-react-native";
 import { ScreenHeight, ScreenWidth } from "react-native-elements/dist/helpers";
+import TutorialSteps from "../../components/TutorialMode";
+
 
 type TagProps = {
   text: string;
@@ -92,7 +94,17 @@ const Search: React.FC = () => {
   });
   const [filteredData, setFilteredData] = useState([]);
   const [activeTab, setActiveTab] = useState("forYou");
-
+  const doneTutorial = useSelector((state: any) => state.user.me.done_tutorial);
+  const [showTutorial, setShowTutorial] = useState(!doneTutorial);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (doneTutorial) {
+      setShowTutorial(false);
+    }
+  }, [doneTutorial]);
+   const completeTutorial = () => {
+    setShowTutorial(false);
+  };
   const toggleTag = (tagName: string) => {
     if (selectedTags.includes(tagName)) {
       setSelectedTags(selectedTags.filter((tag) => tag !== tagName));
@@ -191,16 +203,20 @@ const Search: React.FC = () => {
     <>
       <StatusBar barStyle="dark-content" />
       <LottieView
-          source={require("../../assets/background_space.json")}
-          autoPlay
-          loop
-          style={{
-            position: 'absolute', // Set position to absolute
-            width: ScreenWidth,    // Cover the entire width
-            height: ScreenHeight,  // Cover the entire height
-            zIndex: -1,            // Ensure it stays behind other components
-          }}
-        />
+        source={require("../../assets/background_space.json")}
+        autoPlay
+        loop
+        style={{
+          position: "absolute", // Set position to absolute
+          width: ScreenWidth, // Cover the entire width
+          height: ScreenHeight, // Cover the entire height
+          zIndex: -1, // Ensure it stays behind other components
+        }}
+      />
+      {showTutorial && (
+        <TutorialSteps visible={showTutorial} pageContext="search" />
+      )}
+
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <ScrollView
           style={styles.container}
@@ -303,7 +319,7 @@ const Search: React.FC = () => {
                     });
                   }}
                 >
-                  <Image
+                  <ImageBackground
                     source={{ uri: `${url}/community/image/${item.id}.jpg` }}
                     style={styles.communityItemBackground}
                     cachePolicy="memory-disk"
@@ -330,7 +346,7 @@ const Search: React.FC = () => {
                         ))}
                       </View>
                     </View>
-                  </Image>
+                  </ImageBackground>
                 </TouchableOpacity>
               ))}
             </View>

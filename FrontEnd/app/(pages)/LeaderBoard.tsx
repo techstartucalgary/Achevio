@@ -104,6 +104,7 @@ const LeaderboardScreen = () => {
 
     return (
       <View key={user?.id} style={[styles.topUserContainer, userStyles[index]]}>
+        {user?.id ? (
         <View
           style={[
             styles.userAvatarBorder,
@@ -114,7 +115,7 @@ const LeaderboardScreen = () => {
           <Image
             source={{
               uri: `${url}/user/image/${
-                user.id
+                user?.id
               }.jpg?cacheBust=${new Date().getTime()}`,
             }}
             style={styles.userAvatar}
@@ -126,6 +127,10 @@ const LeaderboardScreen = () => {
             />
           )}
         </View>
+        ):(
+          <></>
+        )
+        }
         <Text style={styles.username}>{user?.username}</Text>
         <Text
           style={[

@@ -149,15 +149,26 @@ const Search: React.FC = () => {
     setRefreshing(false);
   }, []);
 
-  const filterByCommunityName = (searchQuery) => {
-    if (filteredData && filteredData.length > 0) {
-      return filteredData.filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    } else {
-      return [];
+  const filterData = (data, query, tags) => {
+    let result = data;
+
+    if (query) {
+      result = result.filter(item => item.name.toLowerCase().includes(query.toLowerCase()));
     }
+
+    if (tags.length > 0) {
+      result = result.filter(item => item.tags.some(tag => tags.includes(tag.name)));
+    }
+
+    setFilteredData(result);
   };
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    filterData(data[activeTab], searchQuery, selectedTags);
+  }, [searchQuery, selectedTags, activeTab, data]);
   useEffect(() => {
     if (activeTab === "forYou") {
       // Fetch data for the "For You" tab

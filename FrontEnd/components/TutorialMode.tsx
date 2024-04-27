@@ -151,8 +151,8 @@ const TutorialSteps = forwardRef(
           return {
             width: 100,
             height: 100,
-            top: 20,
-            right: -2,
+            top: "6%",
+            right: "-1%",
             zIndex: 1000,
           };
 

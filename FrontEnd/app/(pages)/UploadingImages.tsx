@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -11,16 +11,25 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from "react-native";
 import { useSelector } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { Button } from "react-native-elements";
+import { Image } from "expo-image";
 
 const UploadingImages: React.FC = () => {
   const params = useLocalSearchParams();
-  const { communityName, description, postFreq, selectedTags: rawSelectedTags } = params;
+  const {
+    communityName,
+    description,
+    postFreq,
+    selectedTags: rawSelectedTags,
+  } = params;
+  const [backgroundImages, setBackgroundImages] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const parseTags = (tagsString: string) => {
     return tagsString.split(",").map((tag) => {
@@ -28,206 +37,205 @@ const UploadingImages: React.FC = () => {
       return { name, color: `#${color}` };
     });
   };
-  const selectedTags = Array.isArray(rawSelectedTags) ? rawSelectedTags[0] : rawSelectedTags;
+  const selectedTags = Array.isArray(rawSelectedTags)
+    ? rawSelectedTags[0]
+    : rawSelectedTags;
+  useEffect(() => {
+    fetchBackgroundImages();
+  }, []);
 
-  
-  const { url } = useSelector((state: any) => state.user);
-  const handleCreateCommunity = async (formData:any) => {
-    const parsedTags = parseTags(selectedTags); // Make sure selectedTags is a string
-    const tagsPayload = parsedTags.map(tag => ({ name: tag.name, color: tag.color }));
+  const fetchBackgroundImages = async () => {
     try {
-      const res = await axios.post(`${url}/community?goalDays=${postFreq}`, {
-        name: communityName,
-        description,
-        tags: tagsPayload, // Send as an array of objects
-      });
-      const uploadImg = await axios.put(`${url}/community/${res.data.id}/image`, formData, {
-        headers: {
-          "content-type": "multipart/form-data",
-        },
-      });
-      if (res.status === 201 && uploadImg.status === 200) {
-        router.push("/(tabs)/Communities");
-      }
+      const response = await axios.get(`${url}/community/backgroundImages`);
+      const imageUrls = response.data.map((imageId) => ({
+        id: imageId,
+        uri: `${url}/community/image/${imageId}`,
+      }));
+      setBackgroundImages(imageUrls);
     } catch (error) {
-      console.error("Error creating community:", error);
+      console.error("Failed to fetch background images:", error);
     }
   };
 
-  const uploadCommunityImage = async () => {
-    let permissionResult = ImagePicker.requestMediaLibraryPermissionsAsync();
-    permissionResult.then(async (permission) => {
-      if (permission.granted === false) {
-        alert("Permission to access camera roll is required!");
-        return;
+  const { url } = useSelector((state: any) => state.user);
+  const uploadImage = async () => {
+    // Ensure there is a selected image to upload
+    if (!selectedImage) {
+      Alert.alert("Upload Error", "No image selected for upload.");
+      return;
+    }
+
+    const parsedTags = parseTags(selectedTags);
+    const tagsPayload = parsedTags.map((tag) => ({
+      name: tag.name,
+      color: tag.color,
+    }));
+    const payload = {
+      name: communityName,
+          description,
+          tags: tagsPayload,
+    };
+    console.log("Payload:", payload);
+    try {
+      const response = await axios.post(
+        `${url}/community?goalDays=${postFreq}`,
+        {
+          payload,
+          
+        },
+        {
+          headers: {
+            "Content-Type": "application/json", // Ensure headers are set for JSON
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        // If the community is successfully created, then upload the image
+        const communityId = response.data.id; // Ensure you get the correct ID from response
+        let formData = new FormData();
+        // Append the image data to formData; ensure the structure matches what the server expects
+        formData.append("data", {
+          uri: selectedImage.uri,
+          name: "image.jpg",
+          type: "image/jpg",
+        } as any);
+
+        const uploadImg = await axios.put(
+          `${url}/community/${communityId}/image`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        if (uploadImg.status === 200) {
+          router.push("/(tabs)/Communities");
+        } else {
+          throw new Error("Image upload failed");
+        }
+      } else {
+        throw new Error("Community creation failed");
       }
-      let pickerResult = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [16,9],
-        quality: 1,
-      });
-      if (pickerResult.canceled) {
-        return;
-      }
-      let localUri = pickerResult.assets[0].uri;
-      let formData = new FormData();
-      formData.append("data", {
-        uri: localUri,
-        name: "image.jpg",
-        type: "image/jpg",
-      } as any);
-      
-      handleCreateCommunity(formData);
-    });
+    } catch (error) {
+      console.error("Error creating community:", error);
+      Alert.alert(
+        "Creation Error",
+        `An error occurred while creating the community: ${error.message}`
+      );
+    }
   };
+
+  const pickImage = async () => {
+    let permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      alert("Permission to access camera roll is required!");
+      return;
+    }
+
+    let pickerResult = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (pickerResult.canceled) {
+      return;
+    }
+
+    setSelectedImage({ uri: pickerResult.assets[0].uri });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-        <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.keyboardView}
-        >
-            <View style={styles.formContainer}>
-            <TouchableOpacity onPress={uploadCommunityImage} style={[styles.button, {position:"absolute",bottom:0}]}>
-                <Text style={styles.buttonText}>Upload Community Image</Text>
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <Text style={styles.title}>Choose a Background Image</Text>
+        <View style={styles.imageContainer}>
+          {backgroundImages.map((img) => (
+            <TouchableOpacity
+              key={img.id}
+              onPress={() => setSelectedImage(img)}
+              style={styles.imageWrapper}
+            >
+              <Image source={{ uri: img.uri }} style={styles.image} />
             </TouchableOpacity>
-            </View>
-
-        </KeyboardAvoidingView>
+          ))}
+        </View>
+        <Text style={styles.title}>---------- Or ----------</Text>
+        <TouchableOpacity style={styles.button} onPress={pickImage}>
+          <Text style={styles.buttonText}>Upload Your Own Image</Text>
+        </TouchableOpacity>
+        {selectedImage && (
+          <>
+            <Image
+              source={{ uri: selectedImage.uri }}
+              style={styles.previewImage}
+            />
+            <TouchableOpacity style={styles.button} onPress={uploadImage}>
+              <Text style={styles.buttonText}>Confirm Upload</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212", // Dark background color
+    backgroundColor: "#121212",
   },
-  keyboardView: {
-    flex: 1,
-  },
-  formContainer: {
-    flexGrow: 1,
-    alignItems: "center",
-    justifyContent: "center",
+  scrollViewContent: {
     padding: 20,
+    alignItems: "center",
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
+    color: "#FFF",
     fontWeight: "bold",
     marginBottom: 20,
-    color: "#FFF", // Light text color
   },
-  input: {
-    width: "90%",
-    borderWidth: 1,
-    borderColor: "#333", // Darker border color
-    padding: 10,
-    borderRadius: 8,
+  imageContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
+  imageWrapper: {
+    padding: 5,
+    borderRadius: 10,
     margin: 5,
-    color: "#FFF", // Light text color
-    backgroundColor: "#222", // Dark input background
+    borderColor: "#FFF",
+    borderWidth: 1,
   },
-  label: {
-    alignSelf: "flex-start",
-    marginLeft: 5,
-    marginBottom: 5,
-    fontWeight: "bold",
-    color: "#FFF", // Light text color
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+  },
+  previewImage: {
+    width: 300,
+    height: 300,
+    contentFit: "contain",
+    marginVertical: 20,
+    borderRadius: 10,
   },
   button: {
     backgroundColor: "#5C5CFF",
     padding: 15,
-    borderRadius: 8,
-    width: "100%",
+    borderRadius: 10,
+    width: "90%",
     alignItems: "center",
-    margin: 20,
+    marginBottom: 20,
   },
   buttonText: {
-    color: "#FFF", // Light text color
+    color: "#FFF",
     fontWeight: "bold",
     fontSize: 16,
   },
-  tagsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    marginBottom: 20,
-  },
-  tag: {
-    borderWidth: 1,
-    borderColor: "#007bff",
-    borderRadius: 20,
-    padding: 8,
-    margin: 4,
-    backgroundColor: "#222", // Dark tag background
-  },
-  tagSelected: {
-    backgroundColor: "#007bff",
-  },
-  tagText: {
-    color: "#FFF", // Light text color
-    fontSize: 14,
-  },
-  tagTextSelected: {
-    color: "#FFF",
-  },
-  scrollView: {
-    width: "100%",
-  },
-  subtitle: {
-    alignSelf: "flex-start",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 5,
-    color: "#FFF", // Light text color
-  },
-  daysContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    flexWrap: "wrap",
-    marginBottom: 15,
-    paddingHorizontal: 20,
-  },
-  dayButton: {
-    borderWidth: 1,
-    borderColor: "#007bff",
-    borderRadius: 20,
-    padding: 8,
-    margin: 4,
-    backgroundColor: "#222", // Dark day button background
-  },
-  daySelected: {
-    backgroundColor: "#007bff",
-  },
-  dayText: {
-    color: "#FFF", // Light text color
-    fontSize: 14,
-  },
-  dayTextSelected: {
-    color: "#FFF",
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#333", // Darker border color
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 15,
-    width: "100%",
-    backgroundColor: "#222", // Dark input container background
-  },
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: "center",
-    padding: 20,
-  },
-  textArea: {
-    minHeight: 100,
-    textAlignVertical: "top",
-    color: "#FFF", // Light text color
-    backgroundColor: "#222", // Dark text area background
-  },
 });
+
 export default UploadingImages;

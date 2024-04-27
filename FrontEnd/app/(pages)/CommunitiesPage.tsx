@@ -417,9 +417,10 @@ const CommunityPage: React.FC = () => {
               onLongPress={handleLongPress}
               onPressOut={() => setShowReactionMenu(false)}
             >
-              <Image
+              <ImageBackground
                 source={{ uri: post.imageUrl }}
                 style={styles.modalPostImage}
+                cachePolicy="memory-disk"
               />
               {showReactionMenu && <ReactionMenu />}
             </Pressable>
@@ -692,7 +693,7 @@ const CommunityPage: React.FC = () => {
           </TouchableOpacity>
         </View>
       )}
-      {communityName === "Hiking Club" && (
+      {communityName === "Hiking Hangout" && (
         <TouchableOpacity
           onPress={() => {
             console.log("Checking Events");

@@ -15,7 +15,6 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.Techstart.achievio",
-      "jsEngine":"jsc",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app needs access to your location to show your current position on the map."
       }

@@ -41,6 +41,10 @@ const CreateCommunity: React.FC = () => {
 
   const goNext = () => {
     console.log("postFreq: ", postFreq);
+    if (tags.length === 0) {
+      alert("Please select at least one tag");
+      return;
+    }
 
     if (communityName === "") {
       alert("Please enter a community name");

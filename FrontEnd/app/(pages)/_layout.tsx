@@ -27,6 +27,10 @@ const PagesLayout = () => {
         name="CommunityStatus"
         options={{ headerShown: false}}
       />
+      <Stack.Screen
+        name="EventsPage"
+        options={{ headerShown: false}}
+      />
     </Stack>
   );
 };

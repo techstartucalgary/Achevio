@@ -7,9 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "statusBar": {
-      "backgroundColor": "white"
-    },
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain"
@@ -18,19 +15,16 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.Techstart.achievio",
-      "jsEngine":"jsc",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#000"
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to show your current position on the map."
       }
+
     },
     "android": {
       "package": "com.Techstart.achievio",
+      "permissions": ["ACCESS_FINE_LOCATION"]
+
       
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#000"
-      }
     },
     "web": {
       "bundler": "metro",

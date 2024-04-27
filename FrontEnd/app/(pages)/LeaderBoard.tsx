@@ -48,27 +48,33 @@ const LEADERBOARD_DATA = [
 
 const LeaderboardScreen = () => {
   const [selectedPlanet, setSelectedPlanet] = useState("earth");
-  const {url} = useSelector((state: any) => state.user);
+  const { url } = useSelector((state: any) => state.user);
   const params = useLocalSearchParams();
   const communityId = params.communityId;
   const [LEADERBOARD_DATA, setLeaderboardData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [topUsers, setTopUsers] = useState([]);
-  const [topThreeUsers, setTopThreeUsers] = useState([])
-  const [otherUsers, setOtherUsers] = useState([])
+  const [topThreeUsers, setTopThreeUsers] = useState([]);
+  const [otherUsers, setOtherUsers] = useState([]);
 
   const planetTabs = ["Earth", "Mars", "Jupiter"];
 
-  
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
         try {
-          const res = await axios.get(`${url}/community/${communityId}/leaderboard`);
+          const res = await axios.get(
+            `${url}/community/${communityId}/leaderboard`
+          );
           if (res.status === 200) {
             const data = res.data;
             console.log("Leaderboard Data: ", data);
-            const filteredData = data.filter(user => user.planet.toLowerCase() === selectedPlanet.toLowerCase()).sort((a, b) => b.score - a.score);
+            const filteredData = data
+              .filter(
+                (user) =>
+                  user.planet.toLowerCase() === selectedPlanet.toLowerCase()
+              )
+              .sort((a, b) => b.score - a.score);
             console.log("Filtered Data: ", filteredData);
             const topUsers = filteredData.slice(0, 3);
             console.log("Top Users: ", topUsers);
@@ -80,7 +86,7 @@ const LeaderboardScreen = () => {
             setTopThreeUsers([
               topUsers[1], // Second highest score
               topUsers[0], // Highest score
-              topUsers[2]  // Third highest score
+              topUsers[2], // Third highest score
             ]);
             setOtherUsers(otherUsers);
           }
@@ -91,8 +97,6 @@ const LeaderboardScreen = () => {
       fetchData();
     }, [url, communityId, selectedPlanet]) // Add selectedPlanet to ensure updates when it changes
   );
-  
-  
 
   const renderTopUser = (user, index) => {
     const userStyles = [styles.userLeft, styles.userMiddle, styles.userRight];
@@ -100,72 +104,119 @@ const LeaderboardScreen = () => {
 
     return (
       <View key={user?.id} style={[styles.topUserContainer, userStyles[index]]}>
-        <View style={[styles.userAvatarBorder, index === 1 ? styles.userAvatarBorderFirst :null, index === 0 ? {borderColor: "silver"} : null]}>
-          <Image source={require('../../assets/images/dummyuser.png')} style={styles.userAvatar} />
-          {index === 1 && <Image source={require('../../assets/images/crown.png')} style={styles.crownIcon} />}
+        {user?.id ? (
+        <View
+          style={[
+            styles.userAvatarBorder,
+            index === 1 ? styles.userAvatarBorderFirst : null,
+            index === 0 ? { borderColor: "silver" } : null,
+          ]}
+        >
+          <Image
+            source={{
+              uri: `${url}/user/image/${
+                user?.id
+              }.jpg?cacheBust=${new Date().getTime()}`,
+            }}
+            style={styles.userAvatar}
+          />
+          {index === 1 && (
+            <Image
+              source={require("../../assets/images/crown.png")}
+              style={styles.crownIcon}
+            />
+          )}
         </View>
+        ):(
+          <></>
+        )
+        }
         <Text style={styles.username}>{user?.username}</Text>
-        <Text style={[styles.score,  index === 1 ? {color: "#FFD700"} : null, index === 0? {color: "silver"} : null, index === 2? {color: "#cd7f32"} : null]}>{user?.score}</Text>
+        <Text
+          style={[
+            styles.score,
+            index === 1 ? { color: "#FFD700" } : null,
+            index === 0 ? { color: "silver" } : null,
+            index === 2 ? { color: "#cd7f32" } : null,
+          ]}
+        >
+          {user?.score}
+        </Text>
       </View>
     );
-  }; 
+  };
 
   const renderUserItem = ({ item }) => {
     return (
       <View style={styles.userItem}>
-        <Image source={IMAGES.userAvatar} style={styles.userAvatarSmall} />
+        <Image
+          source={{
+            uri: `${url}/user/image/${
+              item.id
+            }.jpg?cacheBust=${new Date().getTime()}`,
+          }}
+          style={styles.userAvatarSmall}
+        />
         <Text style={styles.usernameSmall}>{item.username}</Text>
         <Text style={styles.scoreSmall}>{item.score}</Text>
       </View>
     );
   };
 
-
   return (
     console.log(topThreeUsers),
-    <View style={styles.container}>
-      {
-        LEADERBOARD_DATA.length <=2 ? (
+    (
+      <View style={styles.container}>
+        {LEADERBOARD_DATA.length <= 2 ? (
           <>
-          <Text style={styles.header}>Leaderboard</Text>
-          <Text style={styles.header}>Add at least 3 users to see the leaderboard</Text>
+            <Text style={styles.header}>Leaderboard</Text>
+            <Text style={styles.header}>
+              Add at least 3 users to see the leaderboard
+            </Text>
           </>
         ) : (
           <>
-<Text style={styles.headerText}>Leaderboard</Text>
-      <View style={styles.planetTabsContainer}>
-        {planetTabs.map((planet) => (
-          <TouchableOpacity
-            key={planet}
-            onPress={() => setSelectedPlanet(planet)}
-            style={styles.planetTab}
-          >
-<Image 
-  source={IMAGES[planet]} 
-  style={[
-    styles.planetIcon, 
-    { tintColor: selectedPlanet === planet ? undefined : "#grey" } // Apply grey tint color when not selected
-  ]} 
-/>
-            <Text style={styles.planetName}>{planet.charAt(0).toUpperCase() + planet.slice(1)}</Text>
-            {selectedPlanet === planet && <View style={styles.indicatorBar} />}
-          </TouchableOpacity>
-        ))}
-      </View>
-      <View style={styles.topUsersContainer}>
-        {topThreeUsers.map(renderTopUser)}
-      </View>
+            <Text style={styles.headerText}>Leaderboard</Text>
+            <View style={styles.planetTabsContainer}>
+              {planetTabs.map((planet) => (
+                <TouchableOpacity
+                  key={planet}
+                  onPress={() => setSelectedPlanet(planet)}
+                  style={styles.planetTab}
+                >
+                  <Image
+                    source={IMAGES[planet]}
+                    style={[
+                      styles.planetIcon,
+                      {
+                        tintColor:
+                          selectedPlanet === planet ? undefined : "#grey",
+                      }, // Apply grey tint color when not selected
+                    ]}
+                  />
+                  <Text style={styles.planetName}>
+                    {planet.charAt(0).toUpperCase() + planet.slice(1)}
+                  </Text>
+                  {selectedPlanet === planet && (
+                    <View style={styles.indicatorBar} />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+            <View style={styles.topUsersContainer}>
+              {topThreeUsers.map(renderTopUser)}
+            </View>
 
-      <FlatList
-        data={otherUsers}
-        renderItem={renderUserItem}
-        keyExtractor={(item) => item.id}
-        style={styles.fullList}
-      />
-      </>
-        )
-      }
-    </View>
+            <FlatList
+              data={otherUsers}
+              renderItem={renderUserItem}
+              keyExtractor={(item) => item.id}
+              style={styles.fullList}
+            />
+          </>
+        )}
+      </View>
+    )
   );
 };
 
@@ -175,13 +226,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#000", // Full black background as per the screenshot
   },
   topUserContainer: {
-    width: '33.333%', // Divide the container into three equal parts
+    width: "33.333%", // Divide the container into three equal parts
     justifyContent: "flex-start",
     alignItems: "center",
-    height: '100%',
+    height: "100%",
   },
   planetTab: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   planetName: {
     color: "#fff",
@@ -190,8 +241,8 @@ const styles = StyleSheet.create({
   },
   indicatorBar: {
     height: 2,
-    width: '100%',
-    backgroundColor: '#fff',
+    width: "100%",
+    backgroundColor: "#fff",
     marginTop: 2,
   },
   userAvatarBorder: {
@@ -204,8 +255,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#000", // Assuming black border for avatars
     position: "relative",
     bottom: 50, // Adjust based on your design
-    borderColor: "#cd7f32"
-
+    borderColor: "#cd7f32",
   },
   userAvatarBorderFirst: {
     borderColor: "#FFD700", // Gold border for the first user
@@ -231,7 +281,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 10,
-    width:200
+    width: 200,
   },
   userLeft: {
     backgroundColor: "#3f3f3f",
@@ -239,7 +289,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     marginLeft: 10, // Adjust based on your design
     height: 120, // Smaller height for second and third places
-    justifyContent: 'flex-end', // Align the content to the bottom for left and right
+    justifyContent: "flex-end", // Align the content to the bottom for left and right
   },
   userMiddle: {
     backgroundColor: "#6a6a6a",
@@ -259,7 +309,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     height: 120,
     marginRight: 10, // Adjust based on your design
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   username: {
     fontSize: 16,
@@ -291,15 +341,14 @@ const styles = StyleSheet.create({
     padding: 20,
     margin: 20,
     borderRadius: 20,
-
   },
   planetIcon: {
     width: 50,
     height: 50,
     borderRadius: 25, // Optional: if you want rounded icons
     borderWidth: 2, // Optional: border to highlight when selected
-    borderColor: 'transparent', // Initial borderColor, overridden by inline style
-  },  
+    borderColor: "transparent", // Initial borderColor, overridden by inline style
+  },
 
   topUsersContainer: {
     flexDirection: "row",
@@ -308,7 +357,6 @@ const styles = StyleSheet.create({
     marginTop: 120,
     height: 120, // Define the height for the container
   },
-  
 
   headerText: {
     fontSize: 24,
@@ -339,7 +387,7 @@ const styles = StyleSheet.create({
   firstPlace: {
     borderColor: "#FFD700", // Gold color for the 1st place
   },
-  
+
   userItem: {
     flexDirection: "row",
     alignItems: "center",

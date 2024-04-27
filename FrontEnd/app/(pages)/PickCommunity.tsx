@@ -11,11 +11,11 @@ import {
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import axios from "axios";
-import { Image } from "expo-image";
+import { ImageBackground} from "expo-image";
 import { useDispatch, useSelector } from "react-redux";
 
 interface Community {
-  community_id: string;
+  id: string;
   name: string;
 }
 
@@ -27,12 +27,13 @@ const SelectCommunities = () => {
   const photoUri = params.photoUri;
   const caption = params.caption;
   const title = params.title;
+  const location = params.location;
   const { url, username } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
 
   useEffect(() => {
     const res = axios
-      .get(`${url}/user/myCommunities`)
+      .get(`${url}/community/canPost`)
       .then((response) => {
         setCommunities(response.data);
       })
@@ -59,7 +60,10 @@ const SelectCommunities = () => {
     } as any);
     formData.append("title", title as string);
     formData.append("caption", caption as string);
+    formData.append("longitude", (location as any)?.coords.longitude.toString());
+    formData.append("latitude", (location as any)?.coords.latitude.toString());
     formData.append("communities_id", selectedCommunities.join(","));
+    console.log("Form data:", formData);
     axios
       .post(`${url}/posts`, formData, {
         headers: {
@@ -76,32 +80,40 @@ const SelectCommunities = () => {
   const renderItem = ({ item }: { item: Community }) => (
     <TouchableOpacity
       style={styles.item}
-      onPress={() => handleSelectCommunity(item.community_id)}
+      onPress={() => handleSelectCommunity(item.id)}
     >
-      <Image
-        source={{ uri: `${url}/community/image/${item.community_id}.jpg` }}
+      <ImageBackground
+        source={{ uri: `${url}/community/image/${item.id}.jpg` }}
         style={styles.backgroundImage}
         cachePolicy="memory"
 
         >
         <View style={styles.itemContent}>
           <Text style={styles.text}>{item.name}</Text>
-          {selectedCommunities.includes(item.community_id) && (
+          {selectedCommunities.includes(item.id) && (
             <MaterialIcons name="check-circle" size={24} color="#4CAF50" />
           )}
         </View>
-      </Image>
+      </ImageBackground>
     </TouchableOpacity>
   );
   return (
     <View style={styles.container}>
+      {
+        communities?.length === 0 && (
+          <Text style={{ color: "white", textAlign: "center", marginTop: 50, fontSize:20 }}>
+            All good! Come back tomorrow to make a new post!
+          </Text>
+        )
+      }
       <View style={styles.ListofItems}>
         <FlatList
           data={communities}
           renderItem={renderItem}
-          keyExtractor={(item) => item.community_id}
+          keyExtractor={(item) => item.id}
         />
       </View>
+      { communities?.length === 0 && (
       <TouchableOpacity
         onPress={handleSubmit}
         disabled={isSubmitting}
@@ -113,6 +125,7 @@ const SelectCommunities = () => {
           <Text style={styles.submitText}>Submit Post</Text>
         )}
       </TouchableOpacity>
+        )}
     </View>
   );
 };

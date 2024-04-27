@@ -18,6 +18,7 @@ import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { ScreenHeight, ScreenWidth } from "react-native-elements/dist/helpers";
+import LottieView from "lottie-react-native";
 interface User {
   id: string;
   username: string;
@@ -400,7 +401,19 @@ const settingUpPage = () => {
 
   const renderPickInterest = () => {
     return (
+      <Animated.View style={[styles.container, fadeAnim ]}>
       <View style={styles.container}>
+              <LottieView
+            source={require("../../assets/background_space.json")}
+            autoPlay
+            loop
+            style={{
+              position: "absolute", // Set position to absolute
+              width: ScreenWidth, // Cover the entire width
+              height: ScreenHeight, // Cover the entire height
+              zIndex:-1, // Ensure it stays behind other components
+            }}
+          />
         <Text style={styles.title}>Select Your Interests</Text>
         <FlatList
           data={Object.keys(categories)}
@@ -423,6 +436,7 @@ const settingUpPage = () => {
           </TouchableOpacity>
         </View>
       </View>
+      </Animated.View>
     );
   };
 

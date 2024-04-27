@@ -14,6 +14,7 @@ import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
 import { ScreenHeight, ScreenWidth } from "react-native-elements/dist/helpers";
+import LottieView from "lottie-react-native";
 
 const categories = {
   Sports: [
@@ -152,6 +153,17 @@ export default function pickInterest() {
   };
   return (
     <View style={[styles.container]}>
+      <LottieView
+            source={require("../../assets/background_space.json")}
+            autoPlay
+            loop
+            style={{
+              position: "absolute", // Set position to absolute
+              width: ScreenWidth, // Cover the entire width
+              height: ScreenHeight, // Cover the entire height
+              zIndex: 1, // Ensure it stays behind other components
+            }}
+          />
       <Text style={styles.title}>Select Your Interests</Text>
       <FlatList
         data={Object.keys(categories)}

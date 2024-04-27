@@ -12,9 +12,9 @@ import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import axios from "axios";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome } from "@expo/vector-icons";
-import CachedImage from "react-native-expo-cached-image";
 import index from "../(Login)";
 import { useSelector } from "react-redux";
+import { ImageBackground, Image } from "expo-image";
 
 const { width, height } = Dimensions.get("window");
 const ITEM_HEIGHT = height; // Change this to match the height of your items
@@ -28,13 +28,15 @@ const PostPage: React.FC = () => {
 
   const scrollOffsetAnimated = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef(null);
-    const jumpToIndex = (index) => {
+  const jumpToIndex = (index) => {
     flatListRef.current?.scrollToIndex({ animated: true, index });
   };
-  const getItemLayout = (data, index) => (
-    { length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index }
-  );
-  
+  const getItemLayout = (data, index) => ({
+    length: ITEM_HEIGHT,
+    offset: ITEM_HEIGHT * index,
+    index,
+  });
+
   const [showReactionMenu, setShowReactionMenu] = useState(false);
   const ReactionMenu = ({ showReactionMenu, setShowReactionMenu }) => {
     const handleReactionPress = (reaction) => {
@@ -125,7 +127,6 @@ const PostPage: React.FC = () => {
     setPosts(CommunityPosts);
 
     console.log("Posts: ", posts);
-  
   }, [selectedIndex]);
   // useFocusEffect(() => {
 
@@ -135,7 +136,7 @@ const PostPage: React.FC = () => {
   // );
   // const gotoindex = () => {
   //   const indexToScrollTo = parseInt(selectedIndex.toString());
-  
+
   //   // Make sure you check that the FlatList is mounted and your data is loaded
   //   if (flatListRef.current && posts.length > 0) {
   //     // Use a timeout to give the FlatList time to render its items
@@ -146,28 +147,26 @@ const PostPage: React.FC = () => {
   // const smoothScrollToOffset = (finalOffset) => {
   //   // Reset scrollOffsetAnimated to 0 before starting a new animation
   //   scrollOffsetAnimated.setValue(0);
-  
+
   //   Animated.timing(scrollOffsetAnimated, {
   //     toValue: finalOffset, // Final scroll position
   //     duration: 1000, // Duration of the scroll animation
   //     useNativeDriver: true, // Use native driver for better performance
   //   }).start();
-  
+
   //   // Listen to changes in scrollOffsetAnimated and scroll accordingly
   //   scrollOffsetAnimated.addListener(({ value }) => {
   //     flatListRef.current.scrollToOffset({ offset: value, animated: false });
   //   });
   // };
-  
-  
+
   const renderItem = ({ item }) => (
     <View style={styles.postContainer}>
       <Pressable onLongPress={handleLongPress}>
-        <CachedImage
-          isBackground
+        <ImageBackground
           source={{ uri: item.imageUrl }}
           style={styles.postImage}
-          resizeMode="cover"
+          cachePolicy="memory-disk"
         >
           <LinearGradient
             colors={["transparent", "rgba(0,0,0,0.2)"]}
@@ -181,17 +180,18 @@ const PostPage: React.FC = () => {
             )}
 
             <View style={styles.postDetails}>
+              <View style={styles.iconRow}>
+                <Image
+                  source={{ uri: item.userImage }}
+                  style={{ width: 50, height: 50, borderRadius: 25 }}
+                />
+                <Text style={styles.username}>{item.user}</Text>
+              </View>
               <Text style={styles.postTitle}>{item.title}</Text>
               <Text style={styles.postCaption}>{item.caption}</Text>
-              {/* Icons for interaction */}
-              {/* <View style={styles.iconRow}>
-              <FontAwesome name="heart-o" size={24} color="white" />
-              <FontAwesome name="comment-o" size={24} color="white" style={styles.icon} />
-              <FontAwesome name="send-o" size={24} color="white" style={styles.icon} />
-            </View> */}
             </View>
           </LinearGradient>
-        </CachedImage>
+        </ImageBackground>
       </Pressable>
     </View>
   );
@@ -217,14 +217,13 @@ const styles = StyleSheet.create({
     width: width,
     height: height,
     backgroundColor: "#fff",
-    
   },
   postImage: {
-    width: '100%', // This ensures the image is full-width of its container.
-    height: '100%', // This ensures the image is full-height of its container.
-    resizeMode: 'cover', 
+    width: "100%", // This ensures the image is full-width of its container.
+    height: "100%", // This ensures the image is full-height of its container.
+    resizeMode: "cover",
   },
-  
+
   gradientOverlay: {
     flex: 1,
     justifyContent: "flex-end",
@@ -232,20 +231,40 @@ const styles = StyleSheet.create({
   },
   postDetails: {
     padding: 15,
+    borderRadius: 10, // Rounded corners for the container
+    position: "relative",
+    bottom: -20,
   },
   postTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
     color: "white",
     marginBottom: 5,
+    textShadowColor: "rgba(0, 0, 0, 0.75)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
   },
   postCaption: {
     fontSize: 16,
     color: "white",
+    textShadowColor: "rgba(0, 0, 0, 0.75)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
+  },
+  username: {
+    fontSize: 18,
+    color: "white",
+    fontWeight: "bold",
+    margin: 5,
+    textShadowColor: "rgba(0, 0, 0, 0.75)",
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
   },
   iconRow: {
     flexDirection: "row",
     marginTop: 10,
+    alignItems: "center",
+
   },
   icon: {
     marginLeft: 15,

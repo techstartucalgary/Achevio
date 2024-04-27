@@ -5,6 +5,9 @@ import { useNavigation } from '@react-navigation/native';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons'; // Make sure to install @expo/vector-icons
 import { manipulateAsync, FlipType, SaveFormat } from 'expo-image-manipulator';
 import { Link, router, useFocusEffect} from "expo-router";
+import * as Location from 'expo-location';
+import { useDispatch, useSelector } from 'react-redux';
+import TutorialSteps from '../../components/TutorialMode';
 
 export default function CameraPage() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -13,8 +16,17 @@ export default function CameraPage() {
   const [isRecording, setIsRecording] = useState(false); // Add state for video recording
   const cameraRef = useRef<Camera>(null);
   const [isFocused, setIsFocused] = useState(false);
-
-
+  const doneTutorial = useSelector((state: any) => state.user.me.done_tutorial);
+  const [showTutorial, setShowTutorial] = useState(!doneTutorial);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (doneTutorial) {
+      setShowTutorial(false);
+    }
+  }, [doneTutorial]);
+   const completeTutorial = () => {
+    setShowTutorial(false);
+  };
   useFocusEffect(
     React.useCallback(() => {
       setIsFocused(true);
@@ -135,6 +147,8 @@ export default function CameraPage() {
   return (
 <View style={styles.container}>
     <StatusBar barStyle="light-content" />
+    {showTutorial && <TutorialSteps visible={showTutorial} pageContext="camera"/>}
+
     {isFocused && (
       <Camera style={styles.camera} type={type} flashMode={flashMode} ref={cameraRef} />
     )}
@@ -224,3 +238,4 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
 });
+

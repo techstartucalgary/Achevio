@@ -14,15 +14,7 @@ import { View } from "../../components/Themed";
 LogBox.ignoreAllLogs();
 
 const index = () => {
-  const connectToRemoteDebugger = () => {
-    NativeDevSettings.setIsDebuggingRemotely(true);
-  };
-  useEffect(() => {
-    if (Platform.OS === "ios") {
-    connectToRemoteDebugger();
-    }
-  }
-  , []);
+
   return (
     <View style={{ flex: 1, backgroundColor: "#000", paddingTop: Platform.OS === "ios" ? 0 : StatusBar.currentHeight }}>
       <StatusBar barStyle="light-content" />

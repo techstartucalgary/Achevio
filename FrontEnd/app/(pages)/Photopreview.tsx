@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -7,15 +7,22 @@ import {
   TextInput,
   Dimensions,
   Animated,
+  Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, router } from "expo-router";
 import axios from "axios";
 import { LinearGradient } from "expo-linear-gradient";
 import { Image } from 'expo-image';
+import * as Location from "expo-location";
+import { ActivityIndicator } from 'react-native';
 
 export default function PhotoPreviewPage() {
   const params = useLocalSearchParams();
+  const [locationPermission, setLocationPermission] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [location, setLocation] = useState(null);
+
   const photoUri = params.photoUri;
   const image = useMemo(() => photoUri, []);
   const fadeAnim = useState(new Animated.Value(0))[0]; // Initial opacity for animations
@@ -27,11 +34,64 @@ export default function PhotoPreviewPage() {
       useNativeDriver: true,
     }).start();
   };
-
+  useEffect(() => {
+    (async () => {
+      const locationStatus = await Location.requestPermissionsAsync();
+      setLocationPermission(locationStatus.status === "granted");
+    })();
+  }, []);
   const handleSubmit = () => {
+    Alert.alert(
+      "Tag Location",
+      "Do you want to add your current location to the picture?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {
+            console.log("Location tagging cancelled");
+            proceedToNextScreen();
+          },
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            requestLocationPermission();
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+  
+  const requestLocationPermission = async () => {
+    let locationPermissionResponse = await Location.getPermissionsAsync();
+    if (locationPermissionResponse.status !== "granted") {
+      locationPermissionResponse = await Location.requestPermissionsAsync();
+    }
+  
+    if (locationPermissionResponse.status === "granted") {
+      setIsLoading(true); // Show loading indicator
+      try {
+        let location = await Location.getCurrentPositionAsync({});
+        setLocation(location);
+        proceedToNextScreen();
+      } catch (error) {
+        console.error("Error fetching location:", error);
+      } finally {
+        setIsLoading(false); // Hide loading indicator
+      }
+    } else {
+      console.log("Location permission not granted");
+      proceedToNextScreen();
+    }
+  };
+  const proceedToNextScreen = () => {
+    console.log("longitude:", location?.coords.longitude);
+    console.log("latitude:", location?.coords.latitude);
     router.push({
       pathname: "/EditPost",
-      params: { photoUri: image },
+      params: { photoUri: image, location: location },
     });
   };
   const compliments = [
@@ -53,35 +113,39 @@ export default function PhotoPreviewPage() {
   ];
   const Randomcompliments =
     compliments[Math.floor(Math.random() * compliments.length)];
-  return (
-    <View style={styles.container}>
-      <Image
-        source={{ uri: image.toString() }}
-        style={styles.image}
-        onLoad={fadeIn}
-      />
-      <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
-        <LinearGradient
-          colors={["transparent", "rgba(0,0,0,0.8)"]}
-          style={styles.gradientOverlay}
-        >
-          <Text style={styles.instructions}>{Randomcompliments}</Text>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => router.push("/Camera")}
-            >
-              <Text style={styles.buttonText}>Retake</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-              <Text style={styles.buttonText}>Proceed</Text>
-            </TouchableOpacity>
-          </View>
-        </LinearGradient>
-      </Animated.View>
-    </View>
-  );
-}
+    return (
+      <View style={styles.container}>
+        <Image
+          source={{ uri: image.toString() }}
+          style={styles.image}
+          onLoad={fadeIn}
+        />
+        <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
+          <LinearGradient
+            colors={["transparent", "rgba(0,0,0,0.8)"]}
+            style={styles.gradientOverlay}
+          >
+            <Text style={styles.instructions}>{Randomcompliments}</Text>
+            {isLoading ? (
+              <ActivityIndicator size="large" color="#00ff00" />
+            ) : (
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => router.push("/Camera")}
+                >
+                  <Text style={styles.buttonText}>Retake</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                  <Text style={styles.buttonText}>Proceed</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </LinearGradient>
+        </Animated.View>
+      </View>
+    );
+  }    
 
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Picker } from '@react-native-picker/picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSelector } from 'react-redux';
+import { Platform } from 'react-native';
 
 
 interface JoiningCommunityProps {
@@ -41,7 +42,8 @@ const JoiningCommunity: React.FC<JoiningCommunityProps> = () => {
         itemStyle={styles.pickerItem}
       >
         {Array.from({ length: 7 }, (_, i) => (
-          <Picker.Item label={`${i + 1}`} value={i + 1} key={i} />
+          <Picker.Item label={`${i + 1}`} value={i + 1} key={i} color='#ffff' /> 
+
         ))}
       </Picker>
       <TouchableOpacity style={styles.button} onPress={joinCommunity}>
@@ -67,8 +69,7 @@ const styles = StyleSheet.create({
   picker: {
     width: 300,
     height: 50,
-    backgroundColor: '#333333', // Darker picker background
-    color: '#FFFFFF', // White text in picker
+    backgroundColor: Platform.OS === 'ios' ? 'transparent' : '#3333333', // White background for iOS, purple for Android
   },
   pickerItem: {
     color: '#FFFFFF', // Ensures picker items are also styled appropriately

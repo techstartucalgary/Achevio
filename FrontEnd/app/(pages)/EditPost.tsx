@@ -22,7 +22,7 @@ const EditPost = () => {
   const [caption, setCaption] = useState("");
   const [title, setTitle] = useState("");
   const params = useLocalSearchParams();
-  const photoUri = params.photoUri;
+  const {photoUri, location} = params;
   const isSubmitting = React.useMemo(() => false, []);
 
   const handleSubmit = () => {
@@ -36,6 +36,7 @@ const EditPost = () => {
         photoUri: photoUri,
         caption: caption,
         title: title,
+        location: location,
       },
     });
   };

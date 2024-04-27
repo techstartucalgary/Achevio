@@ -14,11 +14,11 @@ import {
   PanResponder,
   ActivityIndicator,
 } from "react-native";
-import { Image } from "expo-image";
+import { Image, ImageBackground } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { set } from "date-fns";
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+
 import {
   faComment,
   faEllipsisV,
@@ -29,6 +29,9 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import LottieView from "lottie-react-native";
+import { Icon } from "react-native-elements/dist/icons/Icon";
+import { ScreenWidth } from "react-native-elements/dist/helpers";
+import TutorialSteps from "../../components/TutorialMode";
 
 type Post = {
   id: string;
@@ -73,6 +76,16 @@ const CommunityPage: React.FC = () => {
   const screenHeight = Dimensions.get("window").height;
   const [isFollowersModalVisible, setIsFollowersModalVisible] = useState(false);
   const [followers, setFollowers] = useState([]);
+  const doneTutorial = useSelector((state: any) => state.user.me.done_tutorial);
+  const [showTutorial, setShowTutorial] = useState(!doneTutorial);
+  useEffect(() => {
+    if (doneTutorial) {
+      setShowTutorial(false);
+    }
+  }, [doneTutorial]);
+  const completeTutorial = () => {
+    setShowTutorial(false);
+  };
   const ReactionMenu = () => {
     return (
       <View style={styles.reactionMenu}>
@@ -404,9 +417,10 @@ const CommunityPage: React.FC = () => {
               onLongPress={handleLongPress}
               onPressOut={() => setShowReactionMenu(false)}
             >
-              <Image
+              <ImageBackground
                 source={{ uri: post.imageUrl }}
                 style={styles.modalPostImage}
+                cachePolicy="memory-disk"
               />
               {showReactionMenu && <ReactionMenu />}
             </Pressable>
@@ -513,18 +527,21 @@ const CommunityPage: React.FC = () => {
   };
 
   const JoinCommunity = async () => {
-      router.push({
-        pathname: "/(pages)/JoiningCommunity",
-        params: {
-          refresh: "true",
-          communityId: communityId,
-        },
-      });
+    if(doneTutorial === false ){
+      dispatch({ type: "SET_JOINED_COM", payload: true });
     }
+    router.push({
+      pathname: "/(pages)/JoiningCommunity",
+      params: {
+        refresh: "true",
+        communityId: communityId,
+      },
+    });
+  };
   const renderHeader = useCallback(
     () => (
       <Animated.View style={{ ...styles.headerContainer, opacity: fadeAnim }}>
-        <Image
+        <ImageBackground
           source={{ uri: communityImage as string }}
           style={{ width: "100%", height: "100%", position: "absolute" }}
           cachePolicy="memory-disk"
@@ -537,7 +554,7 @@ const CommunityPage: React.FC = () => {
           >
             <Text style={styles.headerTitle}>{communityName}</Text>
           </LinearGradient>
-        </Image>
+        </ImageBackground>
 
         <View style={styles.overlayContent}>
           <TouchableOpacity
@@ -548,20 +565,21 @@ const CommunityPage: React.FC = () => {
                   communityId: communityId,
                 }, // Parameters as an object
               });
-            }
-            }
-
+            }}
             style={{ position: "absolute", top: 50, left: 30 }}
           >
-            <FontAwesomeIcon icon={faTrophy} size={24} color="white" />
+            <Icon name="trophy" type="font-awesome" color="gold" size={30} />
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => setIsMenuVisible(!isMenuVisible)}
-            style={{ position: "absolute", top: 50, right: 30 }}
+            onPress={() => {
+              setIsMenuVisible(!isMenuVisible);
+            }}
+            style={{ position: "absolute", top: 50, right: 30, zIndex: 99999, width:30,height:30 }}
           >
-            <FontAwesomeIcon icon={faEllipsisV} size={24} color="white" />
+            <Icon name="ellipsis-v" type="font-awesome" color="white" />
           </TouchableOpacity>
+
           <View style={styles.tagContainer}>
             {communityTagArray.map(({ text, color }, index) => (
               <View
@@ -614,6 +632,9 @@ const CommunityPage: React.FC = () => {
     <Animated.View
       style={{ flex: 1, opacity: fadeAnim, marginTop: 0, padding: 0 }}
     >
+      {showTutorial && (
+        <TutorialSteps visible={showTutorial} pageContext="communityPage" />
+      )}
       <Pressable onPress={() => setIsMenuVisible(false)} style={{ flex: 1 }}>
         {refreshing ? (
           <CustomLoadingScreen />
@@ -672,6 +693,27 @@ const CommunityPage: React.FC = () => {
           </TouchableOpacity>
         </View>
       )}
+      {communityName === "Hiking Hangout" && (
+        <TouchableOpacity
+          onPress={() => {
+            console.log("Checking Events");
+            router.push({
+              pathname: "/(pages)/EventsPage",
+              params: {
+                communityId: communityId,
+                communityName: communityName,
+                communityImage: communityImage as string,
+              },
+            });
+          }}
+          style={styles.EventButton}
+        >
+          <Image
+            source={require("../../assets/images/event.svg")}
+            style={{ width: 25, height: 25 }}
+          />
+        </TouchableOpacity>
+      )}
     </Animated.View>
   );
 };
@@ -692,6 +734,19 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+  },
+  EventButton: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    backgroundColor: "#3b82f6",
+    padding: 20,
+    borderRadius: 50,
+    alignContent: "center",
+  },
+  EventText: {
+    color: "#fff",
+    textAlign: "center",
   },
   animation: {
     width: 120, // Adjust the size as needed

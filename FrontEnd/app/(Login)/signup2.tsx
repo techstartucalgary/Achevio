@@ -93,7 +93,7 @@ export default function Signup2Screen(props) {
         dispatch({ type: "UPDATE_USERNAME", userName: username });
         dispatch({ type: "UPDATE_PASSWORD", passWord: password });
         if (response.data.done_tutorial === false) {
-          router.push("/(Tutorial)/yourProfile");
+          router.push("/(Tutorial)/settingUpPage");
         } else {
           router.push("/(tabs)/Camera");
         }

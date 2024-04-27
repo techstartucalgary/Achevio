@@ -488,43 +488,91 @@ async def seed_data(session: AsyncSession):
     
 
     post_1_paintpals = Post(
-        id = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b5",
+        id = "10000000-0000-0000-0000-000000000000",
         title = "My latest painting",
         caption = "I'm really proud of how this one turned out!",
 
         user_id = user1.id,
         community_id = paint_pals.id,
-        file = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b5.jpg" # Image from Avi Richards on Unsplash
+        file = "10000000-0000-0000-0000-000000000000.jpg" # Image from Avi Richards on Unsplash
     )
 
     post_2_paintpals = Post(
-        id = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b6",
+        id = "10000000-0000-0000-0000-000000000001",
         title = "Finished my first painting!",
         caption = "Very happy with the result. What do you think?",
         user_id = user1.id,
         community_id = paint_pals.id,
-        file = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b6.jpg" 
+        file = "10000000-0000-0000-0000-000000000001.jpg" 
     )
 
     post_3_paintpals = Post(
-        id = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b7",
+        id = "10000000-0000-0000-0000-000000000002",
         title = "My latest drawing",
         caption = "I'm really proud of how this one turned out!",
         user_id = user1.id,
         community_id = paint_pals.id,
-        file = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b7.jpg"
+        file = "10000000-0000-0000-0000-000000000002.jpg"
     )
 
     post_4_paintpals = Post(
-        id = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b8",
+        id = "10000000-0000-0000-0000-000000000003",
         title = "My latest painting",
         caption = "I'm really proud of how this one turned out!",
         user_id = user2.id,
         community_id = paint_pals.id,
-        file = "018f1d4f-f7ff-734b-a8c1-47c76f8a59b8.jpg"
+        file = "10000000-0000-0000-0000-000000000003.jpg"
     )
 
-    session.add_all([post_1_paintpals, post_2_paintpals, post_3_paintpals, post_4_paintpals])
+    post_5_paintpals = Post(
+        id = "10000000-0000-0000-0000-000000000004",
+        title = "My latest painting",
+        caption = "I'm really proud of how this one turned out!",
+        user_id = user3.id,
+        community_id = paint_pals.id,
+        file = "10000000-0000-0000-0000-000000000004.jpg"
+    )
+
+    post_6_paintpals = Post(
+        id = "10000000-0000-0000-0000-000000000005",
+        title = "My latest painting",
+        caption = "I'm really proud of how this one turned out!",
+        user_id = user3.id,
+        community_id = paint_pals.id,
+        file = "10000000-0000-0000-0000-000000000005.jpg"
+    )
+  
+
+    post_7_paintpals = Post(
+        id = "10000000-0000-0000-0000-000000000006",
+        title = "My latest painting",
+        caption = "I'm really proud of how this one turned out!",
+        user_id = user3.id,
+        community_id = paint_pals.id,
+        file = "10000000-0000-0000-0000-000000000006.jpg"
+    )
+
+
+    post_8_paintpals = Post(
+        id = "10000000-0000-0000-0000-000000000007",
+        title = "My latest painting",
+        caption = "I'm really proud of how this one turned out!",
+        user_id = user3.id,
+        community_id = paint_pals.id,
+        file = "10000000-0000-0000-0000-000000000007.jpg"
+    )
+
+
+    post_9_paintpals = Post(
+        id = "10000000-0000-0000-0000-000000000008",
+        title = "My latest painting",
+        caption = "I'm really proud of how this one turned out!",
+        user_id = user3.id,
+        community_id = paint_pals.id,
+        file = "10000000-0000-0000-0000-000000000008.jpg"
+    )
+
+    session.add_all([post_1_paintpals, post_2_paintpals, post_3_paintpals, post_4_paintpals, post_5_paintpals, post_6_paintpals, post_7_paintpals, post_8_paintpals, post_9_paintpals])
 
 
 

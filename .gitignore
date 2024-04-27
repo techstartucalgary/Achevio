@@ -1,7 +1,7 @@
 node_modules
 /Backend/myenv/
 *.pyc
-Backend/static/images/posts/*
-Backend/static/images/users/*
+# Backend/static/images/posts/*
+# Backend/static/images/users/*
 .env
 venv

@@ -484,7 +484,30 @@ async def seed_data(session: AsyncSession):
         tier = "Jupiter"
     )
 
-    session.add_all([user_1_paintpals, user_1_fitness_fanatics, user_3_fitness_fanatics, user_3_paintpals, user_4_paintpals, user_5_paintpals, user_6_paintpals, user_7_paintpals, user_8_paintpals, user_9_paintpals])
+    user_3_hiking = UserCommunityAssociation(
+        user_id = user5.id,
+        community_id = hiking_club.id,
+        role = "member",
+        community_name = hiking_club.name,
+        current_days = 2,
+        goal_days = 4,
+        season_xp = 100,
+        tier = "Earth"
+    )
+
+    user_7_hiking = UserCommunityAssociation(
+    
+        user_id = user7.id,
+        community_id = hiking_club.id,
+        role = "member",
+        community_name = hiking_club.name,
+        current_days = 2,
+        goal_days = 4,
+        season_xp = 400,
+        tier = "Earth"
+    )
+
+    session.add_all([user_1_paintpals, user_3_hiking, user_1_fitness_fanatics, user_3_fitness_fanatics, user_3_paintpals, user_4_paintpals, user_5_paintpals, user_6_paintpals, user_7_paintpals, user_8_paintpals, user_9_paintpals])
     
 
     post_1_paintpals = Post(

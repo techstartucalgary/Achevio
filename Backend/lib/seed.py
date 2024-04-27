@@ -387,7 +387,7 @@ async def seed_data(session: AsyncSession):
     )
 
     user_3_paintpals = UserCommunityAssociation(
-        user_id = user2.id,
+        user_id = user3.id,
         community_id = paint_pals.id,
         role = "member",
         community_name = paint_pals.name,
@@ -567,12 +567,56 @@ async def seed_data(session: AsyncSession):
         id = "10000000-0000-0000-0000-000000000008",
         title = "My latest painting",
         caption = "I'm really proud of how this one turned out!",
-        user_id = user3.id,
+        user_id = user4.id,
         community_id = paint_pals.id,
         file = "10000000-0000-0000-0000-000000000008.jpg"
     )
 
-    session.add_all([post_1_paintpals, post_2_paintpals, post_3_paintpals, post_4_paintpals, post_5_paintpals, post_6_paintpals, post_7_paintpals, post_8_paintpals, post_9_paintpals])
+
+    post_10_hiking = Post(
+        id = "10000000-0000-0000-0000-000000000009",
+        title = "Just did a 10 mile trek",
+        caption = "I love nature!",
+        user_id = user5.id,
+        community_id = hiking_club.id,
+        file = "10000000-0000-0000-0000-000000000009.jpg"
+    )
+
+    post_11_hiking = Post(
+        id = "10000000-0000-0000-0000-000000000010",
+        title = "Loving the great outdoors!",
+        caption = "I can't get enough of this view!",
+        user_id = user6.id,
+        community_id = hiking_club.id,
+        file = "10000000-0000-0000-0000-000000000010.jpg"
+    )
+
+
+    post_12_hiking = Post(
+        id = "10000000-0000-0000-0000-000000000011",
+        title = "My latest hike",
+        caption = "I love the fresh air!",
+        user_id = user7.id,
+        community_id = hiking_club.id,
+        file = "10000000-0000-0000-0000-000000000011.jpg"
+    )
+
+
+
+    session.add_all([post_1_paintpals, 
+                     post_2_paintpals, 
+                     post_3_paintpals, 
+                     post_4_paintpals, 
+                     post_5_paintpals, 
+                     post_6_paintpals, 
+                     post_7_paintpals, 
+                     post_8_paintpals, 
+                     post_9_paintpals,
+                     post_10_hiking,
+                     post_11_hiking,
+                     post_12_hiking
+                     
+    ])
 
 
 

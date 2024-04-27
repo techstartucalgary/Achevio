@@ -436,7 +436,7 @@ async def seed_data(session: AsyncSession):
         community_name = paint_pals.name,
         current_days = 2,
         goal_days = 4,
-        season_xp = 100
+        season_xp = 100,
         tier = "Jupiter"
     )
 

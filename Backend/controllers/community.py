@@ -60,7 +60,7 @@ class CommunityController(Controller):
         '''
         current_time = datetime.now(pytz.utc)
 
-        commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time, postdays=[], tags=[])
+        commiunity_data = data.create_instance(id=uuid7(), users=[], created_at=current_time, updated_at=current_time, postdays=[], tags=[], requests=[])
         validated_community_data = CommunitySchema.model_validate(commiunity_data)
 
         try:
